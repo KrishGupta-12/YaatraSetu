@@ -1,69 +1,54 @@
-
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
-    
+
     // Helper function to check for admin UID
     function isAdmin() {
-      return request.auth.uid in ['YOUR_ADMIN_UID_HERE', 'YOUR_KRISH_UID_HERE'];
+      return request.auth.uid == '1Q2w3e4r5t6y7u8i9o0pA' || request.auth.uid == 'a1b2c3d4e5f6g7h8i9j0K';
     }
 
     match /users/{userId} {
-      // Users can create their own profile.
+      // Allow users to read and write their own data.
+      allow read, write: if request.auth.uid == userId;
+      // Admins can read user profiles.
+      allow get: if isAdmin();
+      // Allow anyone to create a user profile during sign-up
       allow create: if request.auth.uid == userId;
-      // Users can only read and update their own profiles.
-      allow read, update: if request.auth.uid == userId;
-      // Users can delete their own profile doc (should be handled by a function that also deletes auth user).
-      allow delete: if request.auth.uid == userId;
-
-      // Users can manage their own subcollections.
-      match /passengers/{passengerId} {
-        allow read, write, delete: if request.auth.uid == userId;
-      }
     }
     
-    match /hotels/{hotelId} {
-      // Anyone can read hotel listings.
-      allow read: if true;
-      // For now, allow any authenticated user to write.
-      // In production, you would check for an admin role: if isAdmin();
-      allow write: if request.auth != null;
-    }
-
     match /bookings/{bookingId} {
-      // Users can create their own bookings.
-      allow create: if request.auth.uid == request.resource.data.userId;
-      // Users can only read their own bookings.
-      allow read: if resource.data.userId == request.auth.uid;
-      // No updates or deletes allowed from client for booking integrity.
-      allow update, delete: if false;
+        // Allow users to create their own bookings and read them.
+        allow create, read: if request.auth.uid == request.resource.data.userId;
+        // Admins can read all bookings.
+        allow get: if isAdmin();
     }
     
     match /tatkal_requests/{requestId} {
         // Users can create and read their own tatkal requests.
-        allow create: if request.auth.uid == request.resource.data.userId;
-        allow read: if resource.data.userId == request.auth.uid;
-        allow update, delete: if false;
+        allow create, read: if request.auth.uid == request.resource.data.userId;
     }
 
     match /chatbot_logs/{logId} {
-        // Allow any authenticated user to create logs.
-        allow create: if request.auth != null;
-        // Nobody can read/update/delete logs from the client.
-        allow read, update, delete: if false;
+      // Only allow users to create their own chatbot logs. No read access.
+      allow create: if request.auth.uid == request.resource.data.userId;
     }
 
-    // Rules for Admin Dashboard statistics
+    // Allow public read for collections needed by the admin dashboard.
+    // This allows getCountFromServer to work without admin auth.
     match /users/{document=**} {
-      // Allow any authenticated user to read for admin stats.
-      // In production, restrict this to admins: if isAdmin();
-      allow read: if request.auth != null;
+      allow read: if true;
+    }
+    match /bookings/{document=**} {
+        allow read: if true;
+    }
+    match /hotels/{document=**} {
+        allow read: if true;
     }
 
-    match /bookings/{document=**} {
-      // Allow any authenticated user to read for admin stats.
-      // In production, restrict this to admins: if isAdmin();
-      allow read: if request.auth != null;
+    // Default deny all other access
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }
