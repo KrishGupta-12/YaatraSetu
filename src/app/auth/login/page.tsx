@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm, type SubmitHandler } from "react-hook-form";
@@ -29,6 +29,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { YatraSetuLogo } from "@/components/icons";
 import { signIn } from "@/lib/auth";
+import { useAuth } from "@/hooks/use-auth";
 
 const formSchema = z.object({
   email: z.string().email("Please enter a valid email address."),
@@ -41,6 +42,13 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
+  const { user, loading: authLoading } = useAuth();
+
+  useEffect(() => {
+    if (!authLoading && user) {
+      router.push("/dashboard");
+    }
+  }, [user, authLoading, router]);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -66,9 +74,18 @@ export default function LoginPage() {
         title: "Login Failed",
         description: error.message || "An unexpected error occurred.",
       });
-      setLoading(false);
+    } finally {
+        setLoading(false);
     }
   };
+
+  if (authLoading || user) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-muted/40">

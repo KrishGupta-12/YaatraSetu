@@ -19,21 +19,11 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
     }
   }, [user, loading, router, pathname]);
 
-  if (loading) {
+  if (loading || !user) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
       </div>
-    );
-  }
-
-  if (!user) {
-    // This will be briefly visible before the redirect kicks in.
-    // Or you can show a login page directly here if you prefer.
-    return (
-         <div className="flex items-center justify-center min-h-screen">
-            <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        </div>
     );
   }
 
