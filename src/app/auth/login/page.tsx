@@ -38,6 +38,8 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
+// NOTE: The password here is just for the client-side check.
+// The actual user should be created in Firebase Auth with the same credentials.
 const ADMIN_USERS = {
     "admin@yaatrasetu.com": "admin123",
     "Krish@yaatrasetu.com": "Krish@9885"
@@ -50,7 +52,8 @@ export default function LoginPage() {
   const { user, loading: authLoading } = useAuth();
 
   useEffect(() => {
-    if (!authLoading && user) {
+    // If a regular user is already logged in, redirect to their dashboard
+    if (!authLoading && user && !sessionStorage.getItem('isAdminAuthenticated')) {
       router.push("/dashboard");
     }
   }, [user, authLoading, router]);
@@ -66,21 +69,24 @@ export default function LoginPage() {
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     setLoading(true);
 
-    const expectedPassword = ADMIN_USERS[data.email as keyof typeof ADMIN_USERS];
-    if (expectedPassword && data.password === expectedPassword) {
-        sessionStorage.setItem('isAdminAuthenticated', 'true');
-        toast({ title: "Admin Login Successful", description: "Welcome back, Admin!" });
-        router.push("/admin/dashboard");
-        return;
-    }
+    const isAdminLogin = ADMIN_USERS[data.email as keyof typeof ADMIN_USERS] === data.password;
 
     try {
+      // Sign in with Firebase regardless
       await signIn(data.email, data.password);
-      toast({
-        title: "Login Successful",
-        description: "Welcome back! Redirecting...",
-      });
-      router.push("/dashboard");
+      
+      if (isAdminLogin) {
+          sessionStorage.setItem('isAdminAuthenticated', 'true');
+          toast({ title: "Admin Login Successful", description: "Welcome back, Admin!" });
+          router.push("/admin/dashboard");
+      } else {
+          toast({
+            title: "Login Successful",
+            description: "Welcome back! Redirecting...",
+          });
+          router.push("/dashboard");
+      }
+
     } catch (error: any) {
       console.error("Login Error:", error);
       toast({
@@ -93,7 +99,7 @@ export default function LoginPage() {
     }
   };
 
-  if (authLoading || user) {
+  if (authLoading || (user && !sessionStorage.getItem('isAdminAuthenticated'))) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
