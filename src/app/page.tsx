@@ -63,9 +63,9 @@ export default function LandingPage() {
         <section className="relative h-[80vh] min-h-[500px] flex items-center justify-center text-center text-white">
           <div className="absolute inset-0 z-0">
              <Image
-              src="https://images.unsplash.com/photo-1620994320253-315a6b0b5610?q=80&w=2070&auto=format&fit=crop"
-              alt="Vande Bharat Express"
-              data-ai-hint="train landscape"
+              src="https://images.unsplash.com/photo-1601758177266-bc5b5de9b54e?q=80&w=2070&auto=format&fit=crop"
+              alt="Indian train on a bridge"
+              data-ai-hint="train bridge"
               fill
               className="object-cover"
               priority
@@ -146,9 +146,9 @@ export default function LandingPage() {
                 </div>
                 <div className="relative h-96 rounded-lg overflow-hidden">
                     <Image 
-                        src="https://images.unsplash.com/photo-1595828816342-83b646c10971?q=80&w=1974&auto=format&fit=crop"
-                        alt="Happy travellers in Bharat"
-                        data-ai-hint="happy travellers"
+                        src="https://images.unsplash.com/photo-1593326136893-899f9485a217?q=80&w=2072&auto=format&fit=crop"
+                        alt="Train moving through lush greenery"
+                        data-ai-hint="train greenery"
                         fill
                         className="object-cover"
                     />
