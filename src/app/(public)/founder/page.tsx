@@ -13,28 +13,13 @@ import { useState } from "react";
 
 const teamMembers = [
     {
-        name: "Shreyansh Mall",
-        role: "Head of Product & Innovation",
-        initials: "SM",
-        email: "shreyansh.mall@yatrasetu.com",
-        linkedin: "https://www.linkedin.com/in/shreyanshmall",
-        twitter: "https://twitter.com/shreyanshmall"
-    },
-    {
-        name: "Aman Sagar",
-        role: "Head of Operations & Logistics",
-        initials: "AS",
-        email: "aman.sagar@yatrasetu.com",
-        linkedin: "https://www.linkedin.com/in/amansagar",
-        twitter: "https://twitter.com/amansagar"
-    },
-    {
-        name: "Lata Saini",
-        role: "Head of Customer Service & Support",
-        initials: "LS",
-        email: "lata.saini@yatrasetu.com",
-        linkedin: "https://www.linkedin.com/in/latasaini",
-        twitter: "https://twitter.com/latasaini"
+        name: "Methelesh Kumar",
+        role: "Head of Technical Operations",
+        initials: "MK",
+        email: "methelesh.kumar@yatrasetu.com",
+        linkedin: "https://www.linkedin.com/in/metheleshkumar",
+        twitter: "https://twitter.com/metheleshkumar",
+        description: "Methelesh ensures our platform runs smoothly by managing server infrastructure, database performance, and deployment pipelines."
     },
     {
         name: "Varad Mahesh Rajadhyax",
@@ -42,15 +27,35 @@ const teamMembers = [
         initials: "VR",
         email: "varad.rajadhyax@yatrasetu.com",
         linkedin: "https://www.linkedin.com/in/varadrajadhyax",
-        twitter: "https://twitter.com/varadrajadhyax"
+        twitter: "https://twitter.com/varadrajadhyax",
+        description: "Varad forges key partnerships and develops long-term growth strategies to expand YatraSetu's reach and services."
     },
     {
-        name: "Methelesh Kumar",
-        role: "Head of Technical Operations",
-        initials: "MK",
-        email: "methelesh.kumar@yatrasetu.com",
-        linkedin: "https://www.linkedin.com/in/metheleshkumar",
-        twitter: "https://twitter.com/metheleshkumar"
+        name: "Aman Sagar",
+        role: "Head of Operations & Logistics",
+        initials: "AS",
+        email: "aman.sagar@yatrasetu.com",
+        linkedin: "https://www.linkedin.com/in/amansagar",
+        twitter: "https://twitter.com/amansagar",
+        description: "Aman oversees all operational aspects, from booking fulfillment to coordinating with our hotel and food delivery partners."
+    },
+    {
+        name: "Lata Saini",
+        role: "Head of Customer Service & Support",
+        initials: "LS",
+        email: "lata.saini@yatrasetu.com",
+        linkedin: "https://www.linkedin.com/in/latasaini",
+        twitter: "https://twitter.com/latasaini",
+        description: "Lata leads our customer support team, ensuring every user receives timely and helpful assistance with their queries and issues."
+    },
+    {
+        name: "Shreyansh Mall",
+        role: "Head of Product & Innovation",
+        initials: "SM",
+        email: "shreyansh.mall@yatrasetu.com",
+        linkedin: "https://www.linkedin.com/in/shreyanshmall",
+        twitter: "https://twitter.com/shreyanshmall",
+        description: "Shreyansh drives the product vision, conceptualizing new features and ensuring YatraSetu remains at the cutting edge of travel technology."
     }
 ];
 
@@ -188,7 +193,9 @@ export default function FounderPage() {
               <DialogDescription>{selectedMember.role}</DialogDescription>
             </div>
           </DialogHeader>
-          <div className="py-4 space-y-4">
+          <div className="py-4 space-y-6">
+              <p className="text-sm text-muted-foreground text-center">{selectedMember.description}</p>
+              <Separator />
               <h4 className="font-semibold text-center text-muted-foreground">Contact & Socials</h4>
               <div className="flex justify-center items-center gap-6">
                  <Button variant="outline" size="icon" asChild>
