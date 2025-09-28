@@ -20,6 +20,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { useRouter } from "next/navigation";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "@/hooks/use-toast";
+import { getAllHotels } from "@/lib/firebase/firestore";
 
 const allAmenities = ["Pool", "Gym", "WiFi", "Spa", "Fine Dining", "Restaurant", "Beach Access", "Casino"];
 
@@ -52,9 +53,28 @@ export default function HotelBookingPage() {
   const [sortBy, setSortBy] = useState("popularity");
 
   const [hotels, setHotels] = useState<Hotel[]>([]);
+  const [availableCities, setAvailableCities] = useState<string[]>([]);
   const [selectedHotel, setSelectedHotel] = useState<Hotel | null>(null);
   const [viewingHotel, setViewingHotel] = useState<Hotel | null>(null);
   const [isBooking, setIsBooking] = useState<boolean>(false);
+
+  useEffect(() => {
+    const fetchCities = async () => {
+      try {
+        const allHotels = await getAllHotels();
+        const cities = [...new Set(allHotels.map(hotel => hotel.city))].sort();
+        setAvailableCities(cities as string[]);
+      } catch (error) {
+        console.error("Failed to fetch cities:", error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Could not load the list of available cities."
+        });
+      }
+    };
+    fetchCities();
+  }, []);
 
   const handleSearch = async () => {
     setLoading(true);
@@ -161,9 +181,18 @@ export default function HotelBookingPage() {
           <CardContent className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
             <div className="lg:col-span-1">
               <Label htmlFor="destination">Destination</Label>
-              <div className="relative">
-                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input id="destination" placeholder="e.g., Mumbai" className="pl-10" value={destination} onChange={e => setDestination(e.target.value)} />
+               <div className="relative">
+                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
+                <Select value={destination} onValueChange={setDestination}>
+                    <SelectTrigger className="pl-10">
+                        <SelectValue placeholder="Select a city..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {availableCities.map(city => (
+                            <SelectItem key={city} value={city}>{city}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
               </div>
             </div>
             <div>
@@ -476,5 +505,7 @@ export default function HotelBookingPage() {
     </Dialog>
   );
 }
+
+    
 
     
