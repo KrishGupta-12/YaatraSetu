@@ -2,7 +2,7 @@
 "use client";
 
 import Image from "next/image";
-import { Mail, Linkedin, Globe, Users, Target, Rocket, Twitter } from "lucide-react";
+import { Mail, Linkedin, Globe, Users, Target, Rocket } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { Separator } from "@/components/ui/separator";
@@ -16,45 +16,40 @@ const teamMembers = [
         name: "Methelesh Kumar",
         role: "Head of Technical Operations",
         initials: "MK",
-        email: "methelesh.kumar@yaatrasetu.com",
-        linkedin: "https://www.linkedin.com/in/metheleshkumar",
-        twitter: "https://twitter.com/metheleshkumar",
+        email: "rattumethelesh@gmail.com",
+        linkedin: "https://www.linkedin.com/in/mithilesh-kumar-rattu/",
         description: "Methelesh is the architect of our robust backend, ensuring our platform runs with flawless stability, scalability, and security. He manages everything from server infrastructure to our complex deployment pipelines."
     },
     {
         name: "Varad Mahesh Rajadhyax",
         role: "Head of Strategy & Partnerships",
         initials: "VR",
-        email: "varad.rajadhyax@yaatrasetu.com",
-        linkedin: "https://www.linkedin.com/in/varadrajadhyax",
-        twitter: "https://twitter.com/varadrajadhyax",
+        email: "varadrajadhyax04@gmail.com",
+        linkedin: "https://www.linkedin.com/in/varadrajadhyax/",
         description: "Varad is our master strategist, forging key alliances and developing long-term growth roadmaps. His vision is pivotal in expanding YaatraSetu's services and market presence."
     },
     {
         name: "Aman Sagar",
         role: "Head of Operations & Logistics",
         initials: "AS",
-        email: "aman.sagar@yaatrasetu.com",
-        linkedin: "https://www.linkedin.com/in/amansagar",
-        twitter: "https://twitter.com/amansagar",
+        email: "23f3001369@ds.study.iitm.ac.in",
+        linkedin: "https://www.linkedin.com/in/amansagar01/",
         description: "Aman is the engine of our operations, flawlessly coordinating booking fulfillment, hotel partner relations, and food delivery logistics to ensure a seamless user experience from start to finish."
     },
     {
         name: "Lata Saini",
         role: "Head of Customer Service & Support",
         initials: "LS",
-        email: "lata.saini@yaatrasetu.com",
-        linkedin: "https://www.linkedin.com/in/latasaini",
-        twitter: "https://twitter.com/latasaini",
+        email: "24f2001941@ds.study.iitm.ac.in",
+        linkedin: "https://www.linkedin.com/in/lata-saini-062a63323/",
         description: "As the voice of our users, Lata leads a dedicated support team that provides empathetic, timely, and effective assistance, ensuring every traveler feels heard and valued."
     },
     {
         name: "Shreyansh Mall",
         role: "Head of Product & Innovation",
         initials: "SM",
-        email: "shreyansh.mall@yaatrasetu.com",
-        linkedin: "https://www.linkedin.com/in/shreyanshmall",
-        twitter: "https://twitter.com/shreyanshmall",
+        email: "23f1002638@ds.study.iitm.ac.in",
+        linkedin: "https://www.linkedin.com/in/shreyansh-mall/",
         description: "Shreyansh is the product visionary, relentlessly pushing for innovation. He translates user needs into cutting-edge features, driving the evolution of YaatraSetu as India's smartest travel platform."
     }
 ];
@@ -94,7 +89,7 @@ export default function FounderPage() {
               </h1>
             </div>
             <p className="text-lg text-muted-foreground">
-              Krish is a visionary technologist and passionate traveler, driven by a singular mission: to revolutionize the travel experience for a billion Indians. With a deep understanding of technology and a frustration with the complexities of existing platforms, he founded YaatraSetu to build a seamless, intelligent, and unified solution for the modern Indian traveler.
+              Krish Gupta is a visionary technologist with a passion for innovation, dedicated to transforming how India experiences travel. He founded YaatraSetu to create a seamless, intelligent, and unified platform that simplifies journeys for millions of Indians. By combining cutting-edge technology, user-centric design, and real-time solutions, he is building a smarter, faster, and more enjoyable travel experience for everyone.
             </p>
             <div className="space-y-3 text-muted-foreground">
               <a
@@ -202,9 +197,6 @@ export default function FounderPage() {
                   </Button>
                   <Button variant="outline" size="icon" asChild>
                       <a href={selectedMember.linkedin} target="_blank" rel="noopener noreferrer"><Linkedin /></a>
-                  </Button>
-                  <Button variant="outline" size="icon" asChild>
-                      <a href={selectedMember.twitter} target="_blank" rel="noopener noreferrer"><Twitter /></a>
                   </Button>
               </div>
           </div>
