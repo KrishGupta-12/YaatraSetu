@@ -63,9 +63,9 @@ export default function LandingPage() {
         <section className="relative h-[80vh] min-h-[500px] flex items-center justify-center text-center text-white">
           <div className="absolute inset-0 z-0">
              <Image
-              src="https://images.unsplash.com/photo-1601758177266-bc5b5de9b54e?q=80&w=2070&auto=format&fit=crop"
-              alt="Indian train on a bridge"
-              data-ai-hint="train bridge"
+              src="https://picsum.photos/seed/train-journey/1920/1080"
+              alt="A scenic photograph of a train journey through mountains"
+              data-ai-hint="train mountains"
               fill
               className="object-cover"
               priority
@@ -146,9 +146,9 @@ export default function LandingPage() {
                 </div>
                 <div className="relative h-96 rounded-lg overflow-hidden">
                     <Image 
-                        src="https://images.unsplash.com/photo-1593326136893-899f9485a217?q=80&w=2072&auto=format&fit=crop"
-                        alt="Train moving through lush greenery"
-                        data-ai-hint="train greenery"
+                        src="https://picsum.photos/seed/happy-traveler/800/600"
+                        alt="Happy traveler looking out a train window"
+                        data-ai-hint="happy traveler"
                         fill
                         className="object-cover"
                     />
