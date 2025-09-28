@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -18,6 +19,7 @@ import {
   Info,
   Lock,
   Mail,
+  Trophy,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -35,6 +37,7 @@ const mainNavItems = [
   { href: "/food-ordering", icon: CookingPot, label: "Food Orders" },
   { href: "/waitlist-prediction", icon: TicketCheck, label: "Waitlist Pred." },
   { href: "/tatkal-automation", icon: Sparkles, label: "Tatkal Automation"},
+  { href: "/rewards", icon: Trophy, label: "Rewards" },
   { href: "/history", icon: History, label: "History" },
 ];
 

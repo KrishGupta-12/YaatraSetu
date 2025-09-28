@@ -1,5 +1,6 @@
 
-import { doc, setDoc, getDoc, serverTimestamp, updateDoc, deleteDoc, collection, addDoc, onSnapshot, query, orderBy, where } from "firebase/firestore";
+
+import { doc, setDoc, getDoc, serverTimestamp, updateDoc, deleteDoc, collection, addDoc, onSnapshot, query, orderBy, where, runTransaction } from "firebase/firestore";
 import { db } from "./config";
 import type { User } from 'firebase/auth';
 
@@ -23,6 +24,7 @@ export const createUserProfile = async (user: User, additionalData: Record<strin
             lastLogin: createdAt,
             preferences: {},
             loyaltyPoints: 0,
+            rewardsHistory: [],
         });
     } catch (error) {
         console.error("Error creating user profile:", error);
@@ -159,20 +161,64 @@ export const getTatkalRequests = (uid: string, onReceive: (data: any[]) => void)
     return unsubscribe;
 }
 
+const calculateRewardPoints = (type: string, fare: number) => {
+    if (fare < 50) return 0;
+    let rate = 0;
+    switch(type) {
+        case 'Train': rate = 1; break;
+        case 'Hotel': rate = 2; break;
+        case 'Food': rate = 0.5; break;
+    }
+    return Math.floor((fare / 100) * rate);
+}
 
 export const createBooking = async (uid: string, bookingData: any) => {
     if (!uid) throw new Error("User not authenticated.");
-    const bookingsCollectionRef = collection(db, 'bookings');
+
     try {
-        await addDoc(bookingsCollectionRef, {
-            ...bookingData,
-            userId: uid,
-            status: bookingData.status || 'Confirmed',
-            createdAt: serverTimestamp(),
+        await runTransaction(db, async (transaction) => {
+            // 1. Create the new booking
+            const bookingsCollectionRef = collection(db, 'bookings');
+            const newBookingRef = doc(bookingsCollectionRef); // Create a new doc ref with a unique ID
+            
+            transaction.set(newBookingRef, {
+                ...bookingData,
+                userId: uid,
+                status: bookingData.status || 'Confirmed',
+                createdAt: serverTimestamp(),
+            });
+
+            // 2. Calculate and award reward points
+            const pointsToAward = calculateRewardPoints(bookingData.type, bookingData.fare);
+            if (pointsToAward > 0) {
+                const userRef = doc(db, `users/${uid}`);
+                const userDoc = await transaction.get(userRef);
+
+                if (userDoc.exists()) {
+                    const currentPoints = userDoc.data().loyaltyPoints || 0;
+                    const newTotalPoints = currentPoints + pointsToAward;
+                    
+                    const newHistoryEntry = {
+                        type: 'earn',
+                        source: `${bookingData.type} Booking`,
+                        points: pointsToAward,
+                        date: new Date().toISOString(),
+                        bookingId: newBookingRef.id,
+                    };
+                    
+                    const currentHistory = userDoc.data().rewardsHistory || [];
+                    const newHistory = [newHistoryEntry, ...currentHistory];
+
+                    transaction.update(userRef, {
+                        loyaltyPoints: newTotalPoints,
+                        rewardsHistory: newHistory,
+                    });
+                }
+            }
         });
     } catch (error) {
-        console.error("Error creating booking:", error);
-        throw new Error("Unable to create booking.");
+        console.error("Error creating booking and awarding points:", error);
+        throw new Error("Unable to complete booking transaction.");
     }
 }
 
