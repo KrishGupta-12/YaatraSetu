@@ -32,7 +32,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 export function AppHeader() {
   return (
-    <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-card px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
+    <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:px-6">
       <SidebarTrigger className="sm:hidden" />
       <Breadcrumb className="hidden md:flex">
         <BreadcrumbList>
@@ -48,7 +48,7 @@ export function AppHeader() {
         <Input
           type="search"
           placeholder="Search..."
-          className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[320px]"
+          className="w-full rounded-lg bg-muted pl-8 md:w-[200px] lg:w-[320px]"
         />
       </div>
       <Button variant="ghost" size="icon" className="rounded-full">

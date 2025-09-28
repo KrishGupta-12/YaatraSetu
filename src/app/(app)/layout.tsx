@@ -14,7 +14,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <AppSidebar />
         </Sidebar>
         <SidebarInset>
-          <div className="flex flex-col h-full">
+          <div className="flex flex-col">
             <AppHeader />
             <main className="flex-1 p-4 sm:p-6 lg:p-8 bg-background">
               {children}
