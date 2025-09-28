@@ -38,8 +38,7 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-// NOTE: The password here is just for the client-side check.
-// The actual user should be created in Firebase Auth with the same credentials.
+// NOTE: These credentials are for a simulated admin login and are checked on the client-side.
 const ADMIN_USERS = {
     "admin@yaatrasetu.com": "admin123",
     "Krish@yaatrasetu.com": "Krish@9885"
@@ -70,22 +69,23 @@ export default function LoginPage() {
     setLoading(true);
 
     const isAdminLogin = ADMIN_USERS[data.email as keyof typeof ADMIN_USERS] === data.password;
+    
+    if (isAdminLogin) {
+        sessionStorage.setItem('isAdminAuthenticated', 'true');
+        toast({ title: "Admin Login Successful", description: "Welcome back, Admin!" });
+        router.push("/admin/dashboard");
+        setLoading(false);
+        return;
+    }
 
     try {
-      // Sign in with Firebase regardless
+      // If not an admin, proceed with Firebase authentication for regular users
       await signIn(data.email, data.password);
-      
-      if (isAdminLogin) {
-          sessionStorage.setItem('isAdminAuthenticated', 'true');
-          toast({ title: "Admin Login Successful", description: "Welcome back, Admin!" });
-          router.push("/admin/dashboard");
-      } else {
-          toast({
-            title: "Login Successful",
-            description: "Welcome back! Redirecting...",
-          });
-          router.push("/dashboard");
-      }
+      toast({
+        title: "Login Successful",
+        description: "Welcome back! Redirecting...",
+      });
+      router.push("/dashboard");
 
     } catch (error: any) {
       console.error("Login Error:", error);
