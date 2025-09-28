@@ -23,6 +23,7 @@ export default function FounderPage() {
                 alt={founderImage.description}
                 layout="fill"
                 objectFit="cover"
+                objectPosition="top"
                 data-ai-hint={founderImage.imageHint}
               />
             )}
