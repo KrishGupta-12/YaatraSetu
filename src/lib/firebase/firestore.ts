@@ -1,5 +1,5 @@
 
-import { doc, setDoc, getDoc, serverTimestamp, updateDoc, deleteDoc, arrayUnion, arrayRemove, onSnapshot } from "firebase/firestore";
+import { doc, setDoc, getDoc, serverTimestamp, updateDoc, deleteDoc, collection, addDoc, onSnapshot, query } from "firebase/firestore";
 import { db } from "./config";
 import type { User } from 'firebase/auth';
 
@@ -21,7 +21,6 @@ export const createUserProfile = async (user: User, additionalData: Record<strin
             phone: additionalData.phone || '',
             createdAt: createdAt,
             lastLogin: createdAt,
-            savedPassengers: [],
             preferences: {},
             loyaltyPoints: 0,
         });
@@ -82,28 +81,39 @@ export const updateUserProfile = async (uid: string, data: Record<string, any>) 
 
 export const addSavedPassenger = async (uid: string, passengerData: any) => {
   if (!uid) throw new Error("User ID is required to add a passenger.");
-  const userRef = doc(db, `users/${uid}`);
+  const passengersCollectionRef = collection(db, `users/${uid}/passengers`);
   try {
-    await updateDoc(userRef, {
-      savedPassengers: arrayUnion(passengerData)
-    });
+    await addDoc(passengersCollectionRef, passengerData);
   } catch (error) {
     console.error("Error adding saved passenger:", error);
     throw new Error("Unable to add passenger.");
   }
 }
 
-export const removeSavedPassenger = async (uid: string, passengerToRemove: any) => {
+export const removeSavedPassenger = async (uid: string, passengerId: string) => {
   if (!uid) throw new Error("User ID is required to remove a passenger.");
-  const userRef = doc(db, `users/${uid}`);
+  const passengerDocRef = doc(db, `users/${uid}/passengers`, passengerId);
   try {
-    await updateDoc(userRef, {
-      savedPassengers: arrayRemove(passengerToRemove)
-    });
+    await deleteDoc(passengerDocRef);
   } catch (error) {
     console.error("Error removing saved passenger:", error);
     throw new Error("Unable to remove passenger.");
   }
+}
+
+export const getSavedPassengers = (uid: string, onReceive: (data: any[]) => void) => {
+    if (!uid) return () => {};
+    const passengersQuery = query(collection(db, `users/${uid}/passengers`));
+
+    const unsubscribe = onSnapshot(passengersQuery, (querySnapshot) => {
+        const passengers: any[] = [];
+        querySnapshot.forEach((doc) => {
+            passengers.push({ id: doc.id, ...doc.data() });
+        });
+        onReceive(passengers);
+    });
+
+    return unsubscribe;
 }
 
 
@@ -117,3 +127,5 @@ export const deleteUserProfile = async (uid: string) => {
         throw new Error("Unable to delete user profile.");
     }
 }
+
+    

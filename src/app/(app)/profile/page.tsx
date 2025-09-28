@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -24,7 +24,7 @@ import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { addSavedPassenger, removeSavedPassenger } from "@/lib/firebase/firestore";
+import { addSavedPassenger, removeSavedPassenger, getSavedPassengers } from "@/lib/firebase/firestore";
 
 const passengerFormSchema = z.object({
   name: z.string().min(2, "Name is required."),
@@ -38,17 +38,33 @@ type PassengerFormData = z.infer<typeof passengerFormSchema>;
 
 export default function ProfilePage() {
   const { user } = useAuth();
-  const { profileData, loading } = useUserProfile();
+  const { profileData, loading: profileLoading } = useUserProfile();
+  const [passengers, setPassengers] = useState<any[]>([]);
+  const [passengersLoading, setPassengersLoading] = useState(true);
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      setPassengersLoading(true);
+      const unsubscribe = getSavedPassengers(user.uid, (data) => {
+        setPassengers(data);
+        setPassengersLoading(false);
+      });
+      return () => unsubscribe();
+    } else {
+      setPassengers([]);
+      setPassengersLoading(false);
+    }
+  }, [user]);
 
   const form = useForm<PassengerFormData>({
     resolver: zodResolver(passengerFormSchema),
     defaultValues: {
       name: "",
       age: "" as any,
-      idNumber: ""
+      idNumber: "",
     }
   });
 
@@ -56,8 +72,7 @@ export default function ProfilePage() {
     if (!user) return;
     setIsSubmitting(true);
     try {
-      const newPassenger = { id: new Date().toISOString(), ...data };
-      await addSavedPassenger(user.uid, newPassenger);
+      await addSavedPassenger(user.uid, data);
       toast({
         title: "Passenger Added",
         description: `${data.name} has been added to your saved passengers.`,
@@ -76,18 +91,13 @@ export default function ProfilePage() {
     }
   };
 
-  const handleRemovePassenger = async (passenger: any) => {
+  const handleRemovePassenger = async (passengerId: string, passengerName: string) => {
     if (!user) return;
-    // This is a temporary optimistic update. The list will re-render from Firestore anyway.
-    const originalPassengers = profileData?.savedPassengers || [];
-    const updatedPassengers = originalPassengers.filter((p: any) => p.id !== passenger.id);
-    // You might want to update the local state here for instant feedback, but `onSnapshot` handles it.
-
     try {
-      await removeSavedPassenger(user.uid, passenger);
+      await removeSavedPassenger(user.uid, passengerId);
       toast({
         title: "Passenger Removed",
-        description: `${passenger.name} has been removed from your list.`,
+        description: `${passengerName} has been removed from your list.`,
       });
     } catch (error) {
       console.error("Failed to remove passenger:", error);
@@ -96,9 +106,10 @@ export default function ProfilePage() {
         title: "Error",
         description: "Failed to remove passenger. Please try again.",
       });
-      // Revert optimistic update if you were managing local state manually
     }
   };
+
+  const loading = profileLoading || passengersLoading;
 
   if (loading) {
     return (
@@ -150,7 +161,6 @@ export default function ProfilePage() {
 
   const displayName = profileData?.displayName || user?.displayName;
   const displayInitial = displayName?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || "U";
-  const passengers = profileData?.savedPassengers || [];
 
   return (
     <Dialog open={openDialog} onOpenChange={setOpenDialog}>
@@ -217,7 +227,7 @@ export default function ProfilePage() {
                     <Button
                       size="icon"
                       variant="ghost"
-                      onClick={() => handleRemovePassenger(p)}
+                      onClick={() => handleRemovePassenger(p.id, p.name)}
                     >
                       <Trash className="h-4 w-4 text-destructive" />
                     </Button>
@@ -336,3 +346,5 @@ export default function ProfilePage() {
     </Dialog>
   );
 }
+
+    
