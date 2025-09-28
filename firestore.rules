@@ -1,36 +1,44 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Users collection
-    // - A user can read/write their own profile
-    // - A user cannot see other user profiles
+    // Users can only read and write to their own profile.
     match /users/{userId} {
-      allow read, update, delete: if request.auth != null && request.auth.uid == userId;
-      allow create: if request.auth != null;
+      allow read, write: if request.auth != null && request.auth.uid == userId;
 
-      // Passengers sub-collection
-      // - A user can read/write/delete their own saved passengers
+      // Users can manage their own saved passengers
       match /passengers/{passengerId} {
-        allow read, write, delete, list: if request.auth != null && request.auth.uid == userId;
+        allow read, write, delete: if request.auth != null && request.auth.uid == userId;
       }
     }
 
-    // Tatkal Requests collection
-    // - A user can create their own requests
-    // - A user can read their own requests
-    match /tatkal_requests/{requestId} {
-      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
-      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+    // Bookings can be created by authenticated users.
+    // Users can only view their own bookings.
+    match /bookings/{bookingId} {
+        allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+        allow read: if request.auth != null && resource.data.userId == request.auth.uid;
     }
 
-    // Bookings collection
-    // - A user can create their own bookings
-    // - A user can read their own bookings
-    match /bookings/{bookingId} {
-      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
-      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
+    // Tatkal requests can be created by authenticated users.
+    // Users can only view their own requests.
+     match /tatkal_requests/{requestId} {
+        allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+        allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+    }
+
+    // Chatbot logs can be written by authenticated users.
+     match /chatbot_logs/{logId} {
+        allow create: if request.auth != null;
+        allow read: if false; // No one should read logs directly.
+    }
+    
+    // Hotels collection is publicly readable, but only authenticated users can write.
+    // This allows the admin panel to function.
+    match /hotels/{hotelId} {
+      allow read: if true;
+      allow write: if request.auth != null;
     }
   }
 }
