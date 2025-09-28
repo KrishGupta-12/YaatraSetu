@@ -1,5 +1,5 @@
 
-import { doc, setDoc, getDoc, serverTimestamp, updateDoc, deleteDoc, onSnapshot, arrayUnion, arrayRemove } from "firebase/firestore";
+import { doc, setDoc, getDoc, serverTimestamp, updateDoc, deleteDoc, onSnapshot } from "firebase/firestore";
 import { db } from "./config";
 import type { User } from 'firebase/auth';
 
@@ -79,23 +79,36 @@ export const addSavedPassenger = async (uid: string, passengerData: any) => {
   if (!uid) throw new Error("User ID is required to add a passenger.");
   const userRef = doc(db, `users/${uid}`);
   try {
-    // arrayUnion ensures that the same passenger is not added multiple times if they are identical objects
-    await updateDoc(userRef, {
-      savedPassengers: arrayUnion(passengerData),
-    });
+    const docSnap = await getDoc(userRef);
+    if (docSnap.exists()) {
+      const currentPassengers = docSnap.data().savedPassengers || [];
+      const updatedPassengers = [...currentPassengers, passengerData];
+      await updateDoc(userRef, {
+        savedPassengers: updatedPassengers,
+      });
+    } else {
+        throw new Error("User profile does not exist.");
+    }
   } catch (error) {
     console.error("Error adding saved passenger:", error);
     throw new Error("Unable to add passenger.");
   }
 }
 
-export const removeSavedPassenger = async (uid: string, passengerData: any) => {
+export const removeSavedPassenger = async (uid: string, passengerToRemove: any) => {
   if (!uid) throw new Error("User ID is required to remove a passenger.");
   const userRef = doc(db, `users/${uid}`);
   try {
-    await updateDoc(userRef, {
-      savedPassengers: arrayRemove(passengerData),
-    });
+    const docSnap = await getDoc(userRef);
+    if (docSnap.exists()) {
+        const currentPassengers = docSnap.data().savedPassengers || [];
+        const updatedPassengers = currentPassengers.filter((p: any) => p.id !== passengerToRemove.id);
+        await updateDoc(userRef, {
+            savedPassengers: updatedPassengers,
+        });
+    } else {
+         throw new Error("User profile does not exist.");
+    }
   } catch (error) {
     console.error("Error removing saved passenger:", error);
     throw new Error("Unable to remove passenger.");
