@@ -1,7 +1,7 @@
 
 import Link from "next/link";
 import { Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
-import { YatraSetuLogo } from "@/components/icons";
+import { YaatraSetuLogo } from "@/components/icons";
 
 export function AppFooter() {
   return (
@@ -10,8 +10,8 @@ export function AppFooter() {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
           <div className="col-span-2 md:col-span-1">
             <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
-              <YatraSetuLogo className="h-6 w-6" />
-              YatraSetu
+              <YaatraSetuLogo className="h-6 w-6" />
+              YaatraSetu
             </h3>
             <p className="text-sm text-gray-400">
               Your complete Bharatiya travel companion.
@@ -67,7 +67,7 @@ export function AppFooter() {
           </div>
         </div>
         <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-500">
-          <p>&copy; {new Date().getFullYear()} YatraSetu. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} YaatraSetu. All rights reserved.</p>
         </div>
       </div>
     </footer>

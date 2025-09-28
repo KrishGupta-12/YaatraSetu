@@ -14,7 +14,7 @@ export default function PrivacyPolicyPage() {
 
       <div className="prose prose-lg dark:prose-invert max-w-4xl mx-auto">
         <p>
-          Welcome to YatraSetu. We are committed to protecting your privacy and handling your data in an open and transparent manner. This privacy policy sets out how we collect, use, and protect any information that you give us when you use this application.
+          Welcome to YaatraSetu. We are committed to protecting your privacy and handling your data in an open and transparent manner. This privacy policy sets out how we collect, use, and protect any information that you give us when you use this application.
         </p>
 
         <h2>1. Data Collection</h2>
@@ -58,7 +58,7 @@ export default function PrivacyPolicyPage() {
 
         <h2>5. Third-Party Services</h2>
         <p>
-            YatraSetu does not sell or rent your personal data to third parties. We may share data with trusted partners only for the purpose of providing services you have requested (e.g., processing payments through a secure gateway). All our partners are compliant with standard data protection regulations.
+            YaatraSetu does not sell or rent your personal data to third parties. We may share data with trusted partners only for the purpose of providing services you have requested (e.g., processing payments through a secure gateway). All our partners are compliant with standard data protection regulations.
         </p>
 
         <h2>6. Contact for Privacy Concerns</h2>

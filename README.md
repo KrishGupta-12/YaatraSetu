@@ -1,4 +1,4 @@
-# 🌐 YatraSetu (भारतीय यात्रा सेतु)
+# 🌐 YaatraSetu (भारतीय यात्रा सेतु)
 
 *A Futuristic, Minimalist, and Powerful Travel Platform for India*
 
@@ -6,14 +6,14 @@
 
 ## 📖 Overview
 
-**YatraSetu** is a modern web application inspired by IRCTC, redesigned with a **minimal UI** and **futuristic features**.  
+**YaatraSetu** is a modern web application inspired by IRCTC, redesigned with a **minimal UI** and **futuristic features**.  
 It allows users to **book trains, hotels, food on trains, and plan journeys with AI assistance**.  
 
 The platform integrates **Firebase backend**, **AI (Gemini/GenKit)**, **multilingual support**, **Tatkal automation**, and a **rewards system**, making it the ultimate travel companion for India.  
 
 **Tagline**  
 > “यात्रासेतुः — यात्रायाः सुगमता सेतुना सह।”  
-> *“YatraSetu — The bridge to make your journeys seamless.”*
+> *“YaatraSetu — The bridge to make your journeys seamless.”*
 
 ---
 
@@ -98,4 +98,4 @@ This project is licensed under the **MIT License** — free to use & modify.
 ---
 
 ⚡ **Ready to redefine Indian travel experiences.**  
-🚆 Welcome aboard **YatraSetu — यात्रासेतुः** 🚆
+🚆 Welcome aboard **YaatraSetu — यात्रासेतुः** 🚆

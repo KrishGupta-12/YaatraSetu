@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { YatraSetuLogo } from "@/components/icons";
+import { YaatraSetuLogo } from "@/components/icons";
 import { signIn } from "@/lib/auth";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -92,7 +92,7 @@ export default function LoginPage() {
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
           <Link href="/" className="flex justify-center items-center mb-4">
-            <YatraSetuLogo className="h-8 w-8 text-primary" />
+            <YaatraSetuLogo className="h-8 w-8 text-primary" />
           </Link>
           <CardTitle className="text-2xl font-headline">Welcome Back</CardTitle>
           <CardDescription>

@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Bot, Loader2, Send, Languages, Volume2 } from "lucide-react";
-import { YatraSetuLogo } from "./icons";
+import { YaatraSetuLogo } from "./icons";
 import { yatraChatbot, type ChatMessage } from "@/ai/flows/yatra-chatbot";
 import { generateChatbotAudio } from "@/ai/flows/generate-chatbot-audio";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
@@ -80,7 +80,7 @@ export function YatraAIChatbot() {
                 <DialogContent className="sm:max-w-[425px] md:max-w-[600px] grid-rows-[auto_1fr_auto] p-0 h-[80vh] max-h-[700px]">
                     <DialogHeader className="p-4 border-b">
                         <DialogTitle className="flex items-center gap-2">
-                           <YatraSetuLogo className="h-6 w-6 text-primary"/> Yatra.ai Chat
+                           <YaatraSetuLogo className="h-6 w-6 text-primary"/> Yatra.ai Chat
                         </DialogTitle>
                          <div className="flex items-center space-x-2 pt-2">
                             <Languages className="h-4 w-4 text-muted-foreground" />

@@ -188,7 +188,7 @@ export default function SettingsPage() {
         <CardHeader>
           <CardTitle>Notifications</CardTitle>
           <CardDescription>
-            Control how you receive notifications from YatraSetu.
+            Control how you receive notifications from YaatraSetu.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

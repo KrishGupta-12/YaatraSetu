@@ -49,7 +49,7 @@ const featureList = [
     {
         category: "AI Powered",
         title: "Multi-language Support",
-        description: "YatraSetu speaks your language. Our platform offers support for multiple Indian languages, making it accessible to everyone across Bharat. More languages are being added continuously.",
+        description: "YaatraSetu speaks your language. Our platform offers support for multiple Indian languages, making it accessible to everyone across Bharat. More languages are being added continuously.",
         icon: Languages,
         image: "https://picsum.photos/seed/feature6/600/400",
         imageHint: "language translation"
@@ -60,7 +60,7 @@ export default function FeaturesPage() {
     return (
         <div className="container mx-auto px-4 py-12 md:py-16">
             <div className="text-center max-w-3xl mx-auto mb-12">
-                <h1 className="text-4xl md:text-5xl font-bold font-headline">YatraSetu Features</h1>
+                <h1 className="text-4xl md:text-5xl font-bold font-headline">YaatraSetu Features</h1>
                 <p className="text-lg text-muted-foreground mt-4">
                     Discover the powerful tools we've built to make your travel across Bharat seamless, intelligent, and stress-free.
                 </p>
@@ -79,7 +79,7 @@ export default function FeaturesPage() {
                                 {feature.description}
                             </p>
                         </div>
-                        <div className={`relative h-64 md:h-full min-h-[300px] ${index % 2 === 0 ? 'md:order-2' : 'md:order-1'}`}>
+                        <div className={`relative h-64 md:h-full min-h-[300px] ${index % 2 === 0 ? 'md:order-2' : 'md-order-1'}`}>
                             <Image
                                 src={feature.image}
                                 alt={feature.title}

@@ -20,7 +20,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
 import { AppSidebar } from "./app-sidebar";
-import { YatraSetuLogo } from "../icons";
+import { YaatraSetuLogo } from "../icons";
 import { useAuth } from "@/hooks/use-auth";
 import { signOut } from "@/lib/auth";
 import { useRouter } from "next/navigation";
@@ -40,7 +40,7 @@ export function AppHeader() {
       <Sheet>
         <SheetTrigger asChild>
           <Button variant="outline" size="icon" className="shrink-0 md:hidden">
-            <YatraSetuLogo className="h-5 w-5" />
+            <YaatraSetuLogo className="h-5 w-5" />
             <span className="sr-only">Toggle navigation menu</span>
           </Button>
         </SheetTrigger>

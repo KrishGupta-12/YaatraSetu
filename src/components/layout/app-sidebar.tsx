@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { YatraSetuLogo } from "@/components/icons";
+import { YaatraSetuLogo } from "@/components/icons";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
@@ -62,8 +62,8 @@ export function AppSidebar() {
     <div className="flex h-full max-h-screen flex-col gap-2">
       <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
         <Link href="/" className="flex items-center gap-2 font-semibold">
-          <YatraSetuLogo className="h-6 w-6" />
-          <span className="">YatraSetu</span>
+          <YaatraSetuLogo className="h-6 w-6" />
+          <span className="">YaatraSetu</span>
         </Link>
          <Popover>
           <PopoverTrigger asChild>

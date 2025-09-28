@@ -16,46 +16,46 @@ const teamMembers = [
         name: "Methelesh Kumar",
         role: "Head of Technical Operations",
         initials: "MK",
-        email: "methelesh.kumar@yatrasetu.com",
+        email: "methelesh.kumar@yaatrasetu.com",
         linkedin: "https://www.linkedin.com/in/metheleshkumar",
         twitter: "https://twitter.com/metheleshkumar",
-        description: "Methelesh ensures our platform runs smoothly by managing server infrastructure, database performance, and deployment pipelines."
+        description: "Methelesh is the architect of our robust backend, ensuring our platform runs with flawless stability, scalability, and security. He manages everything from server infrastructure to our complex deployment pipelines."
     },
     {
         name: "Varad Mahesh Rajadhyax",
         role: "Head of Strategy & Partnerships",
         initials: "VR",
-        email: "varad.rajadhyax@yatrasetu.com",
+        email: "varad.rajadhyax@yaatrasetu.com",
         linkedin: "https://www.linkedin.com/in/varadrajadhyax",
         twitter: "https://twitter.com/varadrajadhyax",
-        description: "Varad forges key partnerships and develops long-term growth strategies to expand YatraSetu's reach and services."
+        description: "Varad is our master strategist, forging key alliances and developing long-term growth roadmaps. His vision is pivotal in expanding YaatraSetu's services and market presence."
     },
     {
         name: "Aman Sagar",
         role: "Head of Operations & Logistics",
         initials: "AS",
-        email: "aman.sagar@yatrasetu.com",
+        email: "aman.sagar@yaatrasetu.com",
         linkedin: "https://www.linkedin.com/in/amansagar",
         twitter: "https://twitter.com/amansagar",
-        description: "Aman oversees all operational aspects, from booking fulfillment to coordinating with our hotel and food delivery partners."
+        description: "Aman is the engine of our operations, flawlessly coordinating booking fulfillment, hotel partner relations, and food delivery logistics to ensure a seamless user experience from start to finish."
     },
     {
         name: "Lata Saini",
         role: "Head of Customer Service & Support",
         initials: "LS",
-        email: "lata.saini@yatrasetu.com",
+        email: "lata.saini@yaatrasetu.com",
         linkedin: "https://www.linkedin.com/in/latasaini",
         twitter: "https://twitter.com/latasaini",
-        description: "Lata leads our customer support team, ensuring every user receives timely and helpful assistance with their queries and issues."
+        description: "As the voice of our users, Lata leads a dedicated support team that provides empathetic, timely, and effective assistance, ensuring every traveler feels heard and valued."
     },
     {
         name: "Shreyansh Mall",
         role: "Head of Product & Innovation",
         initials: "SM",
-        email: "shreyansh.mall@yatrasetu.com",
+        email: "shreyansh.mall@yaatrasetu.com",
         linkedin: "https://www.linkedin.com/in/shreyanshmall",
         twitter: "https://twitter.com/shreyanshmall",
-        description: "Shreyansh drives the product vision, conceptualizing new features and ensuring YatraSetu remains at the cutting edge of travel technology."
+        description: "Shreyansh is the product visionary, relentlessly pushing for innovation. He translates user needs into cutting-edge features, driving the evolution of YaatraSetu as India's smartest travel platform."
     }
 ];
 
@@ -93,6 +93,9 @@ export default function FounderPage() {
                 Krish Gupta
               </h1>
             </div>
+            <p className="text-lg text-muted-foreground">
+              Krish is a visionary technologist and passionate traveler, driven by a singular mission: to revolutionize the travel experience for a billion Indians. With a deep understanding of technology and a frustration with the complexities of existing platforms, he founded YaatraSetu to build a seamless, intelligent, and unified solution for the modern Indian traveler.
+            </p>
             <div className="space-y-3 text-muted-foreground">
               <a
                 href="mailto:krishgupta200510@gmail.com"
@@ -127,7 +130,7 @@ export default function FounderPage() {
 
         <section className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-bold font-headline mb-8">
-            Vision & Mission
+            Our North Star: The Vision & Mission
           </h2>
           <div className="grid md:grid-cols-2 gap-8 text-left">
             <Card>
@@ -136,9 +139,7 @@ export default function FounderPage() {
                   <CardTitle>Our Vision</CardTitle>
               </CardHeader>
               <CardContent className="text-muted-foreground">
-                To become the most trusted and seamless travel platform for every
-                citizen of Bharat, simplifying journeys and connecting people through
-                technology and innovation.
+                To engineer the most elegant and frictionless travel ecosystem for every citizen of Bharat, bridging destinations and aspirations through world-class technology and user-centric design.
               </CardContent>
             </Card>
             <Card>
@@ -147,9 +148,7 @@ export default function FounderPage() {
                   <CardTitle>Our Mission</CardTitle>
               </CardHeader>
               <CardContent className="text-muted-foreground">
-                Our mission is to integrate all aspects of Indian travel—trains,
-                hotels, and local services—into a single, intelligent, and
-                user-friendly application, powered by cutting-edge AI.
+                Our mission is to relentlessly integrate every facet of Indian travel—from trains and hotels to last-mile services—into a singular, predictive, and hyper-personalized application powered by cutting-edge AI.
               </CardContent>
             </Card>
           </div>
@@ -158,9 +157,9 @@ export default function FounderPage() {
         <Separator className="my-16" />
 
         <section className="text-center">
-          <h2 className="text-3xl font-bold font-headline mb-4">Meet the Team</h2>
+          <h2 className="text-3xl font-bold font-headline mb-4">The Architects of YaatraSetu</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto mb-8">
-            The passionate individuals dedicated to revolutionizing travel in India.
+            Meet the passionate minds dedicated to building the future of travel in India. Each member brings a unique blend of expertise and commitment to our shared vision.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
               {teamMembers.map((member) => (

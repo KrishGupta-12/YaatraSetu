@@ -36,7 +36,7 @@ import { getBookings } from "@/lib/firebase/firestore";
 import { useAuth } from "@/hooks/use-auth";
 import { format } from "date-fns";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
-import { YatraSetuLogo } from "@/components/icons";
+import { YaatraSetuLogo } from "@/components/icons";
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -105,8 +105,8 @@ const Invoice = ({ booking, innerRef }: { booking: any, innerRef: React.Ref<HTML
         <div ref={innerRef} className="bg-white text-black p-8 max-w-2xl mx-auto">
              <div className="flex justify-between items-center border-b pb-4">
                 <div className="flex items-center gap-2">
-                    <YatraSetuLogo className="h-8 w-8 text-primary"/>
-                    <h1 className="text-2xl font-bold">YatraSetu</h1>
+                    <YaatraSetuLogo className="h-8 w-8 text-primary"/>
+                    <h1 className="text-2xl font-bold">YaatraSetu</h1>
                 </div>
                 <div className="text-right">
                     <h2 className="text-xl font-semibold">Tax Invoice</h2>
@@ -168,7 +168,7 @@ const Invoice = ({ booking, innerRef }: { booking: any, innerRef: React.Ref<HTML
                 </div>
             </div>
              <div className="mt-12 text-center text-xs text-gray-500">
-                <p>Thank you for booking with YatraSetu!</p>
+                <p>Thank you for booking with YaatraSetu!</p>
                 <p>This is a computer-generated invoice and does not require a signature.</p>
             </div>
         </div>
@@ -201,7 +201,7 @@ const TripDetailsDialog = ({ trip }: { trip: any }) => {
                pdf.addImage(imgData, 'PNG', 0, position, width, height);
           }
 
-          pdf.save(`YatraSetu-Invoice-${trip.id.slice(0, 8)}.pdf`);
+          pdf.save(`YaatraSetu-Invoice-${trip.id.slice(0, 8)}.pdf`);
         });
     };
     
@@ -422,5 +422,3 @@ export default function DashboardPage() {
     </Dialog>
   );
 }
-
-    

@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import { YatraSetuLogo } from "@/components/icons";
+import { YaatraSetuLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 
 export function PublicHeader() {
@@ -10,8 +10,8 @@ export function PublicHeader() {
      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-14 items-center">
           <Link href="/" className="mr-6 flex items-center space-x-2">
-            <YatraSetuLogo className="h-6 w-6 text-primary" />
-            <span className="font-bold inline-block font-headline">YatraSetu</span>
+            <YaatraSetuLogo className="h-6 w-6 text-primary" />
+            <span className="font-bold inline-block font-headline">YaatraSetu</span>
           </Link>
           <nav className="flex-1 items-center justify-center hidden md:flex">
              <div className="flex items-center gap-6 text-sm font-medium">

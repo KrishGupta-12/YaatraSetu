@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { YatraSetuLogo } from "@/components/icons";
+import { YaatraSetuLogo } from "@/components/icons";
 import { signUp } from "@/lib/auth";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -68,7 +68,7 @@ export default function SignupPage() {
       await signUp(data.email, data.password, { name: data.name, phone: data.phone });
       toast({
         title: "Account Created",
-        description: "Welcome to YatraSetu! Redirecting...",
+        description: "Welcome to YaatraSetu! Redirecting...",
       });
       router.push("/dashboard");
     } catch (error: any) {
@@ -96,11 +96,11 @@ export default function SignupPage() {
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
           <Link href="/" className="flex justify-center items-center mb-4">
-            <YatraSetuLogo className="h-8 w-8 text-primary" />
+            <YaatraSetuLogo className="h-8 w-8 text-primary" />
           </Link>
           <CardTitle className="text-2xl font-headline">Create an Account</CardTitle>
           <CardDescription>
-            Start your journey with YatraSetu today.
+            Start your journey with YaatraSetu today.
           </CardDescription>
         </CardHeader>
         <CardContent>

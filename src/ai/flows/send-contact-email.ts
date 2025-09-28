@@ -57,9 +57,9 @@ const sendContactEmailFlow = ai.defineFlow(
     // try {
     //   await emailService.send({
     //     to: 'krishgupta200510@gmail.com',
-    //     from: 'contact-form@yatrasetu.app',
+    //     from: 'contact-form@yaatrasetu.app',
     //     replyTo: formData.email,
-    //     subject: `New YatraSetu Contact: ${formData.subject}`,
+    //     subject: `New YaatraSetu Contact: ${formData.subject}`,
     //     text: `You have a new message from ${formData.name}:\n\n${formData.message}`,
     //   });
     //   return { success: true, message: 'Email sent successfully.' };
