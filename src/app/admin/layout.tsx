@@ -1,68 +1,29 @@
 
 "use client";
 
-import { use, useEffect, useState, createContext, useContext, ReactNode } from "react";
+import { useEffect, useState, ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Loader2, Hotel, LogOut, LayoutDashboard } from "lucide-react";
 import { YaatraSetuLogo } from "@/components/icons";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
-type AdminAuthContextType = {
-    isAdmin: boolean;
-    setIsAdmin: (isAdmin: boolean) => void;
-};
-
-const AdminAuthContext = createContext<AdminAuthContextType | null>(null);
-
-export const useAdminAuth = () => {
-    const context = useContext(AdminAuthContext);
-    if (!context) {
-        throw new Error("useAdminAuth must be used within an AdminAuthProvider");
-    }
-    return context;
-};
-
-function AdminAuthProvider({ children }: { children: ReactNode }) {
-    const [isAdmin, setIsAdmin] = useState(false);
-    
-    useEffect(() => {
-        const adminStatus = sessionStorage.getItem('isAdminAuthenticated');
-        if (adminStatus === 'true') {
-            setIsAdmin(true);
-        }
-    }, []);
-
-    return (
-        <AdminAuthContext.Provider value={{ isAdmin, setIsAdmin }}>
-            {children}
-        </AdminAuthContext.Provider>
-    );
-}
-
 
 function AdminLayoutContent({ children }: { children: React.ReactNode }) {
-  const { isAdmin } = useAdminAuth();
   const router = useRouter();
   const pathname = usePathname();
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const adminStatus = sessionStorage.getItem('isAdminAuthenticated');
-    if (adminStatus !== 'true') {
-      if (pathname !== '/admin/login') {
-          router.push("/admin/login");
-      } else {
-          setLoading(false);
-      }
+    if (adminStatus === 'true') {
+        setIsAdmin(true);
     } else {
-        setLoading(false);
+        router.push("/auth/login");
     }
-  }, [isAdmin, router, pathname]);
-
-  if (pathname === '/admin/login') {
-      return <>{children}</>;
-  }
+    setLoading(false);
+  }, [router]);
 
   if (loading || !isAdmin) {
     return (
@@ -74,7 +35,8 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
 
   const handleLogout = () => {
       sessionStorage.removeItem('isAdminAuthenticated');
-      router.push('/admin/login');
+      setIsAdmin(false);
+      router.push('/auth/login');
   }
 
   return (
@@ -127,11 +89,5 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
 }
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
-    return (
-        <AdminAuthProvider>
-            <AdminLayoutContent>{children}</AdminLayoutContent>
-        </AdminAuthProvider>
-    )
+    return <AdminLayoutContent>{children}</AdminLayoutContent>;
 }
-
-    

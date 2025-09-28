@@ -38,6 +38,11 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
+const ADMIN_USERS = {
+    "admin@yaatrasetu.com": "admin123",
+    "Krish@yaatrasetu.com": "Krish@9885"
+};
+
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -60,6 +65,15 @@ export default function LoginPage() {
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     setLoading(true);
+
+    const expectedPassword = ADMIN_USERS[data.email as keyof typeof ADMIN_USERS];
+    if (expectedPassword && data.password === expectedPassword) {
+        sessionStorage.setItem('isAdminAuthenticated', 'true');
+        toast({ title: "Admin Login Successful", description: "Welcome back, Admin!" });
+        router.push("/admin/dashboard");
+        return;
+    }
+
     try {
       await signIn(data.email, data.password);
       toast({
@@ -72,7 +86,7 @@ export default function LoginPage() {
       toast({
         variant: "destructive",
         title: "Login Failed",
-        description: error.message || "An unexpected error occurred.",
+        description: "Invalid credentials. Please check your email and password.",
       });
     } finally {
         setLoading(false);
