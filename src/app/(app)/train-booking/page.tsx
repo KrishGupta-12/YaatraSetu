@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -24,17 +25,28 @@ const mockTrains = [
         { name: "3A", availability: "Waitlist 23", price: 2050 },
     ], route: [ { station: 'Mumbai Central', arrival: 'Source', departure: '17:00'}, { station: 'Borivali', arrival: '17:22', departure: '17:24'}, { station: 'Surat', arrival: '19:43', departure: '19:48'}, { station: 'Vadodara', arrival: '21:06', departure: '21:16'}, { station: 'Ratlam', arrival: '00:25', departure: '00:28'}, { station: 'Kota', arrival: '03:20', departure: '03:25'}, { station: 'New Delhi', arrival: '08:32', departure: 'Destination'} ]},
     { id: "12909", name: "NZM Garib Rath", from: "BDTS", to: "NZM", departure: "17:35", arrival: "10:40", duration: "17h 05m", classes: [
-        { name: "3A", availability: "Available 102", price: 1050 }
-    ], route: []},
+        { name: "3A", availability: "Available 102", price: 1050 },
+        { name: "CC", availability: "Available 250", price: 850 }
+    ], route: [ { station: 'Bandra Terminus', arrival: 'Source', departure: '17:35'}, { station: 'Borivali', arrival: '18:05', departure: '18:08'}, { station: 'Surat', arrival: '20:47', departure: '20:52'}, { station: 'Vadodara', arrival: '22:19', departure: '22:29'}, { station: 'Ratlam', arrival: '01:53', departure: '01:55'}, { station: 'Kota', arrival: '04:35', departure: '04:40'}, { station: 'Mathura', arrival: '08:18', departure: '08:20'}, { station: 'H. Nizamuddin', arrival: '10:40', departure: 'Destination'} ]},
     { id: "22209", name: "Mumbai Duronto", from: "BCT", to: "NDLS", departure: "23:10", arrival: "15:55", duration: "16h 45m", classes: [
         { name: "1A", availability: "Available 5", price: 5200 },
         { name: "2A", availability: "Waitlist 5", price: 3150 },
         { name: "3A", availability: "Waitlist 35", price: 2250 },
-    ], route: []},
+    ], route: [ { station: 'Mumbai Central', arrival: 'Source', departure: '23:10'}, { station: 'Vadodara', arrival: '03:24', departure: '03:34'}, { station: 'Ratlam', arrival: '07:00', departure: '07:05'}, { station: 'Kota', arrival: '10:00', departure: '10:05'}, { station: 'New Delhi', arrival: '15:55', departure: 'Destination'} ]},
     { id: "12263", name: "Pune Duronto", from: "PUNE", to: "NZM", departure: "11:10", arrival: "06:45", duration: "19h 35m", classes: [
         { name: "1A", availability: "Regret", price: 5010 },
         { name: "2A", availability: "Available 21", price: 2980 },
         { name: "3A", availability: "Available 50", price: 2100 },
+    ], route: []},
+     { id: "12137", name: "Punjab Mail", from: "CSMT", to: "FZR", departure: "19:35", arrival: "05:10", duration: "33h 35m", classes: [
+        { name: "2A", availability: "Available 8", price: 2500 },
+        { name: "3A", availability: "Available 30", price: 1800 },
+        { name: "SL", availability: "Available 120", price: 700 },
+    ], route: []},
+    { id: "11057", name: "Amritsar Express", from: "CSMT", to: "ASR", departure: "23:30", arrival: "16:15", duration: "40h 45m", classes: [
+        { name: "2A", availability: "Waitlist 15", price: 2700 },
+        { name: "3A", availability: "Waitlist 40", price: 1900 },
+        { name: "SL", availability: "Available 250", price: 800 },
     ], route: []}
 ]
 
@@ -176,7 +188,7 @@ export default function TrainBookingPage() {
 
       {showResults && !loading && (
           <div className="space-y-6">
-              <h2 className="text-2xl font-bold">4 trains found from Mumbai to New Delhi</h2>
+              <h2 className="text-2xl font-bold">{mockTrains.length} trains found from Mumbai to New Delhi</h2>
               {mockTrains.map(train => (
                   <Card key={train.id}>
                     <CardHeader>
@@ -195,7 +207,7 @@ export default function TrainBookingPage() {
                              <div><span className="font-semibold">{train.arrival}</span> ({train.to})</div>
                         </div>
                     </CardHeader>
-                    <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <CardContent className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
                         {train.classes.map(cls => {
                           const isAvailable = cls.availability.toLowerCase().includes('available');
                           const isWaitlist = cls.availability.toLowerCase().includes('waitlist');
@@ -343,3 +355,5 @@ export default function TrainBookingPage() {
     </Dialog>
   );
 }
+
+    
