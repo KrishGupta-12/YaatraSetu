@@ -5,7 +5,6 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, Plus, Trash, Sparkles } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
@@ -16,7 +15,7 @@ import { tatkalBookerFlow, type TatkalBookingRequest } from "@/ai/flows/tatkal-b
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 
 
 const savedPassengerSchema = z.object({
@@ -221,7 +220,7 @@ export default function TatkalAutomationPage() {
                     <FormField control={form.control} name="autoPay" render={({ field }) => (
                         <FormItem className="flex items-center space-x-2">
                             <FormControl><Switch checked={field.value} onCheckedChange={field.onChange}/></FormControl>
-                            <Label htmlFor="auto-pay">Enable Auto-pay (Recommended)</Label>
+                            <FormLabel htmlFor="auto-pay">Enable Auto-pay (Recommended)</FormLabel>
                         </FormItem>
                     )}/>
                  </CardContent>
@@ -273,4 +272,3 @@ export default function TatkalAutomationPage() {
   );
 }
 
-    
