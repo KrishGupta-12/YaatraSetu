@@ -13,7 +13,7 @@ import {
   deleteUser,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase/config";
-import { createUserProfile, updateUserLastLogin, deleteUserProfile } from "./firebase/firestore";
+import { createUserProfile, updateUserLastLogin, deleteUserProfile, updateUserProfile } from "./firebase/firestore";
 
 
 export const signUp = async (email: string, password: string, additionalData: Record<string, any> = {}) => {
@@ -70,4 +70,15 @@ export const deleteCurrentUser = async () => {
     await deleteUser(user);
     // Delete from Firestore
     await deleteUserProfile(userId);
+};
+
+export const updateUserPhoto = async (photoURL: string) => {
+  const user = auth.currentUser;
+  if (!user) throw new Error("No user is signed in.");
+  
+  // Update Firebase Auth
+  await updateProfile(user, { photoURL });
+  
+  // Update Firestore
+  await updateUserProfile(user.uid, { photoURL });
 };

@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -13,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Trash, Plus, Loader2 } from "lucide-react";
+import { Trash, Plus, Loader2, Camera } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useUserProfile } from "@/hooks/use-user-profile";
@@ -25,6 +25,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { addSavedPassenger, removeSavedPassenger, getSavedPassengers } from "@/lib/firebase/firestore";
+import { updateUserPhoto } from "@/lib/auth";
 
 const passengerFormSchema = z.object({
   name: z.string().min(2, "Name is required."),
@@ -44,6 +45,8 @@ export default function ProfilePage() {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [photoUploading, setPhotoUploading] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -109,6 +112,52 @@ export default function ProfilePage() {
     }
   };
 
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  }
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setPhotoUploading(true);
+
+    // Basic client-side validation
+    if (!file.type.startsWith('image/')) {
+        toast({ variant: "destructive", title: "Invalid file type", description: "Please select an image file."});
+        setPhotoUploading(false);
+        return;
+    }
+    if (file.size > 2 * 1024 * 1024) { // 2MB limit
+        toast({ variant: "destructive", title: "File too large", description: "Please select an image smaller than 2MB."});
+        setPhotoUploading(false);
+        return;
+    }
+
+    try {
+        const reader = new FileReader();
+        reader.onloadend = async () => {
+            const dataUrl = reader.result as string;
+            await updateUserPhoto(dataUrl);
+            toast({
+                title: "Profile Picture Updated",
+                description: "Your new profile picture has been saved.",
+            });
+            setPhotoUploading(false);
+        };
+        reader.readAsDataURL(file);
+    } catch (error) {
+        console.error("Failed to update photo:", error);
+        toast({
+            variant: "destructive",
+            title: "Upload Failed",
+            description: "Could not update your profile picture. Please try again.",
+        });
+        setPhotoUploading(false);
+    }
+  }
+
+
   const loading = profileLoading || passengersLoading;
 
   if (loading) {
@@ -123,9 +172,6 @@ export default function ProfilePage() {
                 <Skeleton className="h-6 w-32" />
                 <Skeleton className="h-4 w-40 mt-2" />
               </CardHeader>
-              <CardContent>
-                <Skeleton className="h-10 w-full" />
-              </CardContent>
             </Card>
           </div>
           <div className="md:col-span-2 space-y-6">
@@ -161,6 +207,7 @@ export default function ProfilePage() {
 
   const displayName = profileData?.displayName || user?.displayName;
   const displayInitial = displayName?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || "U";
+  const photoURL = profileData?.photoURL || user?.photoURL;
 
   return (
     <Dialog open={openDialog} onOpenChange={setOpenDialog}>
@@ -170,16 +217,22 @@ export default function ProfilePage() {
           <div className="md:col-span-1">
             <Card>
               <CardHeader className="items-center text-center">
-                <Avatar className="h-24 w-24 mb-4">
-                  <AvatarImage src={user?.photoURL || ""} alt={displayName || ""} />
-                  <AvatarFallback>{displayInitial}</AvatarFallback>
-                </Avatar>
+                <div className="relative group cursor-pointer" onClick={handleAvatarClick}>
+                    <Avatar className="h-24 w-24 mb-4">
+                        <AvatarImage src={photoURL || ""} alt={displayName || ""} />
+                        <AvatarFallback>{displayInitial}</AvatarFallback>
+                    </Avatar>
+                    <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                       {photoUploading ? 
+                            <Loader2 className="h-8 w-8 text-white animate-spin"/> :
+                            <Camera className="h-8 w-8 text-white"/>
+                       }
+                    </div>
+                </div>
+                <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*" />
                 <CardTitle>{displayName}</CardTitle>
                 <CardDescription>{user?.email}</CardDescription>
               </CardHeader>
-              <CardContent>
-                <Button variant="outline" className="w-full" disabled>Edit Profile Picture</Button>
-              </CardContent>
             </Card>
           </div>
           <div className="md:col-span-2 space-y-6">
@@ -346,5 +399,3 @@ export default function ProfilePage() {
     </Dialog>
   );
 }
-
-    
