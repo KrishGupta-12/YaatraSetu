@@ -1,7 +1,6 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
 import {
   ArrowRight,
   Bot,
@@ -27,9 +26,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { useAuth } from "@/hooks/use-auth";
-import { getUserProfile } from "@/lib/firebase/firestore";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useUserProfile } from "@/hooks/use-user-profile";
 
 const features = [
   {
@@ -87,25 +85,7 @@ const upcomingTrips = [
 ];
 
 export default function DashboardPage() {
-  const { user } = useAuth();
-  const [profileData, setProfileData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchProfile() {
-      if (user) {
-        try {
-          const data = await getUserProfile(user.uid);
-          setProfileData(data);
-        } catch (error) {
-          console.error("Failed to fetch profile:", error);
-        } finally {
-          setLoading(false);
-        }
-      }
-    }
-    fetchProfile();
-  }, [user]);
+  const { profileData, loading } = useUserProfile();
 
   if (loading) {
     return (
@@ -114,6 +94,10 @@ export default function DashboardPage() {
                 <Skeleton className="h-9 w-64" />
                 <Skeleton className="h-5 w-96" />
             </div>
+             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                {[...Array(4)].map((_,i) => <Skeleton key={i} className="h-40" />)}
+             </div>
+             <Skeleton className="h-64 w-full" />
         </div>
     )
   }

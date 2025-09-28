@@ -19,7 +19,7 @@ import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Trash, Plus, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
-import { getUserProfile, updateUserProfile } from "@/lib/firebase/firestore";
+import { updateUserProfile } from "@/lib/firebase/firestore";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { updateProfile } from "firebase/auth";
@@ -30,6 +30,7 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
+import { useUserProfile } from "@/hooks/use-user-profile";
 
 const profileSchema = z.object({
   displayName: z.string().min(2, "Name must be at least 2 characters."),
@@ -45,9 +46,8 @@ const savedPassengers = [
 
 export default function ProfilePage() {
   const { user } = useAuth();
+  const { profileData, loading } = useUserProfile();
   const { toast } = useToast();
-  const [profileData, setProfileData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [passengers, setPassengers] = useState(savedPassengers);
 
@@ -60,25 +60,13 @@ export default function ProfilePage() {
   });
 
   useEffect(() => {
-    async function fetchProfile() {
-      if (user) {
-        try {
-          setLoading(true);
-          const data = await getUserProfile(user.uid);
-          setProfileData(data);
-          form.reset({
-            displayName: data?.displayName || "",
-            phone: data?.phone || "",
-          });
-        } catch (error) {
-          console.error("Failed to fetch profile:", error);
-        } finally {
-          setLoading(false);
-        }
-      }
+    if (profileData) {
+      form.reset({
+        displayName: profileData.displayName || "",
+        phone: profileData.phone || "",
+      });
     }
-    fetchProfile();
-  }, [user, form]);
+  }, [profileData, form]);
 
   const removePassenger = (id: number) => {
     setPassengers(passengers.filter((p) => p.id !== id));
@@ -98,11 +86,6 @@ export default function ProfilePage() {
       if (user && user.displayName !== data.displayName) {
         await updateProfile(user, { displayName: data.displayName });
       }
-
-      // Refetch profile data to update UI
-      const updatedData = await getUserProfile(user.uid);
-      setProfileData(updatedData);
-
 
       toast({
         title: "Profile Updated",
@@ -141,8 +124,11 @@ export default function ProfilePage() {
                 <CardDescription>Manage your personal details.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-10 w-full" />
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div className="space-y-2"><Label>Full Name</Label><Skeleton className="h-10 w-full" /></div>
+                  <div className="space-y-2"><Label>Email Address</Label><Skeleton className="h-10 w-full" /></div>
+                </div>
+                 <div className="space-y-2"><Label>Phone Number</Label><Skeleton className="h-10 w-full" /></div>
               </CardContent>
             </Card>
           </div>

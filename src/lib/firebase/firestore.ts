@@ -1,5 +1,5 @@
 
-import { doc, setDoc, getDoc, serverTimestamp, updateDoc, deleteDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc, serverTimestamp, updateDoc, deleteDoc, onSnapshot } from "firebase/firestore";
 import { db } from "./config";
 import type { User } from 'firebase/auth';
 
@@ -39,15 +39,21 @@ export const updateUserLastLogin = async (uid: string) => {
     }
 }
 
-export const getUserProfile = async (uid: string) => {
-    if (!uid) return null;
+export const getUserProfile = (uid: string, onReceive: (data: any) => void) => {
+    if (!uid) return () => {};
     const userRef = doc(db, `users/${uid}`);
-    const userSnap = await getDoc(userRef);
-    if (userSnap.exists()) {
-        return userSnap.data();
-    }
-    return null;
+    
+    const unsubscribe = onSnapshot(userRef, (doc) => {
+        if (doc.exists()) {
+            onReceive(doc.data());
+        } else {
+            onReceive(null);
+        }
+    });
+
+    return unsubscribe;
 }
+
 
 export const updateUserProfile = async (uid: string, data: Record<string, any>) => {
     if (!uid) return;
