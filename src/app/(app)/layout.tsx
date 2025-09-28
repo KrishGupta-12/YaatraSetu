@@ -7,7 +7,6 @@ import { AppHeader } from "@/components/layout/app-header";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { useAuth } from "@/hooks/use-auth";
 import { Loader2 } from "lucide-react";
-import { AppFooter } from "@/components/layout/app-footer";
 
 function AppLayoutContent({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -37,7 +36,6 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
         <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 overflow-auto">
           {children}
         </main>
-        <AppFooter />
       </div>
     </div>
   );
