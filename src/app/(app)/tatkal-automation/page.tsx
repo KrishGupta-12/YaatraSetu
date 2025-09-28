@@ -141,7 +141,7 @@ export default function TatkalAutomationPage() {
 
             if(response.success) {
                 toast({
-                    title: "Automation Activated!",
+                    title: "Automation Scheduled!",
                     description: response.message,
                 });
                 form.reset({
@@ -158,7 +158,7 @@ export default function TatkalAutomationPage() {
             } else {
                  toast({
                     variant: "destructive",
-                    title: "Activation Failed",
+                    title: "Scheduling Failed",
                     description: response.message,
                 });
             }
@@ -167,8 +167,8 @@ export default function TatkalAutomationPage() {
             console.error("Tatkal Automation Error:", error);
             toast({
                 variant: "destructive",
-                title: "Activation Failed",
-                description: "Could not activate the Tatkal automation. Please try again.",
+                title: "Scheduling Failed",
+                description: "Could not schedule the Tatkal automation. Please try again.",
             });
         } finally {
             setLoading(false);
@@ -281,7 +281,7 @@ export default function TatkalAutomationPage() {
 
             <Button size="lg" className="w-full" type="submit" disabled={loading}>
                 {loading ? <Loader2 className="h-5 w-5 animate-spin mr-2"/> : <Sparkles className="h-5 w-5 mr-2"/>}
-                {loading ? "Activating..." : "Activate Tatkal Automation"}
+                {loading ? "Scheduling..." : "Schedule Tatkal Automation"}
             </Button>
             </form>
             </Form>
@@ -313,9 +313,9 @@ export default function TatkalAutomationPage() {
                 </CardHeader>
                 <CardContent className="text-amber-700 dark:text-amber-300 text-sm space-y-2">
                    <p>1. Fill in all details for your journey and passengers.</p>
-                   <p>2. We'll securely save your choices for the big moment.</p>
-                   <p>3. At 9:59 AM (AC) or 10:59 AM (Sleeper), our system will get ready.</p>
-                   <p>4. The moment the Tatkal window opens, we will attempt to book your ticket automatically.</p>
+                   <p>2. We securely save your request to be processed by our backend.</p>
+                   <p>3. A scheduled Cloud Function will trigger at the Tatkal opening time.</p>
+                   <p>4. The function will attempt to book your ticket automatically using the details you provided.</p>
                    <p>5. You'll be notified via Push and Email about the booking status.</p>
                 </CardContent>
             </Card>
