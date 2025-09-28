@@ -17,7 +17,7 @@ export default {
     },
     extend: {
       fontFamily: {
-        body: ['"PT Sans"', 'sans-serif'],
+        body: ['"Inter"', 'sans-serif'],
         headline: ['"PT Sans"', 'sans-serif'],
         code: ['monospace'],
       },
@@ -100,7 +100,72 @@ export default {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
       },
+      typography: (theme: (arg0: string) => any) => ({
+        DEFAULT: {
+          css: {
+            color: theme('colors.foreground'),
+             h1: {
+              color: theme('colors.foreground'),
+              fontWeight: '700',
+            },
+            h2: {
+              color: theme('colors.foreground'),
+               fontWeight: '600',
+            },
+            h3: {
+              color: theme('colors.foreground'),
+               fontWeight: '600',
+            },
+            strong: {
+              color: theme('colors.foreground'),
+            },
+            a: {
+              color: theme('colors.primary.DEFAULT'),
+              '&:hover': {
+                color: theme('colors.primary.DEFAULT'),
+              },
+            },
+             blockquote: {
+              color: theme('colors.muted.foreground'),
+              borderLeftColor: theme('colors.border'),
+            },
+            'ul > li::before': {
+              backgroundColor: theme('colors.primary.DEFAULT'),
+            },
+          },
+        },
+        invert: {
+           css: {
+            color: theme('colors.foreground'),
+             h1: {
+              color: theme('colors.foreground'),
+            },
+            h2: {
+              color: theme('colors.foreground'),
+            },
+            h3: {
+              color: theme('colors.foreground'),
+            },
+             strong: {
+              color: theme('colors.foreground'),
+            },
+            a: {
+              color: theme('colors.primary.DEFAULT'),
+              '&:hover': {
+                color: theme('colors.primary.DEFAULT'),
+              },
+            },
+            blockquote: {
+              color: theme('colors.muted.foreground'),
+              borderLeftColor: theme('colors.border'),
+            },
+             'ul > li::before': {
+              backgroundColor: theme('colors.primary.DEFAULT'),
+            },
+          },
+        }
+      }),
     },
   },
-  plugins: [require('tailwindcss-animate')],
+  plugins: [require('tailwindcss-animate'), require('@tailwindcss/typography')],
 } satisfies Config;

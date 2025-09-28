@@ -14,6 +14,10 @@ import {
   Sparkles,
   User,
   Settings,
+  LifeBuoy,
+  Info,
+  Lock,
+  Mail,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -21,19 +25,26 @@ import { YatraSetuLogo } from "@/components/icons";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Separator } from "../ui/separator";
 
-const navItems = [
+const mainNavItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
   { href: "/ai-planner", icon: Bot, label: "AI Planner" },
   { href: "/train-booking", icon: Train, label: "Train Booking" },
   { href: "/hotel-booking", icon: Hotel, label: "Hotel Booking" },
   { href: "/food-ordering", icon: CookingPot, label: "Food Orders" },
   { href: "/waitlist-prediction", icon: TicketCheck, label: "Waitlist Pred." },
-  { href: "/history", icon: History, label: "History" },
   { href: "/tatkal-automation", icon: Sparkles, label: "Tatkal Automation"},
-  { href: "/profile", icon: User, label: "Profile"},
-  { href: "/settings", icon: Settings, label: "Settings"},
+  { href: "/history", icon: History, label: "History" },
 ];
+
+const secondaryNavItems = [
+    { href: "/features", icon: Info, label: "Features"},
+    { href: "/founder", icon: User, label: "Founder"},
+    { href: "/help-center", icon: LifeBuoy, label: "Help Center"},
+    { href: "/contact", icon: Mail, label: "Contact Us"},
+    { href: "/privacy-policy", icon: Lock, label: "Privacy Policy"},
+]
 
 const mockNotifications = [
     { title: "Booking Confirmed!", description: "Your ticket for train 12951 is confirmed. Seat: B4, 32.", time: "5 min ago"},
@@ -87,7 +98,25 @@ export function AppSidebar() {
       </div>
       <div className="flex-1 overflow-auto py-2">
         <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
-          {navItems.map((item) => (
+          {mainNavItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary",
+                {
+                  "bg-muted text-primary": pathname === item.href,
+                }
+              )}
+            >
+              <item.icon className="h-4 w-4" />
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+        <Separator className="my-4" />
+        <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
+           {secondaryNavItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
@@ -104,6 +133,28 @@ export function AppSidebar() {
           ))}
         </nav>
       </div>
+       <div className="mt-auto p-4 border-t">
+          <Card>
+            <CardHeader className="p-2 pt-0 md:p-4">
+              <CardTitle>My Account</CardTitle>
+              <CardDescription>
+                Access your profile and settings.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-2 pt-0 md:p-4 md:pt-0">
+               <Link href="/profile" passHref>
+                <Button size="sm" variant="outline" className="w-full mb-2">
+                  <User className="mr-2 h-4 w-4" /> Profile
+                </Button>
+              </Link>
+              <Link href="/settings" passHref>
+                <Button size="sm" variant="outline" className="w-full">
+                  <Settings className="mr-2 h-4 w-4" /> Settings
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        </div>
     </div>
   );
 }

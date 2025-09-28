@@ -1,12 +1,13 @@
 
 import Link from "next/link";
-import { ArrowRight, Bot, Clock, Hotel, Rocket, ShieldCheck, Train, Utensils, Wallet, Facebook, Twitter, Instagram } from "lucide-react";
+import { ArrowRight, Bot, Clock, Hotel, Rocket, ShieldCheck, Train, Utensils, Wallet, Facebook, Twitter, Instagram, Linkedin, User, LifeBuoy, Info, Lock } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { YatraSetuLogo } from "@/components/icons";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import Image from "next/image";
+import { AppFooter } from "@/components/layout/app-footer";
 
 const features = [
   {
@@ -53,17 +54,16 @@ export default function LandingPage() {
             <span className="font-bold inline-block font-headline">YatraSetu</span>
           </Link>
           <nav className="flex-1 items-center justify-center hidden md:flex">
-             <div className="flex items-center gap-4 text-sm font-medium">
-                <span>Book Trains</span>
-                <span className="text-muted-foreground">•</span>
-                <span>Hotels</span>
-                 <span className="text-muted-foreground">•</span>
-                <span>Food on Train</span>
+             <div className="flex items-center gap-6 text-sm font-medium">
+                <Link href="/train-booking" className="text-muted-foreground hover:text-foreground">Book Trains</Link>
+                <Link href="/hotel-booking" className="text-muted-foreground hover:text-foreground">Hotels</Link>
+                <Link href="/food-ordering" className="text-muted-foreground hover:text-foreground">Food on Train</Link>
+                <Link href="/features" className="text-muted-foreground hover:text-foreground">Features</Link>
             </div>
           </nav>
           <div className="flex items-center justify-end space-x-2">
             <Button variant="ghost" asChild>
-                <Link href="/auth/login">Login</Link>
+                <Link href="/founder">Founder</Link>
             </Button>
             <Button asChild>
                 <Link href="/auth/signup">Signup</Link>
@@ -162,46 +162,7 @@ export default function LandingPage() {
 
       </main>
 
-      <footer className="bg-gray-900 text-white">
-        <div className="container py-12">
-            <div className="grid md:grid-cols-4 gap-8">
-                 <div>
-                    <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
-                        <YatraSetuLogo className="h-6 w-6" />
-                        YatraSetu
-                    </h3>
-                    <p className="text-sm text-gray-400">Your complete Bharatiya travel companion.</p>
-                 </div>
-                 <div>
-                     <h4 className="font-semibold mb-4">Quick Links</h4>
-                     <nav className="flex flex-col gap-2 text-sm">
-                        <Link href="/dashboard" className="text-gray-400 hover:text-white">Dashboard</Link>
-                        <Link href="#features" className="text-gray-400 hover:text-white">Features</Link>
-                        <Link href="/auth/login" className="text-gray-400 hover:text-white">Login</Link>
-                     </nav>
-                 </div>
-                 <div>
-                     <h4 className="font-semibold mb-4">Support</h4>
-                     <nav className="flex flex-col gap-2 text-sm">
-                        <Link href="#" className="text-gray-400 hover:text-white">Help Center</Link>
-                        <Link href="#" className="text-gray-400 hover:text-white">Contact Us</Link>
-                        <Link href="#" className="text-gray-400 hover:text-white">Privacy Policy</Link>
-                     </nav>
-                 </div>
-                 <div>
-                    <h4 className="font-semibold mb-4">Follow Us</h4>
-                    <div className="flex items-center gap-4">
-                        <Link href="#" aria-label="Facebook"><Facebook className="h-5 w-5 text-gray-400 hover:text-white"/></Link>
-                        <Link href="#" aria-label="Twitter"><Twitter className="h-5 w-5 text-gray-400 hover:text-white"/></Link>
-                        <Link href="#" aria-label="Instagram"><Instagram className="h-5 w-5 text-gray-400 hover:text-white"/></Link>
-                    </div>
-                 </div>
-            </div>
-            <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-500">
-                <p>&copy; {new Date().getFullYear()} YatraSetu. All rights reserved.</p>
-            </div>
-        </div>
-      </footer>
+      <AppFooter />
     </div>
   );
 }
