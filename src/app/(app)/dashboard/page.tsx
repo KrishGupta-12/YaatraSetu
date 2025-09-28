@@ -1,3 +1,6 @@
+
+"use client";
+
 import {
   ArrowRight,
   Bot,
@@ -23,6 +26,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/hooks/use-auth";
 
 const features = [
   {
@@ -80,11 +84,13 @@ const upcomingTrips = [
 ];
 
 export default function DashboardPage() {
+  const { user } = useAuth();
+
   return (
     <div className="space-y-8">
       <div className="space-y-2">
         <h1 className="text-3xl font-bold tracking-tight font-headline">
-          Welcome back, Traveller!
+          Welcome back, {user?.displayName || "Traveller"}!
         </h1>
         <p className="text-muted-foreground">
           Here&apos;s your travel hub. Manage bookings and plan your next adventure.

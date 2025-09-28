@@ -6,6 +6,7 @@ import {
   signInWithEmailAndPassword,
   signOut as firebaseSignOut,
   sendPasswordResetEmail,
+  updateProfile,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase/config";
 import { createUserProfile, updateUserLastLogin } from "./firebase/firestore";
@@ -14,7 +15,15 @@ import { createUserProfile, updateUserLastLogin } from "./firebase/firestore";
 export const signUp = async (email: string, password: string, additionalData: Record<string, any> = {}) => {
   const userCredential = await createUserWithEmailAndPassword(auth, email, password);
   const user = userCredential.user;
+  
+  // Update Firebase Auth user profile
+  await updateProfile(user, {
+    displayName: additionalData.name || "",
+  });
+
+  // Create user profile in Firestore
   await createUserProfile(user, additionalData);
+  
   return user;
 };
 
