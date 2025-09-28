@@ -3,8 +3,8 @@
     {
       "id": "login-background",
       "description": "A scenic view of a train traveling through Indian mountains.",
-      "imageUrl": "https://images.unsplash.com/photo-1754196379259-60a1b9b3f463?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHx0cmFpbiUyMG1vdW50YWluc3xlbnwwfHx8fDE3NTkwNDA2MjJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "train mountains"
+      "imageUrl": "https://images.unsplash.com/photo-1615967518423-43486b5d635a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxpbmRpYW4lMjB0cmFpbiUyMHRyYXZlbHxlbnwwfHx8fDE3NTkwNDEyMDZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "indian train"
     },
     {
       "id": "hotel-1",
@@ -35,6 +35,12 @@
       "description": "The Taj Mahal in Agra.",
       "imageUrl": "https://images.unsplash.com/photo-1578909516849-bced8d0ef3e0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8VGFqJTIwTWFoYWx8ZW58MHx8fHwxNzU4OTU2Mjc0fDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "Taj Mahal"
+    },
+    {
+      "id": "why-yatrasetu",
+      "description": "A person planning a trip with a laptop and a map.",
+      "imageUrl": "https://images.unsplash.com/photo-1522199755839-a2bacb67c546?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHx0cmF2ZWwlMjBwbGFubmluZ3xlbnwwfHx8fDE3NTkwNDExNTB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "travel planning"
     }
   ]
 }

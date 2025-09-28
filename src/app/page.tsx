@@ -5,6 +5,7 @@ import { ArrowRight, Bot, Clock, Hotel, Rocket, ShieldCheck, Train, Utensils, Wa
 import { Button } from "@/components/ui/button";
 import { YatraSetuLogo } from "@/components/icons";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PlaceHolderImages } from "@/lib/placeholder-images";
 
 const features = [
   {
@@ -40,6 +41,9 @@ const features = [
 ]
 
 export default function LandingPage() {
+  const heroImage = PlaceHolderImages.find(img => img.id === 'login-background');
+  const whyYatraSetuImage = PlaceHolderImages.find(img => img.id === 'why-yatrasetu');
+
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -133,8 +137,16 @@ export default function LandingPage() {
                         </div>
                     </div>
                 </div>
-                <div className="relative h-96 rounded-lg overflow-hidden bg-gray-200 flex items-center justify-center">
-                    <p className="text-muted-foreground">Image removed</p>
+                <div className="relative h-96 rounded-lg overflow-hidden bg-gray-200">
+                  {whyYatraSetuImage && (
+                    <Image 
+                        src={whyYatraSetuImage.imageUrl} 
+                        alt={whyYatraSetuImage.description} 
+                        fill
+                        className="object-cover"
+                        data-ai-hint={whyYatraSetuImage.imageHint}
+                    />
+                  )}
                 </div>
             </div>
         </section>
