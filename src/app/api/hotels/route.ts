@@ -1,6 +1,7 @@
 
 import { NextResponse } from 'next/server';
-import allHotels from '@/lib/mock-data/hotels.json';
+import { db } from '@/lib/firebase/config';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import { z } from 'zod';
 
 const searchSchema = z.object({
@@ -26,13 +27,25 @@ export async function GET(request: Request) {
     });
     
     // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    let filteredHotels = [...allHotels];
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    const hotelsCollection = collection(db, 'hotels');
+    const queryConstraints = [];
 
     if (params.city) {
-      filteredHotels = filteredHotels.filter(hotel => hotel.city.toLowerCase() === params.city?.toLowerCase());
+      queryConstraints.push(where('city', '==', params.city));
     }
+    
+    const q = query(hotelsCollection, ...queryConstraints);
+    const querySnapshot = await getDocs(q);
+    
+    let hotels: any[] = [];
+    querySnapshot.forEach((doc) => {
+        hotels.push({ id: doc.id, ...doc.data() });
+    });
+
+    let filteredHotels = hotels;
+
     if (params.price_min !== undefined) {
       filteredHotels = filteredHotels.filter(hotel => hotel.price >= params.price_min!);
     }

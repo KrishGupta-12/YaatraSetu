@@ -24,7 +24,7 @@ import { toast } from "@/hooks/use-toast";
 const allAmenities = ["Pool", "Gym", "WiFi", "Spa", "Fine Dining", "Restaurant", "Beach Access", "Casino"];
 
 type Hotel = { 
-  id: number; 
+  id: string; 
   name: string; 
   city: string; 
   rating: number; 
@@ -94,7 +94,7 @@ export default function HotelBookingPage() {
     }
   }, [priceRange, selectedRatings, selectedAmenities, sortBy]);
   
-  const toggleLike = (hotelId: number) => {
+  const toggleLike = (hotelId: string) => {
     setHotels(hotels.map(h => h.id === hotelId ? {...h, liked: !h.liked} : h));
   }
 
@@ -423,7 +423,7 @@ export default function HotelBookingPage() {
                     <Button variant="outline">Close</Button>
                 </DialogClose>
                 <DialogClose asChild>
-                     <Button onClick={() => { setViewingHotel(null); handleBookNowClick(viewingHotel)}}>Book Now</Button>
+                     <Button onClick={() => { setViewingHotel(null); selectedHotel && handleBookNowClick(viewingHotel!)}}>Book Now</Button>
                 </DialogClose>
             </DialogFooter>
         </DialogContent>
@@ -476,3 +476,5 @@ export default function HotelBookingPage() {
     </Dialog>
   );
 }
+
+    

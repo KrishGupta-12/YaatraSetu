@@ -1,6 +1,6 @@
 
 
-import { doc, setDoc, getDoc, serverTimestamp, updateDoc, deleteDoc, collection, addDoc, onSnapshot, query, orderBy, where, runTransaction } from "firebase/firestore";
+import { doc, setDoc, getDoc, serverTimestamp, updateDoc, deleteDoc, collection, addDoc, onSnapshot, query, orderBy, where, runTransaction, getDocs, getCountFromServer } from "firebase/firestore";
 import { db } from "./config";
 import type { User } from 'firebase/auth';
 
@@ -261,3 +261,50 @@ export const logChatbotConversation = async (uid: string, messages: any[], langu
         // Don't throw error to user, just log it
     }
 }
+
+// Admin panel functions
+export const getAdminStats = async () => {
+    const hotelsCol = collection(db, "hotels");
+    const usersCol = collection(db, "users");
+    const bookingsCol = collection(db, "bookings");
+
+    const hotelsCount = await getCountFromServer(hotelsCol);
+    const usersCount = await getCountFromServer(usersCol);
+    const bookingsCount = await getCountFromServer(bookingsCol);
+
+    return {
+        hotels: hotelsCount.data().count,
+        users: usersCount.data().count,
+        bookings: bookingsCount.data().count,
+    };
+};
+
+export const getAllHotels = async () => {
+    const hotelsCollection = collection(db, 'hotels');
+    const hotelsSnapshot = await getDocs(hotelsCollection);
+    const hotelsList = hotelsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    return hotelsList;
+};
+
+export const addHotel = async (hotelData: any) => {
+    const hotelsCollection = collection(db, 'hotels');
+    await addDoc(hotelsCollection, {
+        ...hotelData,
+        createdAt: serverTimestamp(),
+    });
+};
+
+export const updateHotel = async (hotelId: string, hotelData: any) => {
+    const hotelRef = doc(db, 'hotels', hotelId);
+    await updateDoc(hotelRef, {
+        ...hotelData,
+        updatedAt: serverTimestamp(),
+    });
+};
+
+export const deleteHotel = async (hotelId: string) => {
+    const hotelRef = doc(db, 'hotels', hotelId);
+    await deleteDoc(hotelRef);
+};
+
+    
