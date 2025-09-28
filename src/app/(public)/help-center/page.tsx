@@ -12,8 +12,9 @@ const faqs = [
         icon: Train,
         questions: [
             { q: "How do I book a train ticket?", a: "Navigate to the 'Train Booking' page, enter your source, destination, and date. Select a train and class, add passengers, and proceed to payment." },
-            { q: "Can I check PNR status?", a: "Yes, on the 'Train Booking' page, there is a quick action button to check your PNR status instantly." },
-            { q: "What quotas are available for booking?", a: "We support General, Tatkal, Premium Tatkal, and Ladies quotas for booking." },
+            { q: "Can I check PNR status?", a: "Yes, on the 'Train Booking' page, there is a quick action button to check your PNR status instantly by entering your 10-digit PNR number." },
+            { q: "What quotas are available for booking?", a: "We support General, Tatkal, Premium Tatkal, and Ladies quotas for booking through our platform." },
+            { q: "How do I add or manage saved passengers?", a: "You can add, view, and remove co-travellers from the 'My Profile' page. These saved passengers can be quickly added to any train booking." },
         ]
     },
     {
@@ -22,24 +23,25 @@ const faqs = [
         questions: [
             { q: "How do I find hotels in a specific city?", a: "On the 'Hotel Booking' page, enter your destination city, check-in/check-out dates, and number of guests to see a list of available hotels." },
             { q: "Can I filter hotels by amenities?", a: "Yes, you can use the filters on the left sidebar to narrow down your search by price range, star rating, and amenities like WiFi, Pool, and Gym." },
-            { q: "How do I save a hotel to my wishlist?", a: "Click the heart icon on any hotel card to add it to your personal wishlist for later." },
+            { q: "How do I save a hotel to my wishlist?", a: "Click the heart icon on any hotel card to add it to your personal wishlist for later comparison and easy booking." },
         ]
     },
     {
         category: "Tatkal Automation",
         icon: Sparkles,
         questions: [
-            { q: "How does Tatkal Automation work?", a: "You pre-fill your journey and passenger details. Our secure backend system then automatically attempts to book your ticket the moment the Tatkal window opens." },
-            { q: "Is booking guaranteed with the automation tool?", a: "While our tool significantly increases your chances, it is not a 100% guarantee due to the high demand for Tatkal tickets. We recommend setting it up as soon as possible." },
-            { q: "Where can I see my scheduled Tatkal requests?", a: "On the 'Tatkal Automation' page, click the 'View Scheduled Requests' button to see a list of your pending and completed automation tasks." },
+            { q: "How does Tatkal Automation work?", a: "You pre-fill your journey and passenger details on the 'Tatkal Automation' page. Our secure backend system then automatically attempts to book your ticket the moment the Tatkal window opens (10 AM for AC, 11 AM for non-AC)." },
+            { q: "Is booking guaranteed with the automation tool?", a: "While our tool significantly increases your chances by automating the process at high speed, it is not a 100% guarantee due to the extremely high demand for Tatkal tickets. We recommend setting up your request well in advance." },
+            { q: "Where can I see my scheduled Tatkal requests?", a: "On the 'Tatkal Automation' page, click the 'View Scheduled Requests' button to see a list of your pending and completed automation tasks and their status." },
         ]
     },
     {
         category: "Food Ordering",
         icon: CookingPot,
         questions: [
-            { q: "How do I order food to my train seat?", a: "Go to the 'Food Orders' page, enter your PNR, and we will show you restaurants that can deliver to your upcoming stations. Add items to your cart and check out." },
-            { q: "How is the food delivery timed?", a: "Our system tracks your train's live running status to ensure food is prepared and delivered fresh when your train arrives at the selected station." },
+            { q: "How do I order food to my train seat?", a: "Go to the 'Food Orders' page, enter your 10-digit PNR, and we will show you verified restaurants that can deliver to your upcoming stations. Add items to your cart and check out." },
+            { q: "How is the food delivery timed?", a: "Our system tracks your train's live running status to ensure food is prepared and delivered fresh when your train arrives at the selected delivery station." },
+            { q: "What kind of dietary options are available?", a: "You can filter restaurants and food items by dietary preferences such as Veg, Non-Veg, and Jain to suit your needs." },
         ]
     },
 ]

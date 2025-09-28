@@ -51,7 +51,7 @@ export function AppFooter() {
           <div className="col-span-2 md:col-span-2">
             <h4 className="font-semibold mb-4">Follow Us</h4>
             <div className="flex items-center gap-4">
-              <Link href="https://x.com/KRISH_200510" aria-label="Twitter" target="_blank" rel="noopener noreferrer">
+              <Link href="https://x.com/KRISH_200510?t=RdG7ZYGR-XG1RsEXmw9kwA&s=09" aria-label="Twitter" target="_blank" rel="noopener noreferrer">
                 <Twitter className="h-5 w-5 text-gray-400 hover:text-white" />
               </Link>
               <Link href="https://www.facebook.com/krish.gupta.940641?mibextid=ZbWKwL" aria-label="Facebook" target="_blank" rel="noopener noreferrer">
