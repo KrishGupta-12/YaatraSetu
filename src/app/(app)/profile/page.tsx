@@ -29,7 +29,9 @@ import { addSavedPassenger, removeSavedPassenger } from "@/lib/firebase/firestor
 const passengerFormSchema = z.object({
   name: z.string().min(2, "Name is required."),
   age: z.coerce.number().min(1, "Age must be at least 1.").max(120),
-  gender: z.enum(["Male", "Female", "Other"]),
+  gender: z.enum(["Male", "Female", "Other"], { required_error: "Gender is required."}),
+  idType: z.enum(["Aadhar", "Passport", "Driving License", "Other"], { required_error: "ID type is required."}),
+  idNumber: z.string().min(5, "A valid ID number is required."),
 });
 
 type PassengerFormData = z.infer<typeof passengerFormSchema>;
@@ -45,7 +47,8 @@ export default function ProfilePage() {
     resolver: zodResolver(passengerFormSchema),
     defaultValues: {
       name: "",
-      age: undefined,
+      age: "" as any,
+      idNumber: ""
     }
   });
 
@@ -53,6 +56,8 @@ export default function ProfilePage() {
     if (!user) return;
     setIsSubmitting(true);
     try {
+      // Note: Firestore arrayUnion doesn't guarantee uniqueness if objects are slightly different.
+      // A truly robust solution might involve checking for existing passengers first.
       const newPassenger = { id: new Date().toISOString(), ...data };
       await addSavedPassenger(user.uid, newPassenger);
       toast({
@@ -62,6 +67,7 @@ export default function ProfilePage() {
       form.reset();
       setOpenDialog(false);
     } catch (error) {
+      console.error("Failed to add passenger:", error);
       toast({
         variant: "destructive",
         title: "Error",
@@ -200,7 +206,7 @@ export default function ProfilePage() {
                     <div>
                       <p className="font-semibold">{p.name}</p>
                       <p className="text-sm text-muted-foreground">
-                        {p.age}, {p.gender}
+                        {p.age}, {p.gender} | ID: {p.idType} - XXXX{p.idNumber.slice(-4)}
                       </p>
                     </div>
                     <Button
@@ -273,6 +279,40 @@ export default function ProfilePage() {
                                         <SelectItem value="Other">Other</SelectItem>
                                     </SelectContent>
                                 </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </div>
+                 <div className="grid grid-cols-2 gap-4">
+                     <FormField
+                        control={form.control}
+                        name="idType"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>ID Type</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                        <SelectTrigger><SelectValue placeholder="Select..."/></SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        <SelectItem value="Aadhar">Aadhar</SelectItem>
+                                        <SelectItem value="Passport">Passport</SelectItem>
+                                        <SelectItem value="Driving License">Driving License</SelectItem>
+                                        <SelectItem value="Other">Other</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                     <FormField
+                        control={form.control}
+                        name="idNumber"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>ID Number</FormLabel>
+                                <FormControl><Input placeholder="Enter ID Number" {...field} /></FormControl>
                                 <FormMessage />
                             </FormItem>
                         )}
