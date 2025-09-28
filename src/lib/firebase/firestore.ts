@@ -1,5 +1,5 @@
 
-import { doc, setDoc, getDoc, serverTimestamp, updateDoc, deleteDoc, onSnapshot } from "firebase/firestore";
+import { doc, setDoc, getDoc, serverTimestamp, updateDoc, deleteDoc, arrayUnion, arrayRemove } from "firebase/firestore";
 import { db } from "./config";
 import type { User } from 'firebase/auth';
 
@@ -7,30 +7,32 @@ export const createUserProfile = async (user: User, additionalData: Record<strin
   if (!user) return;
 
   const userRef = doc(db, `users/${user.uid}`);
-  const createdAt = serverTimestamp();
+  const snap = await getDoc(userRef);
 
-  // Consolidate data, ensuring values are not undefined
-  const userData = {
-    uid: user.uid,
-    email: user.email || '',
-    displayName: additionalData.name || user.displayName || '',
-    photoURL: user.photoURL || '',
-    phone: additionalData.phone || '',
-    // Only set these on initial creation
-    ...(!await getDoc(userRef).then(snap => snap.exists()) ? {
+  if (!snap.exists()) {
+    // Document doesn't exist, create it with all default fields
+    const createdAt = serverTimestamp();
+    const userData = {
+      uid: user.uid,
+      email: user.email || '',
+      displayName: additionalData.name || user.displayName || '',
+      photoURL: user.photoURL || '',
+      phone: additionalData.phone || '',
       createdAt: createdAt,
+      lastLogin: createdAt,
       savedPassengers: [],
       preferences: {},
       loyaltyPoints: 0,
-    } : {})
-  };
-
-  try {
-    // Use set with merge: true to create or update the document
-    await setDoc(userRef, userData, { merge: true });
-  } catch (error) {
-    console.error("Error creating or updating user profile:", error);
-    throw new Error("Unable to create or update user profile.");
+    };
+    await setDoc(userRef, userData);
+  } else {
+    // Document exists, merge new/updated info but don't overwrite arrays/objects
+    const updateData = {
+        displayName: additionalData.name || user.displayName || snap.data().displayName,
+        phone: additionalData.phone || snap.data().phone,
+        lastLogin: serverTimestamp(),
+    };
+    await updateDoc(userRef, updateData);
   }
 };
 
@@ -40,8 +42,6 @@ export const updateUserLastLogin = async (uid: string) => {
     try {
         await updateDoc(userRef, { lastLogin: serverTimestamp() });
     } catch (error) {
-        // This can fail if the document doesn't exist yet, which is okay on first login.
-        // createUserProfile will handle creating it.
         if (error instanceof Error && 'code' in error && error.code !== 'not-found') {
              console.error("Error updating last login timestamp:", error);
         }
@@ -79,18 +79,15 @@ export const addSavedPassenger = async (uid: string, passengerData: any) => {
   if (!uid) throw new Error("User ID is required to add a passenger.");
   const userRef = doc(db, `users/${uid}`);
   try {
-    const docSnap = await getDoc(userRef);
-    if (docSnap.exists()) {
-      const currentPassengers = docSnap.data().savedPassengers || [];
-      const updatedPassengers = [...currentPassengers, passengerData];
-      await updateDoc(userRef, {
-        savedPassengers: updatedPassengers,
-      });
-    } else {
-        throw new Error("User profile does not exist.");
-    }
+    await updateDoc(userRef, {
+      savedPassengers: arrayUnion(passengerData)
+    });
   } catch (error) {
     console.error("Error adding saved passenger:", error);
+    // Check if it's a 'not-found' error and provide a more specific message if so.
+    if (error instanceof Error && 'code' in error && error.code === 'not-found') {
+        throw new Error("User profile does not exist. Cannot add passenger.");
+    }
     throw new Error("Unable to add passenger.");
   }
 }
@@ -99,16 +96,9 @@ export const removeSavedPassenger = async (uid: string, passengerToRemove: any) 
   if (!uid) throw new Error("User ID is required to remove a passenger.");
   const userRef = doc(db, `users/${uid}`);
   try {
-    const docSnap = await getDoc(userRef);
-    if (docSnap.exists()) {
-        const currentPassengers = docSnap.data().savedPassengers || [];
-        const updatedPassengers = currentPassengers.filter((p: any) => p.id !== passengerToRemove.id);
-        await updateDoc(userRef, {
-            savedPassengers: updatedPassengers,
-        });
-    } else {
-         throw new Error("User profile does not exist.");
-    }
+    await updateDoc(userRef, {
+      savedPassengers: arrayRemove(passengerToRemove)
+    });
   } catch (error) {
     console.error("Error removing saved passenger:", error);
     throw new Error("Unable to remove passenger.");
