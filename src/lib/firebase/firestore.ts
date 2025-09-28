@@ -7,25 +7,30 @@ export const createUserProfile = async (user: User, additionalData: Record<strin
   if (!user) return;
 
   const userRef = doc(db, `users/${user.uid}`);
-  const { email, displayName, photoURL } = user;
   const createdAt = serverTimestamp();
 
-  try {
-    await setDoc(userRef, {
-      uid: user.uid,
-      email,
-      displayName: additionalData.name || displayName,
-      photoURL,
-      createdAt,
-      lastLogin: createdAt,
-      phone: additionalData.phone || "",
+  // Consolidate data, ensuring values are not undefined
+  const userData = {
+    uid: user.uid,
+    email: user.email || '',
+    displayName: additionalData.name || user.displayName || '',
+    photoURL: user.photoURL || '',
+    phone: additionalData.phone || '',
+    // Only set these on initial creation
+    ...(!await getDoc(userRef).then(snap => snap.exists()) ? {
+      createdAt: createdAt,
       savedPassengers: [],
       preferences: {},
       loyaltyPoints: 0,
-    }, { merge: true });
+    } : {})
+  };
+
+  try {
+    // Use set with merge: true to create or update the document
+    await setDoc(userRef, userData, { merge: true });
   } catch (error) {
-    console.error("Error creating user profile:", error);
-    throw new Error("Unable to create user profile.");
+    console.error("Error creating or updating user profile:", error);
+    throw new Error("Unable to create or update user profile.");
   }
 };
 
@@ -35,7 +40,11 @@ export const updateUserLastLogin = async (uid: string) => {
     try {
         await updateDoc(userRef, { lastLogin: serverTimestamp() });
     } catch (error) {
-        console.error("Error updating last login timestamp:", error);
+        // This can fail if the document doesn't exist yet, which is okay on first login.
+        // createUserProfile will handle creating it.
+        if (error instanceof Error && 'code' in error && error.code !== 'not-found') {
+             console.error("Error updating last login timestamp:", error);
+        }
     }
 }
 
@@ -104,4 +113,3 @@ export const deleteUserProfile = async (uid: string) => {
         throw new Error("Unable to delete user profile.");
     }
 }
-

@@ -33,8 +33,11 @@ export const signUp = async (email: string, password: string, additionalData: Re
 
 export const signIn = async (email: string, password: string) => {
   const userCredential = await signInWithEmailAndPassword(auth, email, password);
-  await updateUserLastLogin(userCredential.user.uid);
-  return userCredential.user;
+  const user = userCredential.user;
+  // Ensure user profile exists and update last login
+  await createUserProfile(user); 
+  await updateUserLastLogin(user.uid);
+  return user;
 };
 
 export const signOut = async () => {
