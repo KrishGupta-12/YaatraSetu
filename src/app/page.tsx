@@ -63,9 +63,9 @@ export default function LandingPage() {
         <section className="relative h-[80vh] min-h-[500px] flex items-center justify-center text-center text-white">
           <div className="absolute inset-0 z-0">
              <Image
-              src="https://images.unsplash.com/photo-1629198124976-77ea142d72b2?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.0.3"
-              alt="A scenic photograph of the Maharajas' Express train"
-              data-ai-hint="maharaja express"
+              src="https://images.unsplash.com/photo-1593361664183-59521d9951dc?q=80&w=2070&auto=format&fit=crop"
+              alt="A train moving through a scenic landscape"
+              data-ai-hint="train landscape"
               fill
               className="object-cover"
               priority
@@ -146,9 +146,9 @@ export default function LandingPage() {
                 </div>
                 <div className="relative h-96 rounded-lg overflow-hidden">
                     <Image 
-                        src="https://picsum.photos/seed/train-window/800/600"
-                        alt="View from a train window"
-                        data-ai-hint="train window"
+                        src="https://images.unsplash.com/photo-1534792410332-9a3d8093a42d?q=80&w=1974&auto=format&fit=crop"
+                        alt="A person looking at a map"
+                        data-ai-hint="person map"
                         fill
                         className="object-cover"
                     />
