@@ -42,7 +42,6 @@ const features = [
 ]
 
 export default function LandingPage() {
-  const heroImage = PlaceHolderImages.find(img => img.id === 'login-background');
   const whyYatraSetuImage = PlaceHolderImages.find(img => img.id === 'why-yatrasetu');
 
   return (
@@ -74,17 +73,7 @@ export default function LandingPage() {
       </header>
 
       <main className="flex-1">
-        <section className="relative h-[80vh] min-h-[500px] flex items-center justify-center text-center bg-gray-900 text-white">
-          {heroImage && (
-             <Image
-              src={heroImage.imageUrl}
-              alt={heroImage.description}
-              fill
-              className="object-cover object-center brightness-50"
-              data-ai-hint={heroImage.imageHint}
-              priority
-            />
-          )}
+        <section className="relative h-[80vh] min-h-[500px] flex items-center justify-center text-center bg-gradient-to-br from-gray-900 via-purple-950 to-gray-900 text-white">
           <div className="relative z-10 p-4 space-y-6 max-w-3xl">
             <h1 className="text-4xl md:text-6xl font-bold font-headline">
               Your Complete Bharatiya Travel Companion
