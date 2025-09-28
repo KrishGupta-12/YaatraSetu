@@ -183,9 +183,9 @@ export const createBooking = async (uid: string, bookingData: any) => {
             // Step 1: All reads must happen first.
             let currentPoints = 0;
             let currentHistory: any[] = [];
+            const userRef = doc(db, `users/${uid}`);
 
             if (pointsToAward > 0) {
-                const userRef = doc(db, `users/${uid}`);
                 const userDoc = await transaction.get(userRef);
                 if (userDoc.exists()) {
                     currentPoints = userDoc.data().loyaltyPoints || 0;
@@ -204,7 +204,6 @@ export const createBooking = async (uid: string, bookingData: any) => {
 
             // Update user's reward points if necessary.
             if (pointsToAward > 0) {
-                const userRef = doc(db, `users/${uid}`);
                 const newTotalPoints = currentPoints + pointsToAward;
                 
                 const newHistoryEntry = {
@@ -234,10 +233,10 @@ export const getBookings = (uid: string, onReceive: (data: any[]) => void) => {
         onReceive([]);
         return () => {};
     }
+    // Query without ordering on the server
     const bookingsQuery = query(
         collection(db, 'bookings'),
-        where('userId', '==', uid),
-        orderBy('createdAt', 'desc')
+        where('userId', '==', uid)
     );
 
     const unsubscribe = onSnapshot(bookingsQuery, (querySnapshot) => {
@@ -245,6 +244,14 @@ export const getBookings = (uid: string, onReceive: (data: any[]) => void) => {
         querySnapshot.forEach((doc) => {
             bookings.push({ id: doc.id, ...doc.data() });
         });
+        
+        // Sort on the client-side
+        bookings.sort((a, b) => {
+            const dateA = a.createdAt?.toDate() || 0;
+            const dateB = b.createdAt?.toDate() || 0;
+            return dateB - dateA;
+        });
+
         onReceive(bookings);
     }, (error) => {
         console.error("Error fetching bookings:", error);
