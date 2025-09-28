@@ -200,4 +200,18 @@ export const getBookings = (uid: string, onReceive: (data: any[]) => void) => {
     return unsubscribe;
 }
 
-    
+export const logChatbotConversation = async (uid: string, messages: any[], language: string) => {
+    if (!uid) return;
+    const logCollectionRef = collection(db, 'chatbot_logs');
+    try {
+        await addDoc(logCollectionRef, {
+            userId: uid,
+            conversation: messages,
+            language,
+            timestamp: serverTimestamp(),
+        });
+    } catch (error) {
+        console.error("Error logging chatbot conversation:", error);
+        // Don't throw error to user, just log it
+    }
+}

@@ -7,3 +7,4 @@ import '@/ai/flows/waitlist-prediction.ts';
 import '@/ai/flows/tatkal-booker.ts';
 import '@/ai/flows/send-contact-email.ts';
 import '@/ai/flows/yatra-chatbot.ts';
+import '@/ai/flows/generate-chatbot-audio';

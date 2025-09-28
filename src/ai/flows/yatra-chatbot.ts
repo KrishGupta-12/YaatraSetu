@@ -10,6 +10,7 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
+import { logChatbotConversation } from '@/lib/firebase/firestore';
 
 // Defines a single message in the chat history
 const ChatMessageSchema = z.object({
@@ -20,6 +21,7 @@ export type ChatMessage = z.infer<typeof ChatMessageSchema>;
 
 // Defines the structure for the chatbot input
 const YatraChatbotInputSchema = z.object({
+  userId: z.string().optional().describe('The user ID for logging purposes.'),
   history: z.array(ChatMessageSchema).describe('The conversation history.'),
   message: z.string().describe('The latest message from the user.'),
   language: z.string().default('English').describe('The language for the conversation.'),
@@ -65,7 +67,7 @@ const yatraChatbotFlow = ai.defineFlow(
     inputSchema: YatraChatbotInputSchema,
     outputSchema: YatraChatbotResponseSchema,
   },
-  async ({ history, message, language }) => {
+  async ({ userId, history, message, language }) => {
     const { output } = await ai.generate({
       model: 'googleai/gemini-2.5-flash',
       history: history.map(msg => ({...msg, parts: [{text: msg.content}]})),
@@ -76,7 +78,15 @@ const yatraChatbotFlow = ai.defineFlow(
         temperature: 0.3,
       },
     });
+    
+    const responseText = output?.text || "I'm sorry, I couldn't process that. Please try again.";
 
-    return { response: output?.text || "I'm sorry, I couldn't process that. Please try again." };
+    // Log the conversation asynchronously
+    if (userId) {
+       const updatedHistory = [...history, { role: 'user' as const, content: message}, { role: 'model' as const, content: responseText }];
+       await logChatbotConversation(userId, updatedHistory, language);
+    }
+
+    return { response: responseText };
   }
 );

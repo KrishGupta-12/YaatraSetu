@@ -7,13 +7,29 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Bot, Loader2, Send, Languages } from "lucide-react";
+import { Bot, Loader2, Send, Languages, Volume2 } from "lucide-react";
 import { YatraSetuLogo } from "./icons";
 import { yatraChatbot, type ChatMessage } from "@/ai/flows/yatra-chatbot";
+import { generateChatbotAudio } from "@/ai/flows/generate-chatbot-audio";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/use-auth";
+
+const languages = [
+    { value: "English", label: "English" },
+    { value: "Hindi", label: "हिन्दी (Hindi)" },
+    { value: "Tamil", label: "தமிழ் (Tamil)" },
+    { value: "Bengali", label: "বাংলা (Bengali)" },
+    { value: "Marathi", label: "मराठी (Marathi)" },
+    { value: "Telugu", label: "తెలుగు (Telugu)" },
+    { value: "Kannada", label: "ಕನ್ನಡ (Kannada)" },
+    { value: "Gujarati", label: "ગુજરાતી (Gujarati)" },
+    { value: "Malayalam", label: "മലയാളം (Malayalam)" },
+    { value: "Punjabi", label: "ਪੰਜਾਬੀ (Punjabi)" },
+];
 
 export function YatraAIChatbot() {
+    const { user } = useAuth();
     const [isOpen, setIsOpen] = useState(false);
     const [input, setInput] = useState("");
     const [loading, setLoading] = useState(false);
@@ -22,6 +38,7 @@ export function YatraAIChatbot() {
         { role: "model", content: "Hello! I am Yatra.ai. How can I help you plan your travel in India today?" },
     ]);
     const scrollAreaRef = useRef<HTMLDivElement>(null);
+    const audioRef = useRef<HTMLAudioElement>(null);
 
     useEffect(() => {
         if (scrollAreaRef.current) {
@@ -39,13 +56,22 @@ export function YatraAIChatbot() {
         setLoading(true);
 
         try {
-            const response = await yatraChatbot({
+            const textResponse = await yatraChatbot({
+                userId: user?.uid,
                 history: messages,
                 message: input,
                 language: language
             });
-            const modelMessage: ChatMessage = { role: "model", content: response.response };
+            const modelMessage: ChatMessage = { role: "model", content: textResponse.response };
             setMessages(prev => [...prev, modelMessage]);
+            
+            // Generate and play audio
+            const audioResponse = await generateChatbotAudio({ text: textResponse.response, language });
+            if (audioResponse.audioDataUri && audioRef.current) {
+                audioRef.current.src = audioResponse.audioDataUri;
+                audioRef.current.play();
+            }
+
         } catch (error) {
             console.error("Chatbot error:", error);
             const errorMessage: ChatMessage = { role: "model", content: "I'm sorry, something went wrong. Please try again." };
@@ -54,6 +80,21 @@ export function YatraAIChatbot() {
             setLoading(false);
         }
     };
+    
+    const replayAudio = async (text: string) => {
+        try {
+            setLoading(true);
+            const audioResponse = await generateChatbotAudio({ text, language });
+            if (audioResponse.audioDataUri && audioRef.current) {
+                audioRef.current.src = audioResponse.audioDataUri;
+                audioRef.current.play();
+            }
+        } catch(error) {
+            console.error("Audio replay error:", error);
+        } finally {
+            setLoading(false);
+        }
+    }
 
     return (
         <>
@@ -78,8 +119,9 @@ export function YatraAIChatbot() {
                                     <SelectValue placeholder="Language" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="English">English</SelectItem>
-                                    <SelectItem value="Hindi">हिन्दी (Hindi)</SelectItem>
+                                    {languages.map(lang => (
+                                        <SelectItem key={lang.value} value={lang.value}>{lang.label}</SelectItem>
+                                    ))}
                                 </SelectContent>
                             </Select>
                         </div>
@@ -97,16 +139,21 @@ export function YatraAIChatbot() {
                                         </Avatar>
                                     )}
                                     <div className={cn(
-                                        "max-w-[75%] rounded-lg px-3 py-2 text-sm",
+                                        "max-w-[75%] rounded-lg px-3 py-2 text-sm relative group",
                                         message.role === 'user'
                                             ? "bg-primary text-primary-foreground"
                                             : "bg-muted"
                                     )}>
                                         {message.content}
+                                        {message.role === 'model' && (
+                                            <Button size="icon" variant="ghost" className="absolute -right-8 top-0 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => replayAudio(message.content)}>
+                                                <Volume2 className="h-4 w-4"/>
+                                            </Button>
+                                        )}
                                     </div>
                                      {message.role === 'user' && (
                                         <Avatar className="h-8 w-8">
-                                            <AvatarFallback>U</AvatarFallback>
+                                            <AvatarFallback>{user?.displayName?.charAt(0) || 'U'}</AvatarFallback>
                                         </Avatar>
                                     )}
                                 </div>
@@ -140,6 +187,7 @@ export function YatraAIChatbot() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+            <audio ref={audioRef} className="hidden" />
         </>
     );
 }
