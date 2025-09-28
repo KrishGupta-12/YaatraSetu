@@ -46,13 +46,25 @@ const features = [
 
 export default function LandingPage() {
   const whyYaatraSetuImage = PlaceHolderImages.find(img => img.id === 'why-yatrasetu');
+  const heroImage = PlaceHolderImages.find(img => img.id === 'hero-background-train');
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <PublicHeader />
 
       <main className="flex-1">
-        <section className="relative h-[80vh] min-h-[500px] flex items-center justify-center text-center bg-gradient-to-br from-gray-900 via-purple-950 to-gray-900 text-white">
+        <section className="relative h-[80vh] min-h-[500px] flex items-center justify-center text-center text-white">
+          {heroImage && (
+            <Image 
+              src={heroImage.imageUrl}
+              alt={heroImage.description}
+              fill
+              className="object-cover"
+              data-ai-hint={heroImage.imageHint}
+              priority
+            />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent"></div>
           <div className="relative z-10 p-4 space-y-6 max-w-3xl">
             <h1 className="text-4xl md:text-6xl font-bold font-headline">
               Your Complete Bharatiya Travel Companion
