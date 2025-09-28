@@ -2,9 +2,9 @@
   "placeholderImages": [
     {
       "id": "hero-background-train",
-      "description": "A beautiful shot of an Indian train moving through a scenic landscape.",
-      "imageUrl": "https://images.unsplash.com/photo-1601238644703-a2d9c940b0a8?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      "imageHint": "indian railway"
+      "description": "The modern Vande Bharat Express train, representing the future of Indian travel.",
+      "imageUrl": "https://images.financialexpressdigital.com/2023/09/1-267.jpg?w=1024",
+      "imageHint": "Vande Bharat train"
     },
     {
       "id": "login-background",

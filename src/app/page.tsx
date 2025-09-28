@@ -67,10 +67,10 @@ export default function LandingPage() {
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent"></div>
           <div className="relative z-10 p-4 space-y-6 max-w-3xl">
             <h1 className="text-4xl md:text-6xl font-bold font-headline">
-              Your Complete Bharatiya Travel Companion
+              The Future of Indian Travel
             </h1>
             <p className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto">
-              Seamlessly book trains, hotels, and meals for your next journey across Bharat. All in one place.
+              Experience the next generation of travel with smart booking, AI-powered planning, and seamless service.
             </p>
              <p className="text-lg md:text-xl text-amber-300/90 font-serif italic max-w-2xl mx-auto">
               यात्रा सुगमं भवतु – “May your journey be smooth.”
