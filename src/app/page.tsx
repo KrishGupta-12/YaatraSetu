@@ -59,12 +59,12 @@ export default function LandingPage() {
               src={heroImage.imageUrl}
               alt={heroImage.description}
               fill
-              className="object-cover"
+              className="object-cover blur-sm"
               data-ai-hint={heroImage.imageHint}
               priority
             />
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/60 to-black/30"></div>
           <div className="relative z-10 p-4 space-y-6 max-w-3xl">
             <h1 className="text-4xl md:text-6xl font-bold font-headline drop-shadow-lg">
               The Future of Indian Travel
