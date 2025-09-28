@@ -67,7 +67,7 @@ export default function LandingPage() {
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/60 to-black/30"></div>
           <div className="relative z-10 p-4 space-y-6 max-w-3xl">
             <h1 className="text-4xl md:text-6xl font-bold font-headline drop-shadow-lg">
-              The Future of Indian Travel
+              The Future of Bharatiya Travel
             </h1>
             <p className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto drop-shadow-md">
               Experience the next generation of travel with smart booking, AI-powered planning, and seamless service.
@@ -89,7 +89,7 @@ export default function LandingPage() {
         <section id="features" className="py-16 md:py-24 bg-muted/40">
             <div className="container">
                 <div className="text-center max-w-3xl mx-auto mb-12">
-                    <h2 className="text-3xl md:text-4xl font-bold font-headline">Everything You Need for Bharatiya Travel</h2>
+                    <h2 className="text-3xl md:text-4xl font-bold font-headline">Everything You Need to Travel in Bharat</h2>
                     <p className="text-lg text-muted-foreground mt-4">YaatraSetu integrates every step of your journey into a single, easy-to-use platform.</p>
                 </div>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
