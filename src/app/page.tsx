@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Bot, Clock, Hotel, Rocket, ShieldCheck, Train, Utensils, Wallet, Facebook, Twitter, Instagram } from "lucide-react";
 
@@ -6,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { YatraSetuLogo } from "@/components/icons";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
+import Image from "next/image";
 
 const features = [
   {
@@ -52,12 +52,21 @@ export default function LandingPage() {
             <YatraSetuLogo className="h-6 w-6 text-primary" />
             <span className="font-bold inline-block font-headline">YatraSetu</span>
           </Link>
-          <div className="flex flex-1 items-center justify-end space-x-2">
+          <nav className="flex-1 items-center justify-center hidden md:flex">
+             <div className="flex items-center gap-4 text-sm font-medium">
+                <span>Book Trains</span>
+                <span className="text-muted-foreground">•</span>
+                <span>Hotels</span>
+                 <span className="text-muted-foreground">•</span>
+                <span>Food on Train</span>
+            </div>
+          </nav>
+          <div className="flex items-center justify-end space-x-2">
             <Button variant="ghost" asChild>
-                <Link href="/login">Login</Link>
+                <Link href="/auth/login">Login</Link>
             </Button>
             <Button asChild>
-                <Link href="/signup">Signup <ArrowRight className="ml-2 h-4 w-4" /></Link>
+                <Link href="/auth/signup">Signup</Link>
             </Button>
           </div>
         </div>
@@ -65,6 +74,16 @@ export default function LandingPage() {
 
       <main className="flex-1">
         <section className="relative h-[80vh] min-h-[500px] flex items-center justify-center text-center bg-gray-900 text-white">
+          {heroImage && (
+             <Image
+              src={heroImage.imageUrl}
+              alt={heroImage.description}
+              fill
+              className="object-cover object-center brightness-50"
+              data-ai-hint={heroImage.imageHint}
+              priority
+            />
+          )}
           <div className="relative z-10 p-4 space-y-6 max-w-3xl">
             <h1 className="text-4xl md:text-6xl font-bold font-headline">
               Your Complete Bharatiya Travel Companion
@@ -77,7 +96,7 @@ export default function LandingPage() {
             </p>
             <div className="flex justify-center pt-4">
                 <Button size="lg" asChild>
-                    <Link href="/login">
+                    <Link href="/auth/login">
                         Start Planning Your Trip
                         <ArrowRight className="ml-2" />
                     </Link>
@@ -168,7 +187,7 @@ export default function LandingPage() {
                      <nav className="flex flex-col gap-2 text-sm">
                         <Link href="/dashboard" className="text-gray-400 hover:text-white">Dashboard</Link>
                         <Link href="#features" className="text-gray-400 hover:text-white">Features</Link>
-                        <Link href="/login" className="text-gray-400 hover:text-white">Login</Link>
+                        <Link href="/auth/login" className="text-gray-400 hover:text-white">Login</Link>
                      </nav>
                  </div>
                  <div>
