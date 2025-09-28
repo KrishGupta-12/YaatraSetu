@@ -1,18 +1,36 @@
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    // Users collection
+    // - A user can read/write their own profile
+    // - A user cannot see other user profiles
     match /users/{userId} {
       allow read, update, delete: if request.auth != null && request.auth.uid == userId;
       allow create: if request.auth != null;
-      
+
+      // Passengers sub-collection
+      // - A user can read/write/delete their own saved passengers
       match /passengers/{passengerId} {
-        allow read, write, list: if request.auth != null && request.auth.uid == userId;
+        allow read, write, delete, list: if request.auth != null && request.auth.uid == userId;
       }
     }
-    
+
+    // Tatkal Requests collection
+    // - A user can create their own requests
+    // - A user can read their own requests
     match /tatkal_requests/{requestId} {
-      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
       allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+    }
+
+    // Bookings collection
+    // - A user can create their own bookings
+    // - A user can read their own bookings
+    match /bookings/{bookingId} {
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
     }
   }
 }
