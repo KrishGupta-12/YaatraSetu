@@ -1,1 +1,6 @@
-// Flows will be imported for their side effects in this file.
+import { config } from 'dotenv';
+config();
+
+import '@/ai/flows/summarize-reviews.ts';
+import '@/ai/flows/ai-journey-planner.ts';
+import '@/ai/flows/waitlist-prediction.ts';
