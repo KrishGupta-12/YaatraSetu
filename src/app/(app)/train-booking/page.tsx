@@ -130,18 +130,21 @@ export default function TrainBookingPage() {
     }
     
     const getTotalFare = () => {
-        const ticketFare = (selectedClass?.price || 0) * bookingPassengers.length;
+        if (!selectedClass) return 0;
+        const ticketFare = selectedClass.price * bookingPassengers.length;
+        if (ticketFare === 0) return 0;
         const convenienceFee = 59;
         return ticketFare + convenienceFee;
     }
 
     const handleProceedToPayment = () => {
         const bookingDetails = {
-            train,
+            type: "Train",
+            train: selectedTrain,
             selectedClass,
             passengers: bookingPassengers,
             fare: getTotalFare(),
-            date: date ? format(date, "PPP") : ""
+            date: date ? format(date, "yyyy-MM-dd") : ""
         };
         sessionStorage.setItem('bookingDetails', JSON.stringify(bookingDetails));
         router.push('/payment');
@@ -353,7 +356,7 @@ export default function TrainBookingPage() {
                     <Card>
                         <CardHeader><CardTitle>Fare Summary</CardTitle></CardHeader>
                         <CardContent className="space-y-2 text-sm">
-                             <div className="flex justify-between"><span>Ticket Fare ({bookingPassengers.length} x Rs. {selectedClass?.price.toLocaleString('en-IN')})</span><span>Rs. {(selectedClass?.price * bookingPassengers.length).toLocaleString('en-IN')}</span></div>
+                             <div className="flex justify-between"><span>Ticket Fare ({bookingPassengers.length} x Rs. {selectedClass?.price.toLocaleString('en-IN')})</span><span>Rs. {(selectedClass.price * bookingPassengers.length).toLocaleString('en-IN')}</span></div>
                             <div className="flex justify-between"><span>Convenience Fee</span><span>Rs. 59</span></div>
                             <Separator/>
                             <div className="flex justify-between font-bold text-base"><span>Total</span><span>Rs. {getTotalFare().toLocaleString('en-IN')}</span></div>

@@ -28,6 +28,10 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useUserProfile } from "@/hooks/use-user-profile";
+import { useEffect, useState } from "react";
+import { getBookings } from "@/lib/firebase/firestore";
+import { useAuth } from "@/hooks/use-auth";
+import { format } from "date-fns";
 
 const features = [
   {
@@ -60,32 +64,26 @@ const features = [
   },
 ];
 
-const upcomingTrips = [
-  {
-    id: "PNR847563",
-    type: "Train",
-    details: "Mumbai to Delhi - 12951 Rajdhani Exp",
-    date: "2024-08-15",
-    status: "Confirmed",
-  },
-  {
-    id: "HTL937465",
-    type: "Hotel",
-    details: "Taj Palace, New Delhi",
-    date: "2024-08-16",
-    status: "Booked",
-  },
-  {
-    id: "PNR293847",
-    type: "Train",
-    details: "Delhi to Agra - 12002 Shatabdi Exp",
-    date: "2024-08-18",
-    status: "Waitlisted (WL-12)",
-  },
-];
 
 export default function DashboardPage() {
-  const { profileData, loading } = useUserProfile();
+  const { profileData, loading: profileLoading } = useUserProfile();
+  const { user } = useAuth();
+  const [upcomingTrips, setUpcomingTrips] = useState<any[]>([]);
+  const [bookingsLoading, setBookingsLoading] = useState(true);
+
+  useEffect(() => {
+    if (user) {
+        setBookingsLoading(true);
+        const unsubscribe = getBookings(user.uid, (data) => {
+            const futureTrips = data.filter(trip => new Date(trip.date) >= new Date());
+            setUpcomingTrips(futureTrips);
+            setBookingsLoading(false);
+        });
+        return () => unsubscribe();
+    }
+  }, [user])
+
+  const loading = profileLoading || bookingsLoading;
 
   if (loading) {
     return (
@@ -100,6 +98,24 @@ export default function DashboardPage() {
              <Skeleton className="h-64 w-full" />
         </div>
     )
+  }
+
+  const getTripDetails = (trip: any) => {
+    switch (trip.type) {
+      case "Train":
+        return `${trip.train.from} to ${trip.train.to} - ${trip.train.name}`;
+      case "Hotel":
+        return trip.hotel.name;
+      case "Food":
+        return `Order at ${trip.station}`;
+      default:
+        return "Unknown Booking";
+    }
+  }
+
+  const getStatus = (trip: any) => {
+    if (trip.status.toLowerCase().includes("waitlisted")) return `Waitlisted (${trip.status})`;
+    return trip.status;
   }
 
   return (
@@ -157,15 +173,15 @@ export default function DashboardPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {upcomingTrips.map((trip) => (
+              {upcomingTrips.length > 0 ? upcomingTrips.map((trip) => (
                 <TableRow key={trip.id}>
-                  <TableCell className="font-medium">{trip.id}</TableCell>
+                  <TableCell className="font-medium truncate max-w-24">{trip.id}</TableCell>
                   <TableCell>{trip.type}</TableCell>
-                  <TableCell>{trip.details}</TableCell>
-                  <TableCell>{trip.date}</TableCell>
+                  <TableCell>{getTripDetails(trip)}</TableCell>
+                  <TableCell>{format(new Date(trip.date), "PPP")}</TableCell>
                   <TableCell>
                     <Badge variant={trip.status.includes("Confirmed") || trip.status.includes("Booked") ? "default" : trip.status.includes("Waitlisted") ? "secondary" : "destructive"} className={trip.status.includes("Waitlisted") ? "bg-amber-500/20 text-amber-700 border-amber-500/30" : ""}>
-                        {trip.status}
+                        {getStatus(trip)}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
@@ -174,7 +190,13 @@ export default function DashboardPage() {
                     </Button>
                   </TableCell>
                 </TableRow>
-              ))}
+              )) : (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center h-24 text-muted-foreground">
+                    You have no upcoming trips. Time to plan an adventure!
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </CardContent>
@@ -182,3 +204,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    

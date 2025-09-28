@@ -11,9 +11,12 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { CreditCard, Landmark, Loader2, PartyPopper, Train } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
+import { createBooking } from "@/lib/firebase/firestore";
 
 export default function PaymentPage() {
     const router = useRouter();
+    const { user } = useAuth();
     const [bookingDetails, setBookingDetails] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [paymentMethod, setPaymentMethod] = useState("upi");
@@ -28,17 +31,40 @@ export default function PaymentPage() {
         setLoading(false);
     }, []);
 
-    const handlePayment = () => {
-        setProcessing(true);
-        setTimeout(() => {
-            setProcessing(false);
-            setPaymentSuccess(true);
+    const handlePayment = async () => {
+        if (!user || !bookingDetails) {
             toast({
-                title: "Payment Successful!",
-                description: "Your tickets have been booked.",
+                variant: "destructive",
+                title: "Error",
+                description: "User or booking details are missing.",
             });
-            sessionStorage.removeItem('bookingDetails');
-        }, 2000);
+            return;
+        }
+
+        setProcessing(true);
+
+        try {
+            await createBooking(user.uid, bookingDetails);
+
+            setTimeout(() => {
+                setProcessing(false);
+                setPaymentSuccess(true);
+                toast({
+                    title: "Payment Successful!",
+                    description: "Your tickets have been booked.",
+                });
+                sessionStorage.removeItem('bookingDetails');
+            }, 2000);
+
+        } catch (error) {
+            console.error("Booking failed:", error);
+            toast({
+                variant: "destructive",
+                title: "Booking Failed",
+                description: "There was an error saving your booking. Please try again.",
+            });
+            setProcessing(false);
+        }
     }
 
     if (loading) {

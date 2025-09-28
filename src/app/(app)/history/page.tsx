@@ -1,34 +1,15 @@
+
 "use client";
 
+import { useEffect, useState } from "react";
+import { useAuth } from "@/hooks/use-auth";
+import { getBookings } from "@/lib/firebase/firestore";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CookingPot, Download, Hotel, Train } from "lucide-react";
+import { CookingPot, Download, Hotel, Train, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-
-const mockHistory = {
-  trains: [
-    { id: "PNR847563", details: "Mumbai to Delhi", journey: "12951 Rajdhani Exp", date: "2024-08-15", status: "Confirmed", amount: 2500 },
-    { id: "PNR293847", details: "Delhi to Agra", journey: "12002 Shatabdi Exp", date: "2024-08-18", status: "Cancelled", amount: 800 },
-    { id: "PNR564321", details: "Chennai to Bengaluru", journey: "20607 Vande Bharat", date: "2024-07-20", status: "Completed", amount: 1250 },
-  ],
-  hotels: [
-    { id: "HTL937465", name: "Taj Palace, New Delhi", date: "16 Aug - 18 Aug 2024", status: "Booked", amount: 15000 },
-    { id: "HTL123876", name: "The Oberoi, Agra", date: "18 Aug - 19 Aug 2024", status: "Cancelled", amount: 9500 },
-    { id: "HTL453345", name: "Leela Palace, Chennai", date: "19 Jul - 20 Jul 2024", status: "Completed", amount: 11000 },
-  ],
-  food: [
-    { id: "FOOD54321", pnr: "PNR847563", station: "Ratlam (RTM)", items: "2x Veg Thali", date: "2024-08-15", status: "Delivered", amount: 280 },
-    { id: "FOOD98765", pnr: "PNR564321", station: "Katpadi (KPD)", items: "1x Chicken Biryani, 1x Water Bottle", date: "2024-07-20", status: "Delivered", amount: 200 },
-  ]
-};
-
-const allBookings = [
-  ...mockHistory.trains.map(t => ({...t, type: "Train"})),
-  ...mockHistory.hotels.map(h => ({...h, type: "Hotel"})),
-  ...mockHistory.food.map(f => ({...f, type: "Food"})),
-].sort((a,b) => new Date(b.date.split(" - ")[0]).getTime() - new Date(a.date.split(" - ")[0]).getTime());
-
+import { format } from "date-fns";
 
 const getStatusVariant = (status: string) => {
   switch (status.toLowerCase()) {
@@ -44,86 +25,154 @@ const getStatusVariant = (status: string) => {
   }
 };
 
-const HistoryCard = ({ booking }: { booking: any }) => (
-  <Card>
-    <CardHeader className="flex flex-row items-start justify-between">
-      <div>
-        <CardTitle className="flex items-center gap-2">
-          {booking.type === "Train" && <Train className="h-5 w-5 text-primary" />}
-          {booking.type === "Hotel" && <Hotel className="h-5 w-5 text-primary" />}
-          {booking.type === "Food" && <CookingPot className="h-5 w-5 text-primary" />}
-          {booking.details || booking.name}
-        </CardTitle>
-        <CardDescription>{booking.id} {booking.pnr && `| PNR: ${booking.pnr}`}</CardDescription>
-      </div>
-      <Badge variant={getStatusVariant(booking.status)}>{booking.status}</Badge>
-    </CardHeader>
-    <CardContent className="space-y-2">
-      <div className="flex justify-between text-sm">
-        <span className="text-muted-foreground">Date</span>
-        <span>{booking.date}</span>
-      </div>
-      {booking.journey && (
-        <div className="flex justify-between text-sm">
-          <span className="text-muted-foreground">Train</span>
-          <span>{booking.journey}</span>
+const HistoryCard = ({ booking }: { booking: any }) => {
+  const getDetails = () => {
+    switch (booking.type) {
+      case "Train":
+        return {
+          title: `${booking.train.from} to ${booking.train.to}`,
+          description: `${booking.id} | ${booking.train.name} (${booking.train.id})`,
+          icon: <Train className="h-5 w-5 text-primary" />,
+          extra: [
+            { label: "Class", value: booking.selectedClass.name },
+            { label: "Passengers", value: booking.passengers.length },
+          ]
+        };
+      case "Hotel":
+         return {
+          title: booking.hotel.name,
+          description: booking.id,
+          icon: <Hotel className="h-5 w-5 text-primary" />,
+          extra: []
+        };
+      case "Food":
+         return {
+          title: `Order at ${booking.station}`,
+          description: booking.id,
+          icon: <CookingPot className="h-5 w-5 text-primary" />,
+          extra: [{label: "Items", value: booking.items}]
+        };
+      default:
+         return { title: "Unknown Booking", description: booking.id, icon: null, extra: [] };
+    }
+  };
+
+  const { title, description, icon, extra } = getDetails();
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-start justify-between">
+        <div>
+          <CardTitle className="flex items-center gap-2">
+            {icon}
+            {title}
+          </CardTitle>
+          <CardDescription>{description}</CardDescription>
         </div>
-      )}
-       {booking.items && (
+        <Badge variant={getStatusVariant(booking.status)}>{booking.status}</Badge>
+      </CardHeader>
+      <CardContent className="space-y-2">
         <div className="flex justify-between text-sm">
-          <span className="text-muted-foreground">Items</span>
-          <span>{booking.items}</span>
+          <span className="text-muted-foreground">Date</span>
+          <span>{format(new Date(booking.date), "PPP")}</span>
         </div>
-      )}
-      <div className="flex justify-between text-sm font-medium">
-        <span className="text-muted-foreground">Amount</span>
-        <span>₹{booking.amount.toLocaleString()}</span>
-      </div>
-    </CardContent>
-    {booking.status !== "Cancelled" && (
-      <CardContent>
-        <Button variant="outline" className="w-full">
-          <Download className="mr-2 h-4 w-4" />
-          Download Invoice
-        </Button>
+        {extra.map(item => (
+            <div key={item.label} className="flex justify-between text-sm">
+                <span className="text-muted-foreground">{item.label}</span>
+                <span>{item.value}</span>
+            </div>
+        ))}
+        <div className="flex justify-between text-sm font-medium">
+          <span className="text-muted-foreground">Amount</span>
+          <span>Rs. {booking.fare.toLocaleString()}</span>
+        </div>
       </CardContent>
-    )}
-  </Card>
-);
+      {booking.status !== "Cancelled" && (
+        <CardFooter>
+          <Button variant="outline" className="w-full">
+            <Download className="mr-2 h-4 w-4" />
+            Download Invoice
+          </Button>
+        </CardFooter>
+      )}
+    </Card>
+  );
+};
 
 export default function HistoryPage() {
+  const { user } = useAuth();
+  const [bookings, setBookings] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (user) {
+      setLoading(true);
+      const unsubscribe = getBookings(user.uid, (data) => {
+        setBookings(data);
+        setLoading(false);
+      });
+      return () => unsubscribe();
+    } else {
+        setLoading(false);
+    }
+  }, [user]);
+
+  if (loading) {
+    return (
+        <div className="flex items-center justify-center min-h-[60vh]">
+            <Loader2 className="h-8 w-8 animate-spin text-primary"/>
+        </div>
+    )
+  }
+  
+  if (bookings.length === 0) {
+      return (
+           <div>
+            <h1 className="text-3xl font-bold tracking-tight font-headline mb-8">Booking History</h1>
+            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center min-h-[40vh]">
+                <h2 className="text-xl font-semibold">No Bookings Found</h2>
+                <p className="text-muted-foreground">You haven't made any bookings yet.</p>
+                <Button asChild className="mt-4"><Link href="/train-booking">Book a Ticket</Link></Button>
+            </div>
+        </div>
+      )
+  }
+
+  const filteredBookings = (type: string) => bookings.filter(b => b.type === type);
+
   return (
     <div>
       <h1 className="text-3xl font-bold tracking-tight font-headline mb-8">Booking History</h1>
       <Tabs defaultValue="all" className="w-full">
         <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="all">All</TabsTrigger>
-          <TabsTrigger value="trains">Trains</TabsTrigger>
-
-          <TabsTrigger value="hotels">Hotels</TabsTrigger>
-          <TabsTrigger value="food">Food</TabsTrigger>
+          <TabsTrigger value="all">All ({bookings.length})</TabsTrigger>
+          <TabsTrigger value="trains">Trains ({filteredBookings("Train").length})</TabsTrigger>
+          <TabsTrigger value="hotels">Hotels ({filteredBookings("Hotel").length})</TabsTrigger>
+          <TabsTrigger value="food">Food ({filteredBookings("Food").length})</TabsTrigger>
         </TabsList>
         <TabsContent value="all">
-          <div className="space-y-4">
-            {allBookings.map(booking => <HistoryCard key={booking.id} booking={booking} />)}
+          <div className="space-y-4 pt-4">
+            {bookings.map(booking => <HistoryCard key={booking.id} booking={booking} />)}
           </div>
         </TabsContent>
         <TabsContent value="trains">
-          <div className="space-y-4">
-            {mockHistory.trains.map(booking => <HistoryCard key={booking.id} booking={{...booking, type: "Train"}} />)}
+          <div className="space-y-4 pt-4">
+            {filteredBookings("Train").map(booking => <HistoryCard key={booking.id} booking={booking} />)}
           </div>
         </TabsContent>
         <TabsContent value="hotels">
-          <div className="space-y-4">
-            {mockHistory.hotels.map(booking => <HistoryCard key={booking.id} booking={{...booking, type: "Hotel"}} />)}
+          <div className="space-y-4 pt-4">
+            {filteredBookings("Hotel").map(booking => <HistoryCard key={booking.id} booking={booking} />)}
           </div>
         </TabsContent>
         <TabsContent value="food">
-          <div className="space-y-4">
-            {mockHistory.food.map(booking => <HistoryCard key={booking.id} booking={{...booking, type: "Food"}} />)}
+          <div className="space-y-4 pt-4">
+            {filteredBookings("Food").map(booking => <HistoryCard key={booking.id} booking={booking} />)}
           </div>
         </TabsContent>
       </Tabs>
     </div>
   );
 }
+
+    

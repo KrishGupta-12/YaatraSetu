@@ -141,8 +141,8 @@ export const getTatkalRequests = (uid: string, onReceive: (data: any[]) => void)
         return () => {};
     };
     const requestsQuery = query(
-        collection(db, 'tatkal_requests'), 
-        where('userId', '==', uid)
+        collection(db, 'tatkal_requests'),
+        where('userId', '==', uid),
     );
 
     const unsubscribe = onSnapshot(requestsQuery, (querySnapshot) => {
@@ -158,3 +158,47 @@ export const getTatkalRequests = (uid: string, onReceive: (data: any[]) => void)
 
     return unsubscribe;
 }
+
+
+export const createBooking = async (uid: string, bookingData: any) => {
+    if (!uid) throw new Error("User not authenticated.");
+    const bookingsCollectionRef = collection(db, 'bookings');
+    try {
+        await addDoc(bookingsCollectionRef, {
+            ...bookingData,
+            userId: uid,
+            status: bookingData.status || 'Confirmed',
+            createdAt: serverTimestamp(),
+        });
+    } catch (error) {
+        console.error("Error creating booking:", error);
+        throw new Error("Unable to create booking.");
+    }
+}
+
+export const getBookings = (uid: string, onReceive: (data: any[]) => void) => {
+    if (!uid) {
+        onReceive([]);
+        return () => {};
+    }
+    const bookingsQuery = query(
+        collection(db, 'bookings'),
+        where('userId', '==', uid),
+        orderBy('createdAt', 'desc')
+    );
+
+    const unsubscribe = onSnapshot(bookingsQuery, (querySnapshot) => {
+        const bookings: any[] = [];
+        querySnapshot.forEach((doc) => {
+            bookings.push({ id: doc.id, ...doc.data() });
+        });
+        onReceive(bookings);
+    }, (error) => {
+        console.error("Error fetching bookings:", error);
+        onReceive([]);
+    });
+
+    return unsubscribe;
+}
+
+    
