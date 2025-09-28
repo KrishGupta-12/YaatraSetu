@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { YatraSetuLogo } from "@/components/icons";
+import { YaatraSetuLogo } from "@/components/icons";
 import { passwordReset } from "@/lib/auth";
 
 const formSchema = z.object({
@@ -72,7 +72,7 @@ export default function ForgotPasswordPage() {
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
           <div className="flex justify-center items-center mb-4">
-            <YatraSetuLogo className="h-8 w-8 text-primary" />
+            <YaatraSetuLogo className="h-8 w-8 text-primary" />
           </div>
           <CardTitle className="text-2xl font-headline">Forgot Password</CardTitle>
           <CardDescription>
