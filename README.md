@@ -1,118 +1,101 @@
-🌐 YatraSetu (भारतीय यात्रा सेतु)
+# 🌐 YatraSetu (भारतीय यात्रा सेतु)
 
-A Futuristic, Minimalist, and Powerful Travel Platform for India
+*A Futuristic, Minimalist, and Powerful Travel Platform for India*
 
-📖 Overview
+---
 
-YatraSetu is a modern web application inspired by IRCTC, redesigned with a minimal UI and futuristic features.
-It allows users to book trains, hotels, food on trains, and plan journeys with AI assistance.
-The platform integrates Firebase backend, AI (Gemini/GenKit), multilingual support, Tatkal automation, and a rewards system, making it the ultimate travel companion for India.
+## 📖 Overview
 
-Tagline:
+**YatraSetu** is a modern web application inspired by IRCTC, redesigned with a **minimal UI** and **futuristic features**.  
+It allows users to **book trains, hotels, food on trains, and plan journeys with AI assistance**.  
 
-“यात्रासेतुः — यात्रायाः सुगमता सेतुना सह।”
-(“YatraSetu — The bridge to make your journeys seamless.”)
+The platform integrates **Firebase backend**, **AI (Gemini/GenKit)**, **multilingual support**, **Tatkal automation**, and a **rewards system**, making it the ultimate travel companion for India.  
 
-🚀 Features
-🔑 Core Modules
+**Tagline**  
+> “यात्रासेतुः — यात्रायाः सुगमता सेतुना सह।”  
+> *“YatraSetu — The bridge to make your journeys seamless.”*
 
-Authentication
+---
 
-Email/Password, Google Sign-In, Phone OTP (via Firebase Auth).
+## 🚀 Features
 
-Session persistence, profile management, edit profile, password change, delete account.
+### 🔑 Core Modules
 
-Train Booking
+#### 🔐 Authentication
+- Email/Password.
+- Session persistence, profile management.
+- Edit profile, change password, delete account.
 
-Search trains, book tickets.
+#### 🚆 Train Booking
+- Search trains and book tickets.
+- Save passenger profiles for faster booking.
+- **Tatkal automation** with pre-saved details + auto-submit at booking time.
+- **Waitlist prediction (AI-powered).**
 
-Save passenger profiles for faster booking.
+#### 🏨 Hotel Booking
+- Search & filter by price, rating, and amenities.
+- Save hotels to wishlist.
+- Manage guests, payments, and invoices.
 
-Tatkal automation with pre-saved details + auto-submit at booking time.
+#### 🍴 Food Ordering
+- Order food on trains using **PNR/train number**.
+- Scheduled delivery at a chosen station.
+- Integration with catering partners.
 
-Waitlist prediction (AI-powered).
+#### 🤖 AI Journey Planner
+- Personalized itineraries (train + hotel + food).
+- Multi-modal travel suggestions.
+- Supports **multiple Indian languages**.
 
-Hotel Booking
+#### 📂 Booking History
+- Centralized history of trains, hotels, and food.
+- Downloadable **PDF invoices**.
+- Cancellation and refund management.
 
-Search & filter by price, rating, amenities.
+#### 🎁 Rewards System
+- Earn points:
+  - **Train**: 1 RP / ₹100
+  - **Hotel**: 2 RP / ₹100
+  - **Food**: 0.5 RP / ₹100
+- Redeem: **100 RP = ₹50 discount** (max 20% per booking).
+- Rewards dashboard + notifications.
 
-Save hotels to wishlist.
+---
 
-Manage guests, payments, and invoices.
+## 🛠️ Tech Stack
 
-Food Ordering
+- **Frontend**: Next.js + TypeScript + TailwindCSS  
+- **Backend**: Firebase (Auth, Firestore, Cloud Functions, Hosting)  
+- **AI**: Google Gemini / GenKit (for journey planning, chatbot, predictions)  
+- **Payments**: Demo integration (extendable to Razorpay/UPI)  
+- **Deployment**: Firebase Hosting  
 
-Order food on trains using PNR/train number.
+---
 
-Scheduled delivery at chosen station.
+## 🧑‍💼 Founder & Team
 
-Integration with catering partners.
+- **Founder & CEO**: *Krish Gupta*  
+- 📧 Email: [krishgupta200510@gmail.com](mailto:krishgupta200510@gmail.com)  
+- 🌐 Website: [krishgupta.in](https://krishgupta.in)  
 
-AI Journey Planner
+---
 
-Personalized itineraries (train + hotel + food).
+## 🤝 Contributing
 
-Multi-modal travel suggestions.
+We welcome contributions! 🎉  
 
-Supports multiple Indian languages.
+1. Fork the repo  
+2. Create a new branch (`feature/xyz`)  
+3. Commit changes & push  
+4. Submit a PR  
 
-Booking History
+---
 
-Centralized history of trains, hotels, food.
+## 📜 License
 
-Downloadable PDF invoices.
+This project is licensed under the **MIT License** — free to use & modify.
 
-Cancellation and refund management.
+---
 
-Rewards System
-
-Earn points:
-
-Train: 1 RP / ₹100
-
-Hotel: 2 RP / ₹100
-
-Food: 0.5 RP / ₹100
-
-Redeem: 100 RP = ₹50 discount (max 20% per booking).
-
-Rewards dashboard + notifications.
-
-🛠️ Tech Stack
-
-Frontend: Next.js + TypeScript + TailwindCSS
-
-Backend: Firebase (Auth, Firestore, Cloud Functions, Hosting)
-
-AI: Google Gemini / GenKit (for journey planning, chatbot, predictions)
-
-Payments: Demo integration (can extend to Razorpay/UPI)
-
-Deployment: Firebase Hosting
-
-🧑‍💼 Founder & Team
-
-Founder & CEO: Krish Gupta
-
-📧 Email: krishgupta200510@gmail.com
-
-🌐 Website: krishgupta.in
-
-🤝 Contributing
-
-We welcome contributions!
-
-Fork the repo
-
-Create a new branch (feature/xyz)
-
-Commit changes & push
-
-Submit a PR 🎉
-
-📜 License
-
-This project is licensed under the MIT License — free to use & modify.
-
-⚡ Ready to redefine Indian travel experiences.
-🚆 Welcome aboard YatraSetu — यात्रासेतुः 🚆
+⚡ **Ready to redefine Indian travel experiences.**  
+🚆 Welcome aboard **YatraSetu — यात्रासेतुः** 🚆
