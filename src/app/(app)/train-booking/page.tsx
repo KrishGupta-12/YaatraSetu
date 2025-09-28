@@ -9,16 +9,20 @@ import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent,SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { CalendarIcon, Loader2, Search, ArrowRightLeft, Users, Info, Clock } from "lucide-react";
+import { CalendarIcon, Loader2, Search, ArrowRightLeft, Users, Info, Clock, Plus, Trash } from "lucide-react";
 import { format } from "date-fns";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Separator } from "@/components/ui/separator";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import Link from "next/link";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useAuth } from "@/hooks/use-auth";
+import { getSavedPassengers } from "@/lib/firebase/firestore";
+import type { User } from 'firebase/auth';
+import { useRouter } from "next/navigation";
 
-const mockTrains = [
+const allTrains = [
     { id: "12951", name: "Mumbai Rajdhani", from: "BCT", to: "NDLS", departure: "17:00", arrival: "08:32", duration: "15h 32m", classes: [
         { name: "1A", availability: "Available 12", price: 4755 },
         { name: "2A", availability: "Available 45", price: 2825 },
@@ -50,23 +54,47 @@ const mockTrains = [
     ], route: []}
 ]
 
-const savedPassengers = [
-  { id: 1, name: "Ravi Kumar", age: 34, gender: "Male" },
-  { id: 2, name: "Priya Sharma", age: 29, gender: "Female" },
-]
+type Passenger = {
+  id: string | number;
+  name: string;
+  age: number;
+  gender: string;
+}
 
 export default function TrainBookingPage() {
+    const [searchQuery, setSearchQuery] = useState({ from: "BCT", to: "NDLS" });
     const [date, setDate] = useState<Date | undefined>(new Date());
     const [loading, setLoading] = useState(false);
+    const [trains, setTrains] = useState<any[]>([]);
     const [showResults, setShowResults] = useState(false);
+    
     const [selectedTrain, setSelectedTrain] = useState<any>(null);
     const [selectedClass, setSelectedClass] = useState<any>(null);
     const [viewingTrain, setViewingTrain] = useState<any>(null);
+    
+    const { user } = useAuth();
+    const router = useRouter();
+    const [savedPassengers, setSavedPassengers] = useState<Passenger[]>([]);
+    const [bookingPassengers, setBookingPassengers] = useState<Passenger[]>([]);
+
+    useEffect(() => {
+        if (user) {
+            const unsubscribe = getSavedPassengers(user.uid, (data) => {
+                setSavedPassengers(data);
+            });
+            return () => unsubscribe();
+        }
+    }, [user]);
 
     const handleSearch = () => {
         setLoading(true);
         setShowResults(false);
         setTimeout(() => {
+            const filteredTrains = allTrains.filter(train => 
+                train.from.toLowerCase().includes(searchQuery.from.toLowerCase()) && 
+                train.to.toLowerCase().includes(searchQuery.to.toLowerCase())
+            );
+            setTrains(filteredTrains);
             setLoading(false);
             setShowResults(true);
         }, 1500)
@@ -76,6 +104,7 @@ export default function TrainBookingPage() {
       setSelectedTrain(train);
       setSelectedClass(trainClass);
       setViewingTrain(null);
+      setBookingPassengers([]);
     }
     
     const handleViewDetails = (train: any) => {
@@ -89,6 +118,34 @@ export default function TrainBookingPage() {
             setViewingTrain(null);
         }
     }
+    
+    const addPassengerToBooking = (passenger: Passenger) => {
+        if (!bookingPassengers.find(p => p.id === passenger.id)) {
+            setBookingPassengers([...bookingPassengers, passenger]);
+        }
+    }
+
+    const removePassengerFromBooking = (passengerId: string | number) => {
+        setBookingPassengers(bookingPassengers.filter(p => p.id !== passengerId));
+    }
+    
+    const getTotalFare = () => {
+        const ticketFare = (selectedClass?.price || 0) * bookingPassengers.length;
+        const convenienceFee = 59;
+        return ticketFare + convenienceFee;
+    }
+
+    const handleProceedToPayment = () => {
+        const bookingDetails = {
+            train,
+            selectedClass,
+            passengers: bookingPassengers,
+            fare: getTotalFare(),
+            date: date ? format(date, "PPP") : ""
+        };
+        sessionStorage.setItem('bookingDetails', JSON.stringify(bookingDetails));
+        router.push('/payment');
+    }
 
   return (
     <Dialog onOpenChange={handleDialogClose}>
@@ -101,14 +158,14 @@ export default function TrainBookingPage() {
         <CardContent className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
             <div>
                 <Label htmlFor="from">From</Label>
-                <Input id="from" placeholder="e.g., Mumbai (BCT)" defaultValue="Mumbai (BCT)"/>
+                <Input id="from" placeholder="e.g., BCT" defaultValue="BCT" onChange={(e) => setSearchQuery({...searchQuery, from: e.target.value})}/>
             </div>
             <div className="relative">
                  <Button variant="ghost" size="icon" className="absolute left-1/2 -translate-x-1/2 top-4 sm:top-1/2 sm:-translate-y-1/2 bg-background rounded-full border">
                     <ArrowRightLeft className="h-4 w-4"/>
                 </Button>
                 <Label htmlFor="to">To</Label>
-                <Input id="to" placeholder="e.g., New Delhi (NDLS)" defaultValue="New Delhi (NDLS)"/>
+                <Input id="to" placeholder="e.g., NDLS" defaultValue="NDLS" onChange={(e) => setSearchQuery({...searchQuery, to: e.target.value})}/>
             </div>
             <div>
                 <Label>Date</Label>
@@ -130,7 +187,7 @@ export default function TrainBookingPage() {
                         mode="single"
                         selected={date}
                         onSelect={setDate}
-                        disabled={(date) => date < new Date()}
+                        disabled={(date) => new Date(date) < new Date(new Date().setHours(0,0,0,0))}
                         initialFocus
                     />
                     </PopoverContent>
@@ -188,8 +245,8 @@ export default function TrainBookingPage() {
 
       {showResults && !loading && (
           <div className="space-y-6">
-              <h2 className="text-2xl font-bold">{mockTrains.length} trains found from Mumbai to New Delhi</h2>
-              {mockTrains.map(train => (
+              <h2 className="text-2xl font-bold">{trains.length} trains found from {searchQuery.from.toUpperCase()} to {searchQuery.to.toUpperCase()}</h2>
+              {trains.map(train => (
                   <Card key={train.id}>
                     <CardHeader>
                         <div className="flex justify-between items-center">
@@ -208,14 +265,14 @@ export default function TrainBookingPage() {
                         </div>
                     </CardHeader>
                     <CardContent className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                        {train.classes.map(cls => {
+                        {train.classes.map((cls:any) => {
                           const isAvailable = cls.availability.toLowerCase().includes('available');
                           const isWaitlist = cls.availability.toLowerCase().includes('waitlist');
                           return (
                              <Card key={cls.name} className="p-4 bg-muted/50 flex flex-col justify-between">
                                 <p className="font-semibold">{cls.name}</p>
                                 <p className={cn("font-medium", isAvailable ? 'text-green-600' : isWaitlist ? 'text-amber-600' : 'text-red-600')}>{cls.availability}</p>
-                                <p className="text-lg font-bold">₹{cls.price.toLocaleString('en-IN')}</p>
+                                <p className="text-lg font-bold">Rs. {cls.price.toLocaleString('en-IN')}</p>
                                 <DialogTrigger asChild>
                                 <Button size="sm" className="w-full mt-2" disabled={!isAvailable && !isWaitlist} onClick={() => handleBookNow(train, cls)}>
                                     Book Now
@@ -241,65 +298,68 @@ export default function TrainBookingPage() {
                   <Separator orientation="vertical" className="h-4"/>
                   <span>Class: <span className="font-bold text-primary">{selectedClass?.name}</span></span>
                   <Separator orientation="vertical" className="h-4"/>
-                  <span>Price: <span className="font-bold text-primary">₹{selectedClass?.price.toLocaleString('en-IN')}</span></span>
+                  <span>Price: <span className="font-bold text-primary">Rs. {selectedClass?.price.toLocaleString('en-IN')}</span></span>
                 </div>
             </DialogHeader>
-            <div className="grid grid-cols-3 gap-8 pt-4">
-                <div className="col-span-2 space-y-4">
+            <div className="grid md:grid-cols-3 gap-8 pt-4 max-h-[70vh] overflow-y-auto">
+                <div className="md:col-span-2 space-y-4">
                     <Card>
-                        <CardHeader><CardTitle>Add Passenger</CardTitle></CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="grid grid-cols-6 gap-4">
-                                <div className="col-span-3"><Label>Full Name</Label><Input placeholder="e.g. Rahul Verma"/></div>
-                                <div className="col-span-1"><Label>Age</Label><Input type="number" placeholder="e.g. 32"/></div>
-                                <div className="col-span-2"><Label>Gender</Label><Select><SelectTrigger><SelectValue placeholder="Select..."/></SelectTrigger><SelectContent><SelectItem value="male">Male</SelectItem><SelectItem value="female">Female</SelectItem><SelectItem value="other">Other</SelectItem></SelectContent></Select></div>
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div><Label>Meal Preference</Label><Select><SelectTrigger><SelectValue placeholder="Select..."/></SelectTrigger><SelectContent><SelectItem value="none">None</SelectItem><SelectItem value="veg">Veg</SelectItem><SelectItem value="non-veg">Non-Veg</SelectItem></SelectContent></Select></div>
-                                <div><Label>Berth Preference</Label><Select><SelectTrigger><SelectValue placeholder="Select..."/></SelectTrigger><SelectContent><SelectItem value="none">No Preference</SelectItem><SelectItem value="lower">Lower</SelectItem><SelectItem value="middle">Middle</SelectItem><SelectItem value="upper">Upper</SelectItem><SelectItem value="side-lower">Side Lower</SelectItem><SelectItem value="side-upper">Side Upper</SelectItem></SelectContent></Select></div>
-                            </div>
-                            <div><Label>ID Proof</Label><Select><SelectTrigger><SelectValue placeholder="Select ID type..."/></SelectTrigger><SelectContent><SelectItem value="aadhar">Aadhar Card</SelectItem><SelectItem value="dl">Driving License</SelectItem><SelectItem value="passport">Passport</SelectItem></SelectContent></Select></div>
-                            <div><Input placeholder="Enter ID number"/></div>
-                            <div className="flex items-center space-x-2 pt-2">
-                                <Checkbox id="save-passenger"/>
-                                <label htmlFor="save-passenger" className="text-sm font-medium">Save this passenger for future bookings</label>
-                            </div>
-                            <Button>Add Passenger</Button>
+                        <CardHeader>
+                            <CardTitle>Passengers for this Booking</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            {bookingPassengers.length === 0 ? (
+                                <p className="text-sm text-muted-foreground text-center">No passengers added yet.</p>
+                            ) : (
+                                <div className="space-y-2">
+                                    {bookingPassengers.map(p => (
+                                        <div key={p.id} className="flex items-center justify-between p-2 rounded-md bg-muted">
+                                            <div>
+                                                <p className="font-medium">{p.name}</p>
+                                                <p className="text-sm text-muted-foreground">{p.age}, {p.gender}</p>
+                                            </div>
+                                            <Button size="icon" variant="ghost" onClick={() => removePassengerFromBooking(p.id)}><Trash className="h-4 w-4 text-destructive"/></Button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </CardContent>
                     </Card>
                     <Card>
                         <CardHeader><CardTitle>Contact Information</CardTitle></CardHeader>
                         <CardContent className="grid grid-cols-2 gap-4">
-                            <div><Label>Email</Label><Input type="email" placeholder="Email address" defaultValue="traveller@example.com"/></div>
-                            <div><Label>Phone</Label><Input type="tel" placeholder="Phone number" defaultValue="9876543210"/></div>
+                            <div><Label>Email</Label><Input type="email" placeholder="Email address" defaultValue={user?.email || ""}/></div>
+                            <div><Label>Phone</Label><Input type="tel" placeholder="Phone number"/></div>
                         </CardContent>
                     </Card>
                 </div>
-                <div className="col-span-1 space-y-4">
+                <div className="md:col-span-1 space-y-4">
                     <Card>
-                        <CardHeader><CardTitle>Saved Passengers</CardTitle></CardHeader>
+                        <CardHeader><CardTitle className="text-base">Add from Saved Passengers</CardTitle></CardHeader>
                         <CardContent className="space-y-2">
-                            {savedPassengers.map(p => (
+                            {savedPassengers.length > 0 ? savedPassengers.map(p => (
                                 <div key={p.id} className="flex items-center justify-between p-2 rounded-md bg-muted/50">
                                     <div>
                                         <p className="font-medium">{p.name}</p>
                                         <p className="text-sm text-muted-foreground">{p.age}, {p.gender}</p>
                                     </div>
-                                    <Button size="sm" variant="outline">Add</Button>
+                                    <Button size="sm" variant="outline" onClick={() => addPassengerToBooking(p)} disabled={bookingPassengers.some(bp => bp.id === p.id)}>
+                                        <Plus className="h-4 w-4 mr-1"/> Add
+                                    </Button>
                                 </div>
-                            ))}
+                            )) : <p className="text-xs text-muted-foreground text-center">No saved passengers.</p>}
                         </CardContent>
                     </Card>
                     <Card>
                         <CardHeader><CardTitle>Fare Summary</CardTitle></CardHeader>
                         <CardContent className="space-y-2 text-sm">
-                            <div className="flex justify-between"><span>Ticket Fare</span><span>₹{selectedClass?.price.toLocaleString('en-IN')}</span></div>
-                            <div className="flex justify-between"><span>Convenience Fee</span><span>₹59</span></div>
+                             <div className="flex justify-between"><span>Ticket Fare ({bookingPassengers.length} x Rs. {selectedClass?.price.toLocaleString('en-IN')})</span><span>Rs. {(selectedClass?.price * bookingPassengers.length).toLocaleString('en-IN')}</span></div>
+                            <div className="flex justify-between"><span>Convenience Fee</span><span>Rs. 59</span></div>
                             <Separator/>
-                            <div className="flex justify-between font-bold text-base"><span>Total</span><span>₹{(selectedClass?.price + 59).toLocaleString('en-IN')}</span></div>
+                            <div className="flex justify-between font-bold text-base"><span>Total</span><span>Rs. {getTotalFare().toLocaleString('en-IN')}</span></div>
                         </CardContent>
                         <CardFooter>
-                            <Button className="w-full">Proceed to Payment</Button>
+                            <Button className="w-full" disabled={bookingPassengers.length === 0} onClick={handleProceedToPayment}>Proceed to Payment</Button>
                         </CardFooter>
                     </Card>
                 </div>
