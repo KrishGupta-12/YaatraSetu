@@ -6,6 +6,35 @@ import { Mail, Linkedin, Globe, Users, Target, Rocket } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { Separator } from "@/components/ui/separator";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
+const teamMembers = [
+    {
+        name: "Shreyansh Mall",
+        role: "Head of Product & Innovation",
+        avatar: "https://picsum.photos/seed/shreyansh/200/200"
+    },
+    {
+        name: "Aman Sagar",
+        role: "Head of Operations & Logistics",
+        avatar: "https://picsum.photos/seed/aman/200/200"
+    },
+    {
+        name: "Lata Saini",
+        role: "Head of Customer Service & Support",
+        avatar: "https://picsum.photos/seed/lata/200/200"
+    },
+    {
+        name: "Varad Mahesh Rajadhyax",
+        role: "Head of Strategy & Partnerships",
+        avatar: "https://picsum.photos/seed/varad/200/200"
+    },
+    {
+        name: "Methelesh Kumar",
+        role: "Head of Technical Operations",
+        avatar: "https://picsum.photos/seed/methelesh/200/200"
+    }
+];
 
 export default function FounderPage() {
   const founderImage = PlaceHolderImages.find(
@@ -105,15 +134,24 @@ export default function FounderPage() {
       <section className="text-center">
         <h2 className="text-3xl font-bold font-headline mb-4">Meet the Team</h2>
          <p className="text-muted-foreground max-w-2xl mx-auto mb-8">
-          We are a small but passionate team dedicated to revolutionizing travel in India. More team members coming soon!
+          The passionate individuals dedicated to revolutionizing travel in India.
         </p>
-        <div className="flex justify-center">
-            <div className="p-8 border-2 border-dashed rounded-lg text-muted-foreground flex flex-col items-center gap-4">
-                <Users className="h-12 w-12"/>
-                <p>More brilliant minds joining our journey soon.</p>
-            </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            {teamMembers.map((member) => (
+                <Card key={member.name} className="text-center hover:shadow-lg hover:scale-105 transition-transform duration-300">
+                    <CardContent className="flex flex-col items-center pt-6">
+                        <Avatar className="h-24 w-24 mb-4 border-2 border-primary/50">
+                            <AvatarImage src={member.avatar} alt={member.name} />
+                            <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        <h3 className="text-lg font-semibold">{member.name}</h3>
+                        <p className="text-sm text-primary">{member.role}</p>
+                    </CardContent>
+                </Card>
+            ))}
         </div>
       </section>
     </div>
   );
 }
+
