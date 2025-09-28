@@ -1,6 +1,7 @@
 
 "use client";
 
+import { useEffect, useState } from "react";
 import {
   ArrowRight,
   Bot,
@@ -27,6 +28,8 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/use-auth";
+import { getUserProfile } from "@/lib/firebase/firestore";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const features = [
   {
@@ -85,12 +88,41 @@ const upcomingTrips = [
 
 export default function DashboardPage() {
   const { user } = useAuth();
+  const [profileData, setProfileData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchProfile() {
+      if (user) {
+        try {
+          const data = await getUserProfile(user.uid);
+          setProfileData(data);
+        } catch (error) {
+          console.error("Failed to fetch profile:", error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    }
+    fetchProfile();
+  }, [user]);
+
+  if (loading) {
+    return (
+        <div className="space-y-8">
+            <div className="space-y-2">
+                <Skeleton className="h-9 w-64" />
+                <Skeleton className="h-5 w-96" />
+            </div>
+        </div>
+    )
+  }
 
   return (
     <div className="space-y-8">
       <div className="space-y-2">
         <h1 className="text-3xl font-bold tracking-tight font-headline">
-          Welcome back, {user?.displayName || "Traveller"}!
+          Welcome back, {profileData?.displayName || "Traveller"}!
         </h1>
         <p className="text-muted-foreground">
           Here&apos;s your travel hub. Manage bookings and plan your next adventure.
