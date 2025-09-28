@@ -51,6 +51,14 @@ const teamMembers = [
         email: "23f1002638@ds.study.iitm.ac.in",
         linkedin: "https://www.linkedin.com/in/shreyansh-mall/",
         description: "Shreyansh is the product visionary, relentlessly pushing for innovation. He translates user needs into cutting-edge features, driving the evolution of YaatraSetu as India's smartest travel platform."
+    },
+    {
+        name: "Varanasi Sai Sirichandana",
+        role: "Head of Finance & Accounts",
+        initials: "VS",
+        email: "saisirichandanav@gmail.com",
+        linkedin: "https://www.linkedin.com/in/sai-sirichandana-varanasi-a434a132b",
+        description: "Varanasi Sai Sirichandana manages the financial health of YaatraSetu, overseeing budgeting, accounting, and financial strategy to ensure sustainable growth and profitability."
     }
 ];
 
@@ -205,3 +213,5 @@ export default function FounderPage() {
     </Dialog>
   );
 }
+
+    
