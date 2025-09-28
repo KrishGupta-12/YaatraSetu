@@ -12,28 +12,32 @@ import { cn } from "@/lib/utils";
 import { BedDouble, CalendarIcon, Loader2, MapPin, Minus, Plus, Search, Star, User, Heart, Wifi, Dumbbell, Utensils } from "lucide-react";
 import { format, addDays, differenceInDays } from "date-fns";
 import Image from "next/image";
-import { useState, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { useRouter } from "next/navigation";
 import { Separator } from "@/components/ui/separator";
+import { toast } from "@/hooks/use-toast";
 
-const mockHotelsData = [
-  { id: 1, name: "The Oberoi Grand", city: "Kolkata", rating: 5, price: 12000, image: "https://picsum.photos/seed/hotel1/400/300", amenities: ["Pool", "Gym", "WiFi", "Spa"], description: "A luxurious heritage hotel in the heart of Kolkata, offering timeless elegance and impeccable service.", liked: false },
-  { id: 2, name: "Taj Falaknuma Palace", city: "Hyderabad", rating: 5, price: 35000, image: "https://picsum.photos/seed/hotel2/400/300", amenities: ["Spa", "Fine Dining", "WiFi", "Pool"], description: "Experience the life of Nizams at this opulent palace hotel, featuring grand architecture and stunning city views.", liked: true },
-  { id: 3, name: "Lemon Tree Premier", city: "Jaipur", rating: 4, price: 8000, image: "https://picsum.photos/seed/hotel3/400/300", amenities: ["Pool", "Restaurant", "Gym"], description: "A vibrant and contemporary hotel located close to major attractions, known for its fresh and zesty interiors.", liked: false },
-  { id: 4, name: "Radisson Blu", city: "Goa", rating: 4, price: 9500, image: "https://picsum.photos/seed/hotel4/400/300", amenities: ["Beach Access", "Pool", "WiFi", "Spa"], description: "Nestled near the Cavelossim Beach, this resort offers a perfect blend of comfort and Goan hospitality.", liked: false },
-  { id: 5, name: "Ginger Hotel", city: "Mumbai", rating: 3, price: 5500, image: "https://picsum.photos/seed/hotel5/400/300", amenities: ["WiFi", "Restaurant"], description: "A smart and affordable hotel in the bustling city of Mumbai, designed for the modern traveller.", liked: true },
-];
+const allAmenities = ["Pool", "Gym", "WiFi", "Spa", "Fine Dining", "Restaurant", "Beach Access", "Casino"];
 
-const allAmenities = ["Pool", "Gym", "WiFi", "Spa", "Fine Dining", "Restaurant", "Beach Access"];
-
-type Hotel = (typeof mockHotelsData)[0];
+type Hotel = { 
+  id: number; 
+  name: string; 
+  city: string; 
+  rating: number; 
+  price: number; 
+  image: string; 
+  amenities: string[]; 
+  description: string; 
+  liked: boolean 
+};
 
 export default function HotelBookingPage() {
   const router = useRouter();
+  const [destination, setDestination] = useState("Mumbai");
   const [checkInDate, setCheckInDate] = useState<Date | undefined>(new Date());
   const [checkOutDate, setCheckOutDate] = useState<Date | undefined>(addDays(new Date(), 3));
   
@@ -42,51 +46,54 @@ export default function HotelBookingPage() {
   const [loading, setLoading] = useState(false);
   const [showResults, setShowResults] = useState(false);
   
-  // State for filters
   const [priceRange, setPriceRange] = useState([0, 50000]);
-  const [selectedRatings, setSelectedRatings] = useState<number[]>([]);
-  const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
+  const [selectedRatings, setSelectedRatings] useState<number[]>([]);
+  const [selectedAmenities, setSelectedAmenities] useState<string[]>([]);
   const [sortBy, setSortBy] = useState("popularity");
 
-  const [hotels, setHotels] = useState(mockHotelsData);
+  const [hotels, setHotels] = useState<Hotel[]>([]);
   const [selectedHotel, setSelectedHotel] = useState<Hotel | null>(null);
   const [viewingHotel, setViewingHotel] = useState<Hotel | null>(null);
-  const [isBooking, setIsBooking] = useState(false);
+  const [isBooking, setIsBooking] = useState<boolean>(false);
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     setLoading(true);
     setShowResults(false);
-    setTimeout(() => {
-      setLoading(false);
-      setShowResults(true);
-    }, 1500);
-  };
-  
-  const filteredHotels = useMemo(() => {
-    let sortedHotels = [...hotels]
-      .filter(hotel => hotel.price >= priceRange[0] && hotel.price <= priceRange[1])
-      .filter(hotel => selectedRatings.length === 0 || selectedRatings.includes(hotel.rating))
-      .filter(hotel => selectedAmenities.every(amenity => hotel.amenities.includes(amenity)));
+    setHotels([]);
+    try {
+        const params = new URLSearchParams({
+            city: destination,
+            price_min: String(priceRange[0]),
+            price_max: String(priceRange[1]),
+            ratings: selectedRatings.join(','),
+            amenities: selectedAmenities.join(','),
+            sortBy: sortBy
+        });
 
-    switch (sortBy) {
-        case 'price-asc':
-            sortedHotels.sort((a, b) => a.price - b.price);
-            break;
-        case 'price-desc':
-            sortedHotels.sort((a, b) => b.price - a.price);
-            break;
-        case 'rating':
-            sortedHotels.sort((a, b) => b.rating - a.rating);
-            break;
-        case 'popularity':
-        default:
-            // Assuming default order is popularity
-            break;
+        const response = await fetch(`/api/hotels?${params.toString()}`);
+        if (!response.ok) throw new Error("Failed to fetch hotels");
+        const data = await response.json();
+        setHotels(data);
+
+    } catch (error) {
+        console.error("Failed to fetch hotels:", error);
+        toast({
+            variant: "destructive",
+            title: "Search Failed",
+            description: "Could not fetch hotel data. Please try again."
+        });
+    } finally {
+        setLoading(false);
+        setShowResults(true);
     }
-    
-    return sortedHotels;
-  }, [hotels, priceRange, selectedRatings, selectedAmenities, sortBy]);
+  };
 
+  useEffect(() => {
+    if (showResults) {
+        handleSearch();
+    }
+  }, [priceRange, selectedRatings, selectedAmenities, sortBy]);
+  
   const toggleLike = (hotelId: number) => {
     setHotels(hotels.map(h => h.id === hotelId ? {...h, liked: !h.liked} : h));
   }
@@ -140,7 +147,7 @@ export default function HotelBookingPage() {
         onOpenChange={(open) => {
             if (!open) {
                 setViewingHotel(null);
-                setIsBooking(null);
+                setIsBooking(false);
             }
         }}
     >
@@ -156,7 +163,7 @@ export default function HotelBookingPage() {
               <Label htmlFor="destination">Destination</Label>
               <div className="relative">
                 <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input id="destination" placeholder="e.g., New Delhi" className="pl-10" />
+                <Input id="destination" placeholder="e.g., Mumbai" className="pl-10" value={destination} onChange={e => setDestination(e.target.value)} />
               </div>
             </div>
             <div>
@@ -243,7 +250,7 @@ export default function HotelBookingPage() {
           <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center min-h-[300px]">
             <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
             <h2 className="text-xl font-semibold">Searching for hotels...</h2>
-            <p className="text-muted-foreground">Finding the best deals for your stay.</p>
+            <p className="text-muted-foreground">Finding the best deals for your stay in {destination}.</p>
           </div>
         )}
 
@@ -255,7 +262,7 @@ export default function HotelBookingPage() {
                 <CardHeader><CardTitle className="text-base">Price Range</CardTitle></CardHeader>
                 <CardContent>
                   <Slider
-                      value={priceRange}
+                      defaultValue={[0, 50000]}
                       max={50000}
                       step={1000}
                       min={0}
@@ -294,10 +301,10 @@ export default function HotelBookingPage() {
             </div>
             <div className="col-span-3 space-y-6">
              <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold">{filteredHotels.length} hotels found</h2>
+              <h2 className="text-2xl font-bold">{hotels.length} hotels found</h2>
               <div className="flex items-center gap-2">
                 <Label>Sort by:</Label>
-                <Select defaultValue={sortBy} onValueChange={setSortBy}>
+                <Select value={sortBy} onValueChange={setSortBy}>
                   <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="Sort by"/>
                   </SelectTrigger>
@@ -310,53 +317,60 @@ export default function HotelBookingPage() {
                 </Select>
               </div>
              </div>
-            <div className="grid gap-6">
-              {filteredHotels.map(hotel => (
-                <Card key={hotel.id} className="grid md:grid-cols-3 gap-0 overflow-hidden relative">
-                  <Button variant="ghost" size="icon" className="absolute top-2 right-2 rounded-full bg-black/30 text-white hover:bg-black/50 hover:text-white z-10" onClick={() => toggleLike(hotel.id)}>
-                      <Heart className={cn("h-5 w-5", hotel.liked && "fill-red-500 text-red-500")}/>
-                  </Button>
-                  <div className="md:col-span-1">
-                    <Image data-ai-hint="hotel room" src={hotel.image} alt={hotel.name} width={400} height={300} className="h-full w-full object-cover" />
-                  </div>
-                  <div className="md:col-span-2 flex flex-col p-4">
-                    <CardHeader className="p-0">
-                      <div className="flex justify-between items-start">
-                        <CardTitle>{hotel.name}</CardTitle>
-                        <div className="flex items-center gap-1 text-primary font-bold">
-                          <Star className="h-5 w-5 fill-current" />
-                          <span>{hotel.rating.toFixed(1)}</span>
+             {hotels.length > 0 ? (
+                <div className="grid gap-6">
+                {hotels.map(hotel => (
+                    <Card key={hotel.id} className="grid md:grid-cols-3 gap-0 overflow-hidden relative">
+                    <Button variant="ghost" size="icon" className="absolute top-2 right-2 rounded-full bg-black/30 text-white hover:bg-black/50 hover:text-white z-10" onClick={() => toggleLike(hotel.id)}>
+                        <Heart className={cn("h-5 w-5", hotel.liked && "fill-red-500 text-red-500")}/>
+                    </Button>
+                    <div className="md:col-span-1">
+                        <Image data-ai-hint="hotel room" src={hotel.image} alt={hotel.name} width={400} height={300} className="h-full w-full object-cover" />
+                    </div>
+                    <div className="md:col-span-2 flex flex-col p-4">
+                        <CardHeader className="p-0">
+                        <div className="flex justify-between items-start">
+                            <CardTitle>{hotel.name}</CardTitle>
+                            <div className="flex items-center gap-1 text-primary font-bold">
+                            <Star className="h-5 w-5 fill-current" />
+                            <span>{hotel.rating.toFixed(1)}</span>
+                            </div>
                         </div>
-                      </div>
-                      <CardDescription>{hotel.city}</CardDescription>
-                    </CardHeader>
-                    <CardContent className="p-0 mt-4 flex-grow space-y-2">
-                       <p className="text-sm text-muted-foreground">{hotel.description}</p>
-                      <div className="flex gap-2 flex-wrap pt-2">
-                        {hotel.amenities.slice(0, 3).map(amenity => (
-                          <Badge key={amenity} variant="secondary">{amenity}</Badge>
-                        ))}
-                        {hotel.amenities.length > 3 && <Badge variant="outline">+{hotel.amenities.length - 3} more</Badge>}
-                      </div>
-                    </CardContent>
-                    <CardFooter className="p-0 mt-4 flex justify-between items-end">
-                      <div>
-                        <p className="text-sm text-muted-foreground">Price per night</p>
-                        <p className="text-2xl font-bold">Rs. {hotel.price.toLocaleString('en-IN')}</p>
-                      </div>
-                      <div className="flex gap-2">
-                        <DialogTrigger asChild>
-                          <Button variant="outline" onClick={() => handleViewDetailsClick(hotel)}>View Details</Button>
-                        </DialogTrigger>
-                        <DialogTrigger asChild>
-                          <Button onClick={() => handleBookNowClick(hotel)}>Book Now</Button>
-                        </DialogTrigger>
-                      </div>
-                    </CardFooter>
-                  </div>
-                </Card>
-              ))}
-            </div>
+                        <CardDescription>{hotel.city}</CardDescription>
+                        </CardHeader>
+                        <CardContent className="p-0 mt-4 flex-grow space-y-2">
+                        <p className="text-sm text-muted-foreground">{hotel.description}</p>
+                        <div className="flex gap-2 flex-wrap pt-2">
+                            {hotel.amenities.slice(0, 3).map(amenity => (
+                            <Badge key={amenity} variant="secondary">{amenity}</Badge>
+                            ))}
+                            {hotel.amenities.length > 3 && <Badge variant="outline">+{hotel.amenities.length - 3} more</Badge>}
+                        </div>
+                        </CardContent>
+                        <CardFooter className="p-0 mt-4 flex justify-between items-end">
+                        <div>
+                            <p className="text-sm text-muted-foreground">Price per night</p>
+                            <p className="text-2xl font-bold">Rs. {hotel.price.toLocaleString('en-IN')}</p>
+                        </div>
+                        <div className="flex gap-2">
+                            <DialogTrigger asChild>
+                            <Button variant="outline" onClick={() => handleViewDetailsClick(hotel)}>View Details</Button>
+                            </DialogTrigger>
+                            <DialogTrigger asChild>
+                            <Button onClick={() => handleBookNowClick(hotel)}>Book Now</Button>
+                            </DialogTrigger>
+                        </div>
+                        </CardFooter>
+                    </div>
+                    </Card>
+                ))}
+                </div>
+            ) : (
+                <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center min-h-[300px]">
+                    <h2 className="text-xl font-semibold">No hotels found</h2>
+                    <p className="text-muted-foreground">Try adjusting your filters or searching for a different city.</p>
+                </div>
+            )}
           </div>
         </div>
         )}
@@ -370,7 +384,7 @@ export default function HotelBookingPage() {
             </DialogHeader>
             <div className="grid md:grid-cols-2 gap-6 mt-4">
                 <div className="relative h-64 rounded-lg overflow-hidden">
-                <Image src={viewingHotel.image} alt={viewingHotel.name} layout="fill" objectFit="cover" />
+                <Image src={viewingHotel.image} alt={viewingHotel.name} fill objectFit="cover" />
                 </div>
                 <div className="space-y-4">
                 <div className="flex items-center gap-2">
@@ -408,9 +422,9 @@ export default function HotelBookingPage() {
                 <DialogClose asChild>
                     <Button variant="outline">Close</Button>
                 </DialogClose>
-                <DialogTrigger asChild>
+                <DialogClose asChild>
                      <Button onClick={() => { setViewingHotel(null); handleBookNowClick(viewingHotel)}}>Book Now</Button>
-                </DialogTrigger>
+                </DialogClose>
             </DialogFooter>
         </DialogContent>
     )}

@@ -14,45 +14,13 @@ import { format } from "date-fns";
 import { useState, useEffect } from "react";
 import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogClose } from "@/components/ui/dialog";
-import { Checkbox } from "@/components/ui/checkbox";
 import Link from "next/link";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useAuth } from "@/hooks/use-auth";
 import { getSavedPassengers } from "@/lib/firebase/firestore";
 import type { User } from 'firebase/auth';
 import { useRouter } from "next/navigation";
-
-const allTrains = [
-    { id: "12951", name: "Mumbai Rajdhani", from: "BCT", to: "NDLS", departure: "17:00", arrival: "08:32", duration: "15h 32m", classes: [
-        { name: "1A", availability: "Available 12", price: 4755 },
-        { name: "2A", availability: "Available 45", price: 2825 },
-        { name: "3A", availability: "Waitlist 23", price: 2050 },
-    ], route: [ { station: 'Mumbai Central', arrival: 'Source', departure: '17:00'}, { station: 'Borivali', arrival: '17:22', departure: '17:24'}, { station: 'Surat', arrival: '19:43', departure: '19:48'}, { station: 'Vadodara', arrival: '21:06', departure: '21:16'}, { station: 'Ratlam', arrival: '00:25', departure: '00:28'}, { station: 'Kota', arrival: '03:20', departure: '03:25'}, { station: 'New Delhi', arrival: '08:32', departure: 'Destination'} ]},
-    { id: "12909", name: "NZM Garib Rath", from: "BDTS", to: "NZM", departure: "17:35", arrival: "10:40", duration: "17h 05m", classes: [
-        { name: "3A", availability: "Available 102", price: 1050 },
-        { name: "CC", availability: "Available 250", price: 850 }
-    ], route: [ { station: 'Bandra Terminus', arrival: 'Source', departure: '17:35'}, { station: 'Borivali', arrival: '18:05', departure: '18:08'}, { station: 'Surat', arrival: '20:47', departure: '20:52'}, { station: 'Vadodara', arrival: '22:19', departure: '22:29'}, { station: 'Ratlam', arrival: '01:53', departure: '01:55'}, { station: 'Kota', arrival: '04:35', departure: '04:40'}, { station: 'Mathura', arrival: '08:18', departure: '08:20'}, { station: 'H. Nizamuddin', arrival: '10:40', departure: 'Destination'} ]},
-    { id: "22209", name: "Mumbai Duronto", from: "BCT", to: "NDLS", departure: "23:10", arrival: "15:55", duration: "16h 45m", classes: [
-        { name: "1A", availability: "Available 5", price: 5200 },
-        { name: "2A", availability: "Waitlist 5", price: 3150 },
-        { name: "3A", availability: "Waitlist 35", price: 2250 },
-    ], route: [ { station: 'Mumbai Central', arrival: 'Source', departure: '23:10'}, { station: 'Vadodara', arrival: '03:24', departure: '03:34'}, { station: 'Ratlam', arrival: '07:00', departure: '07:05'}, { station: 'Kota', arrival: '10:00', departure: '10:05'}, { station: 'New Delhi', arrival: '15:55', departure: 'Destination'} ]},
-    { id: "12263", name: "Pune Duronto", from: "PUNE", to: "NZM", departure: "11:10", arrival: "06:45", duration: "19h 35m", classes: [
-        { name: "1A", availability: "Regret", price: 5010 },
-        { name: "2A", availability: "Available 21", price: 2980 },
-        { name: "3A", availability: "Available 50", price: 2100 },
-    ], route: []},
-     { id: "12137", name: "Punjab Mail", from: "CSMT", to: "FZR", departure: "19:35", arrival: "05:10", duration: "33h 35m", classes: [
-        { name: "2A", availability: "Available 8", price: 2500 },
-        { name: "3A", availability: "Available 30", price: 1800 },
-        { name: "SL", availability: "Available 120", price: 700 },
-    ], route: []},
-    { id: "11057", name: "Amritsar Express", from: "CSMT", to: "ASR", departure: "23:30", arrival: "16:15", duration: "40h 45m", classes: [
-        { name: "2A", availability: "Waitlist 15", price: 2700 },
-        { name: "3A", availability: "Waitlist 40", price: 1900 },
-        { name: "SL", availability: "Available 250", price: 800 },
-    ], route: []}
-]
+import { toast } from "@/hooks/use-toast";
 
 type Passenger = {
   id: string | number;
@@ -86,18 +54,35 @@ export default function TrainBookingPage() {
         }
     }, [user]);
 
-    const handleSearch = () => {
+    const handleSearch = async () => {
         setLoading(true);
+        setTrains([]);
         setShowResults(false);
-        setTimeout(() => {
-            const filteredTrains = allTrains.filter(train => 
-                train.from.toLowerCase().includes(searchQuery.from.toLowerCase()) && 
-                train.to.toLowerCase().includes(searchQuery.to.toLowerCase())
-            );
-            setTrains(filteredTrains);
+        try {
+            const params = new URLSearchParams({
+                from: searchQuery.from,
+                to: searchQuery.to,
+                date: date ? format(date, "yyyy-MM-dd") : ""
+            });
+
+            const response = await fetch(`/api/trains?${params.toString()}`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch trains');
+            }
+            const data = await response.json();
+            setTrains(data);
+
+        } catch (error) {
+            console.error("Failed to search trains:", error);
+            toast({
+                variant: "destructive",
+                title: "Search Failed",
+                description: "Could not fetch train data. Please try again."
+            })
+        } finally {
             setLoading(false);
             setShowResults(true);
-        }, 1500)
+        }
     }
 
     const handleBookNow = (train: any, trainClass: any) => {
@@ -248,8 +233,10 @@ export default function TrainBookingPage() {
 
       {showResults && !loading && (
           <div className="space-y-6">
-              <h2 className="text-2xl font-bold">{trains.length} trains found from {searchQuery.from.toUpperCase()} to {searchQuery.to.toUpperCase()}</h2>
-              {trains.map(train => (
+              {trains.length > 0 ? (
+                <>
+                <h2 className="text-2xl font-bold">{trains.length} trains found from {searchQuery.from.toUpperCase()} to {searchQuery.to.toUpperCase()}</h2>
+                {trains.map(train => (
                   <Card key={train.id}>
                     <CardHeader>
                         <div className="flex justify-between items-center">
@@ -285,7 +272,14 @@ export default function TrainBookingPage() {
                         )})}
                     </CardContent>
                   </Card>
-              ))}
+                ))}
+                </>
+              ) : (
+                <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center min-h-[300px]">
+                    <h2 className="text-xl font-semibold">No trains found</h2>
+                    <p className="text-muted-foreground">We couldn't find any direct trains for the selected route and date. Please try a different search.</p>
+                </div>
+              )}
           </div>
       )}
 

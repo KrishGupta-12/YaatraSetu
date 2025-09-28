@@ -8,22 +8,26 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { CookingPot, Loader2, Minus, Plus, Search, ShoppingCart, Star, Utensils, Wheat, Leaf, Drumstick } from "lucide-react";
 import Image from "next/image";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "@/hooks/use-toast";
 
-const menuItems = [
-  { id: 1, name: "Veg Thali", price: 120, image: "https://picsum.photos/seed/food1/200/200", description: "Rice, Roti, Dal, Sabzi, Salad", dietary: 'veg', ingredients: ["Basmati Rice", "Whole Wheat Flour", "Lentils", "Mixed Vegetables", "Spices"], calories: 550, vendor: { name: "Railicious Restaurant", rating: 4.2 } },
-  { id: 2, name: "Chicken Biryani", price: 180, image: "https://picsum.photos/seed/food2/200/200", description: "Aromatic rice with chicken", dietary: 'non-veg', ingredients: ["Basmati Rice", "Chicken", "Yogurt", "Onion", "Spices"], calories: 750, vendor: { name: "Railicious Restaurant", rating: 4.2 } },
-  { id: 3, name: "Paneer Butter Masala", price: 150, image: "https://picsum.photos/seed/food3/200/200", description: "Creamy paneer curry", dietary: 'veg', ingredients: ["Paneer", "Tomato", "Cream", "Butter", "Spices"], calories: 650, vendor: { name: "Railicious Restaurant", rating: 4.2 } },
-  { id: 4, name: "Masala Dosa", price: 90, image: "https://picsum.photos/seed/food4/200/200", description: "Crispy dosa with potato filling", dietary: 'veg', ingredients: ["Rice Flour", "Lentils", "Potato", "Onion", "Spices"], calories: 400, vendor: { name: "Railicious Restaurant", rating: 4.2 } },
-  { id: 5, name: "Egg Curry", price: 110, image: "https://picsum.photos/seed/food5/200/200", description: "Spicy egg curry", dietary: 'non-veg', ingredients: ["Eggs", "Onion", "Tomato", "Ginger-Garlic Paste", "Spices"], calories: 500, vendor: { name: "Railicious Restaurant", rating: 4.2 } },
-  { id: 6, name: "Jain Thali", price: 130, image: "https://picsum.photos/seed/food6/200/200", description: "Special thali with no onion/garlic", dietary: 'jain', ingredients: ["Rice", "Roti", "Dal (no onion/garlic)", "Banana-based sabzi"], calories: 500, vendor: { name: "Railicious Restaurant", rating: 4.2 } },
-];
+type MenuItem = {
+    id: number;
+    name: string;
+    price: number;
+    image: string;
+    description: string;
+    dietary: string;
+    ingredients: string[];
+    calories: number;
+    vendor: { name: string; rating: number };
+}
 
 const deliveryStations = [ "Ratlam (RTM)", "Vadodara (BRC)", "Surat (ST)" ];
 
@@ -47,20 +51,36 @@ const dietLabels = {
 export default function FoodOrderingPage() {
   const [pnr, setPnr] = useState("");
   const [loading, setLoading] = useState(false);
-  const [restaurantsFound, setRestaurantsFound] = useState(false);
+  const [restaurant, setRestaurant] = useState<{name: string, rating: number, deliveringTo: string} | null>(null);
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [cart, setCart] = useState<Record<number, number>>({});
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [currentStatus, setCurrentStatus] = useState(0);
   const [dietFilter, setDietFilter] = useState("all");
   const router = useRouter();
+  const [viewingItem, setViewingItem] = useState<MenuItem | null>(null);
 
-  const handleSearch = () => {
-    if (!pnr) return;
+  const handleSearch = async () => {
+    if (!pnr || pnr.length !== 10) return;
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setRestaurantsFound(true);
-    }, 1500);
+    setRestaurant(null);
+    setMenuItems([]);
+    try {
+        const response = await fetch(`/api/food?pnr=${pnr}`);
+        if(!response.ok) throw new Error("Failed to fetch food data");
+        const data = await response.json();
+        setRestaurant(data.restaurant);
+        setMenuItems(data.menu);
+    } catch(error) {
+        console.error("Food search error:", error);
+        toast({
+            variant: "destructive",
+            title: "Search Failed",
+            description: "Could not find restaurants for the given PNR. Please check and try again."
+        })
+    } finally {
+        setLoading(false);
+    }
   };
 
   const handlePlaceOrder = () => {
@@ -100,7 +120,7 @@ export default function FoodOrderingPage() {
         if (dietFilter === 'veg') return item.dietary === 'veg' || item.dietary === 'jain';
         return item.dietary === dietFilter
     });
-  }, [dietFilter]);
+  }, [dietFilter, menuItems]);
 
   const getTotalItems = () => Object.values(cart).reduce((acc, curr) => acc + curr, 0);
   const getTotalPrice = () => {
@@ -111,12 +131,13 @@ export default function FoodOrderingPage() {
   };
   
   if (orderPlaced) {
+    // This state is just for showing the success page, it is not implemented fully.
     return (
         <div className="flex justify-center items-center h-full">
             <Card className="w-full max-w-md">
                 <CardHeader>
                     <CardTitle>Live Order Tracking</CardTitle>
-                    <CardDescription>Your order from 'Railicious Restaurant' is on its way!</CardDescription>
+                    <CardDescription>Your order from '{restaurant?.name}' is on its way!</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="space-y-6">
@@ -134,7 +155,7 @@ export default function FoodOrderingPage() {
                     </div>
                 </CardContent>
                  <CardFooter>
-                    <Button variant="outline" className="w-full" onClick={() => {setOrderPlaced(false); setCart({}); setCurrentStatus(0);}}>Place Another Order</Button>
+                    <Button variant="outline" className="w-full" onClick={() => {setOrderPlaced(false); setCart({}); setCurrentStatus(0); setRestaurant(null);}}>Place Another Order</Button>
                 </CardFooter>
             </Card>
         </div>
@@ -142,7 +163,7 @@ export default function FoodOrderingPage() {
   }
 
   return (
-    <Dialog>
+    <Dialog onOpenChange={(open) => !open && setViewingItem(null)}>
       <div className="space-y-8">
         <h1 className="text-3xl font-bold tracking-tight font-headline">Order Food on Train</h1>
         
@@ -176,16 +197,16 @@ export default function FoodOrderingPage() {
           </div>
         )}
 
-        {restaurantsFound && !loading && (
+        {restaurant && !loading && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
             <div className="lg:col-span-2 space-y-6">
               <Card>
                   <CardHeader>
                       <CardTitle className="flex justify-between items-center">
-                          <span>Railicious Restaurant</span>
-                          <div className="flex items-center gap-1 text-sm font-bold text-primary"><Star className="h-4 w-4 fill-current"/> 4.2</div>
+                          <span>{restaurant.name}</span>
+                          <div className="flex items-center gap-1 text-sm font-bold text-primary"><Star className="h-4 w-4 fill-current"/> {restaurant.rating}</div>
                       </CardTitle>
-                      <CardDescription>Delivering to your next station: Ratlam (RTM)</CardDescription>
+                      <CardDescription>Delivering to your next station: {restaurant.deliveringTo}</CardDescription>
                   </CardHeader>
                   <CardContent>
                       <RadioGroup value={dietFilter} onValueChange={setDietFilter} className="flex items-center gap-4">
@@ -197,67 +218,45 @@ export default function FoodOrderingPage() {
                       </RadioGroup>
                   </CardContent>
               </Card>
-              <div className="grid gap-4 md:grid-cols-2">
-                {filteredMenuItems.map(item => (
-                  <Card key={item.id} className="flex flex-col">
-                    <CardHeader className="p-0 relative">
-                       <Image data-ai-hint="food meal" src={item.image} alt={item.name} width={300} height={200} className="w-full h-32 object-cover rounded-t-lg" />
-                        <div className="absolute top-2 right-2 bg-background/80 p-1 rounded-full">
-                           {dietIcons[item.dietary as keyof typeof dietIcons]}
-                       </div>
-                    </CardHeader>
-                    <CardContent className="p-4 flex-grow flex flex-col">
-                      <div className="flex justify-between items-start">
-                        <h3 className="font-semibold">{item.name}</h3>
-                        <p className="font-semibold text-primary">Rs. {item.price}</p>
-                      </div>
-                      <p className="text-sm text-muted-foreground mt-1 flex-grow">{item.description}</p>
-                      <div className="flex justify-between items-center mt-4">
-                        <DialogTrigger asChild>
-                          <Button variant="link" className="p-0 h-auto">View Details</Button>
-                        </DialogTrigger>
-                        {!cart[item.id] ? (
-                          <Button size="sm" onClick={() => addToCart(item.id)}>Add to Cart</Button>
-                        ) : (
-                          <div className="flex items-center gap-2">
-                            <Button size="icon" variant="outline" onClick={() => removeFromCart(item.id)}><Minus className="h-4 w-4"/></Button>
-                            <span className="font-bold w-4 text-center">{cart[item.id]}</span>
-                            <Button size="icon" variant="outline" onClick={() => addToCart(item.id)}><Plus className="h-4 w-4"/></Button>
-                          </div>
-                        )}
-                      </div>
-                       <DialogContent className="max-w-lg">
-                          <DialogHeader>
-                              <div className="relative h-48 rounded-lg overflow-hidden mb-4">
-                                <Image data-ai-hint="food meal" src={item.image} alt={item.name} layout="fill" objectFit="cover" />
-                              </div>
-                              <DialogTitle className="text-2xl">{item.name}</DialogTitle>
-                              <DialogDescription className="flex items-center gap-4">
-                                  <span>{item.vendor.name}</span>
-                                  <span className="flex items-center gap-1"><Star className="h-4 w-4 fill-amber-400 text-amber-500"/> {item.vendor.rating}</span>
-                              </DialogDescription>
-                          </DialogHeader>
-                          <div className="space-y-4 py-4">
-                              <div className="flex justify-between items-center font-bold text-lg">
-                                  <p>Price: <span className="text-primary">Rs. {item.price}</span></p>
-                                   <Badge variant="outline" className="flex items-center gap-1">
-                                      {dietIcons[item.dietary as keyof typeof dietIcons]} {dietLabels[item.dietary as keyof typeof dietLabels]}
-                                  </Badge>
-                              </div>
-                              <div>
-                                  <h4 className="font-semibold">Main Ingredients</h4>
-                                  <p className="text-sm text-muted-foreground">{item.ingredients.join(', ')}</p>
-                              </div>
-                               <div>
-                                  <h4 className="font-semibold">Calorie Count</h4>
-                                  <p className="text-sm text-muted-foreground">Approx. {item.calories} kcal</p>
-                              </div>
-                          </div>
-                      </DialogContent>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+              {filteredMenuItems.length > 0 ? (
+                <div className="grid gap-4 md:grid-cols-2">
+                    {filteredMenuItems.map(item => (
+                    <Card key={item.id} className="flex flex-col">
+                        <CardHeader className="p-0 relative">
+                        <Image data-ai-hint="food meal" src={item.image} alt={item.name} width={300} height={200} className="w-full h-32 object-cover rounded-t-lg" />
+                            <div className="absolute top-2 right-2 bg-background/80 p-1 rounded-full">
+                            {dietIcons[item.dietary as keyof typeof dietIcons]}
+                        </div>
+                        </CardHeader>
+                        <CardContent className="p-4 flex-grow flex flex-col">
+                        <div className="flex justify-between items-start">
+                            <h3 className="font-semibold">{item.name}</h3>
+                            <p className="font-semibold text-primary">Rs. {item.price}</p>
+                        </div>
+                        <p className="text-sm text-muted-foreground mt-1 flex-grow">{item.description}</p>
+                        <div className="flex justify-between items-center mt-4">
+                            <DialogTrigger asChild>
+                            <Button variant="link" className="p-0 h-auto" onClick={() => setViewingItem(item)}>View Details</Button>
+                            </DialogTrigger>
+                            {!cart[item.id] ? (
+                            <Button size="sm" onClick={() => addToCart(item.id)}>Add to Cart</Button>
+                            ) : (
+                            <div className="flex items-center gap-2">
+                                <Button size="icon" variant="outline" onClick={() => removeFromCart(item.id)}><Minus className="h-4 w-4"/></Button>
+                                <span className="font-bold w-4 text-center">{cart[item.id]}</span>
+                                <Button size="icon" variant="outline" onClick={() => addToCart(item.id)}><Plus className="h-4 w-4"/></Button>
+                            </div>
+                            )}
+                        </div>
+                        </CardContent>
+                    </Card>
+                    ))}
+                </div>
+                ) : (
+                <div className="text-center py-10">
+                    <p>No items match the filter &quot;{dietFilter}&quot;.</p>
+                </div>
+                )}
             </div>
             <div className="lg:col-span-1 sticky top-6 space-y-4">
               <Card>
@@ -313,6 +312,36 @@ export default function FoodOrderingPage() {
           </div>
         )}
       </div>
+      {viewingItem && (
+        <DialogContent className="max-w-lg">
+            <DialogHeader>
+                <div className="relative h-48 rounded-lg overflow-hidden mb-4">
+                <Image data-ai-hint="food meal" src={viewingItem.image} alt={viewingItem.name} layout="fill" objectFit="cover" />
+                </div>
+                <DialogTitle className="text-2xl">{viewingItem.name}</DialogTitle>
+                <DialogDescription className="flex items-center gap-4">
+                    <span>{viewingItem.vendor.name}</span>
+                    <span className="flex items-center gap-1"><Star className="h-4 w-4 fill-amber-400 text-amber-500"/> {viewingItem.vendor.rating}</span>
+                </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+                <div className="flex justify-between items-center font-bold text-lg">
+                    <p>Price: <span className="text-primary">Rs. {viewingItem.price}</span></p>
+                    <Badge variant="outline" className="flex items-center gap-1">
+                        {dietIcons[viewingItem.dietary as keyof typeof dietIcons]} {dietLabels[viewingItem.dietary as keyof typeof dietLabels]}
+                    </Badge>
+                </div>
+                <div>
+                    <h4 className="font-semibold">Main Ingredients</h4>
+                    <p className="text-sm text-muted-foreground">{viewingItem.ingredients.join(', ')}</p>
+                </div>
+                <div>
+                    <h4 className="font-semibold">Calorie Count</h4>
+                    <p className="text-sm text-muted-foreground">Approx. {viewingItem.calories} kcal</p>
+                </div>
+            </div>
+        </DialogContent>
+      )}
     </Dialog>
   );
 }
