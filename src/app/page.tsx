@@ -50,10 +50,10 @@ export default function LandingPage() {
           </Link>
           <div className="flex flex-1 items-center justify-end space-x-2">
             <Button variant="ghost" asChild>
-                <Link href="/dashboard">Login</Link>
+                <Link href="/login">Login</Link>
             </Button>
             <Button asChild>
-                <Link href="/dashboard">Signup <ArrowRight className="ml-2 h-4 w-4" /></Link>
+                <Link href="/signup">Signup <ArrowRight className="ml-2 h-4 w-4" /></Link>
             </Button>
           </div>
         </div>
@@ -74,14 +74,17 @@ export default function LandingPage() {
           </div>
           <div className="relative z-10 p-4 space-y-6 max-w-3xl">
             <h1 className="text-4xl md:text-6xl font-bold font-headline">
-              Your Complete Indian Travel Companion
+              Your Complete Bharatiya Travel Companion
             </h1>
             <p className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto">
-              Seamlessly book trains, hotels, and meals for your next journey across India. All in one place.
+              Seamlessly book trains, hotels, and meals for your next journey across Bharat. All in one place.
+            </p>
+             <p className="text-lg md:text-xl text-amber-300/90 font-serif italic max-w-2xl mx-auto">
+              यात्रा सुगमं भवतु – “May your journey be smooth.”
             </p>
             <div className="flex justify-center pt-4">
                 <Button size="lg" asChild>
-                    <Link href="/dashboard">
+                    <Link href="/login">
                         Start Planning Your Trip
                         <ArrowRight className="ml-2" />
                     </Link>
@@ -93,7 +96,7 @@ export default function LandingPage() {
         <section id="features" className="py-16 md:py-24 bg-muted/40">
             <div className="container">
                 <div className="text-center max-w-3xl mx-auto mb-12">
-                    <h2 className="text-3xl md:text-4xl font-bold font-headline">Everything You Need for Indian Travel</h2>
+                    <h2 className="text-3xl md:text-4xl font-bold font-headline">Everything You Need for Bharatiya Travel</h2>
                     <p className="text-lg text-muted-foreground mt-4">YatraSetu integrates every step of your journey into a single, easy-to-use platform.</p>
                 </div>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -116,7 +119,7 @@ export default function LandingPage() {
             <div className="container grid md:grid-cols-2 gap-12 items-center">
                 <div className="space-y-6">
                     <h2 className="text-3xl md:text-4xl font-bold font-headline">Why YatraSetu?</h2>
-                    <p className="text-lg text-muted-foreground">We built YatraSetu to solve the headaches of Indian travel. No more juggling multiple apps and websites. Plan, book, and manage with confidence.</p>
+                    <p className="text-lg text-muted-foreground">We built YatraSetu to solve the headaches of Bharatiya travel. No more juggling multiple apps and websites. Plan, book, and manage with confidence.</p>
                     <div className="space-y-4">
                         <div className="flex items-start gap-4">
                             <ShieldCheck className="h-6 w-6 text-primary flex-shrink-0 mt-1"/>
@@ -143,8 +146,8 @@ export default function LandingPage() {
                 </div>
                 <div className="relative h-96 rounded-lg overflow-hidden">
                     <Image 
-                        src="https://picsum.photos/seed/yatra/800/600"
-                        alt="Happy travellers"
+                        src="https://images.unsplash.com/photo-1595828816342-83b646c10971?q=80&w=1974&auto=format&fit=crop"
+                        alt="Happy travellers in Bharat"
                         data-ai-hint="happy travellers"
                         fill
                         className="object-cover"
@@ -163,14 +166,14 @@ export default function LandingPage() {
                         <YatraSetuLogo className="h-6 w-6" />
                         YatraSetu
                     </h3>
-                    <p className="text-sm text-gray-400">Your complete Indian travel companion.</p>
+                    <p className="text-sm text-gray-400">Your complete Bharatiya travel companion.</p>
                  </div>
                  <div>
                      <h4 className="font-semibold mb-4">Quick Links</h4>
                      <nav className="flex flex-col gap-2 text-sm">
                         <Link href="/dashboard" className="text-gray-400 hover:text-white">Dashboard</Link>
                         <Link href="#features" className="text-gray-400 hover:text-white">Features</Link>
-                        <Link href="/dashboard" className="text-gray-400 hover:text-white">Login</Link>
+                        <Link href="/login" className="text-gray-400 hover:text-white">Login</Link>
                      </nav>
                  </div>
                  <div>

@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
   title: "YatraSetu",
-  description: "Your complete travel companion for India.",
+  description: "Your complete travel companion for Bharat.",
 };
 
 export default function RootLayout({
