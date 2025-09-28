@@ -1,6 +1,6 @@
 
 
-import { doc, setDoc, getDoc, serverTimestamp, updateDoc, deleteDoc, collection, addDoc, onSnapshot, query, orderBy, where, runTransaction, getDocs, getCountFromServer } from "firebase/firestore";
+import { doc, setDoc, getDoc, serverTimestamp, updateDoc, deleteDoc, collection, addDoc, onSnapshot, query, orderBy, where, runTransaction, getDocs, getCountFromServer, Timestamp } from "firebase/firestore";
 import { db } from "./config";
 import type { User } from 'firebase/auth';
 
@@ -279,6 +279,17 @@ export const getAdminStats = async () => {
     };
 };
 
+export const getRecentBookings = async (days: number) => {
+    const bookingsCol = collection(db, "bookings");
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - days);
+    
+    const q = query(bookingsCol, where('createdAt', '>=', Timestamp.fromDate(startDate)));
+    const querySnapshot = await getDocs(q);
+    const bookingsList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    return bookingsList;
+}
+
 export const getAllHotels = async () => {
     const hotelsCollection = collection(db, 'hotels');
     const hotelsSnapshot = await getDocs(hotelsCollection);
@@ -306,5 +317,3 @@ export const deleteHotel = async (hotelId: string) => {
     const hotelRef = doc(db, 'hotels', hotelId);
     await deleteDoc(hotelRef);
 };
-
-    

@@ -3,9 +3,11 @@
 
 import { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { getAdminStats } from "@/lib/firebase/firestore";
-import { Hotel, Loader2, Users, BookMarked } from "lucide-react";
+import { getAdminStats, getRecentBookings } from "@/lib/firebase/firestore";
+import { Hotel, Users, BookMarked, Loader2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts";
+import { format, subDays } from "date-fns";
 
 type Stats = {
     hotels: number;
@@ -15,21 +17,43 @@ type Stats = {
 
 export default function AdminDashboard() {
     const [stats, setStats] = useState<Stats | null>(null);
+    const [bookingsData, setBookingsData] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        async function fetchStats() {
+        async function fetchDashboardData() {
             setLoading(true);
             try {
-                const data = await getAdminStats();
-                setStats(data);
+                const [statsData, recentBookings] = await Promise.all([
+                    getAdminStats(),
+                    getRecentBookings(7)
+                ]);
+                setStats(statsData);
+
+                const bookingsByDay = recentBookings.reduce((acc: any, booking: any) => {
+                    const day = format(new Date(booking.date), 'yyyy-MM-dd');
+                    acc[day] = (acc[day] || 0) + 1;
+                    return acc;
+                }, {});
+
+                const chartData = Array.from({ length: 7 }, (_, i) => {
+                    const date = subDays(new Date(), i);
+                    const formattedDate = format(date, 'yyyy-MM-dd');
+                    return {
+                        name: format(date, 'MMM d'),
+                        total: bookingsByDay[formattedDate] || 0,
+                    };
+                }).reverse();
+                
+                setBookingsData(chartData);
+
             } catch (error) {
-                console.error("Failed to fetch admin stats:", error);
+                console.error("Failed to fetch admin dashboard data:", error);
             } finally {
                 setLoading(false);
             }
         }
-        fetchStats();
+        fetchDashboardData();
     }, []);
 
     if (loading) {
@@ -41,6 +65,7 @@ export default function AdminDashboard() {
                      <Skeleton className="h-28" />
                      <Skeleton className="h-28" />
                  </div>
+                 <Skeleton className="h-80 w-full"/>
              </div>
         )
     }
@@ -80,8 +105,27 @@ export default function AdminDashboard() {
                     </CardContent>
                 </Card>
             </div>
+            <Card>
+                <CardHeader>
+                    <CardTitle>Recent Bookings</CardTitle>
+                    <CardContent className="pl-2 pt-4">
+                        <ResponsiveContainer width="100%" height={350}>
+                            <BarChart data={bookingsData}>
+                                <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
+                                <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} allowDecimals={false}/>
+                                <Tooltip
+                                    contentStyle={{
+                                        background: "hsl(var(--background))",
+                                        border: "1px solid hsl(var(--border))",
+                                        borderRadius: "var(--radius)",
+                                    }}
+                                />
+                                <Bar dataKey="total" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </CardContent>
+                </CardHeader>
+            </Card>
         </div>
     );
 }
-
-    
