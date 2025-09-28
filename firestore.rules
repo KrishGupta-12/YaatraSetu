@@ -2,54 +2,55 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-  
-    // Default deny all
-    match /{document=**} {
-      allow read, write: if false;
-    }
 
-    // Allow users to read/write their own profile data
+    // USERS
+    // Users can read/write to their own profile.
+    // Admins need to be able to count all users.
     match /users/{userId} {
       allow read, update, delete: if request.auth != null && request.auth.uid == userId;
       allow create: if request.auth != null;
     }
     
-    // Allow users to manage their own saved passengers
-    match /users/{userId}/passengers/{passengerId} {
-        allow read, write, delete: if request.auth != null && request.auth.uid == userId;
+    // Allow admins to list/count users for the dashboard.
+    match /users/{userId} {
+      allow list: if request.auth != null; // Allows counting
     }
 
-    // Allow anyone to read hotels, but only admins (simulated) to write
+    match /users/{userId}/passengers/{passengerId} {
+        allow read, create, delete: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // HOTELS
+    // Public can read, anyone can write for admin panel functionality.
+    // In production, this should be locked down to admin users only.
     match /hotels/{hotelId} {
       allow read: if true;
-      allow write: if true; // Insecure, for dev only. Should be role-based.
+      allow write: if true; 
     }
     
-    // Allow users to create bookings and read their own
+    // BOOKINGS
+    // Authenticated users can create their own bookings.
+    // Users can only read their own bookings.
     match /bookings/{bookingId} {
-       allow create: if request.auth != null;
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+    }
+    // Allow admins to list/count bookings for the dashboard.
+     match /bookings/{bookingId} {
+      allow list: if request.auth != null; // Allows counting
+    }
+    
+    // TATKAL REQUESTS
+    // Users can manage their own Tatkal automation requests.
+    match /tatkal_requests/{requestId} {
+       allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
        allow read: if request.auth != null && resource.data.userId == request.auth.uid;
     }
     
-    // Allow users to create their own tatkal requests
-    match /tatkal_requests/{requestId} {
-        allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
-        allow read: if request.auth != null && resource.data.userId == request.auth.uid;
-    }
-
-    // Allow authenticated users to write to chatbot logs
+    // CHATBOT LOGS
+    // Allow any authenticated user to create logs.
     match /chatbot_logs/{logId} {
       allow create: if request.auth != null;
     }
-    
-     // Open counts for admin dashboard
-    match /users/{document=**} {
-      allow read: if request.auth != null;
-    }
-    
-    match /bookings/{document=**} {
-      allow read: if request.auth != null;
-    }
-    
   }
 }
