@@ -46,6 +46,7 @@ export default function HotelBookingPage() {
   const [priceRange, setPriceRange] = useState([0, 50000]);
   const [selectedRatings, setSelectedRatings] = useState<number[]>([]);
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
+  const [sortBy, setSortBy] = useState("popularity");
 
   const [hotels, setHotels] = useState(mockHotelsData);
   const [selectedHotel, setSelectedHotel] = useState<Hotel | null>(null);
@@ -62,11 +63,29 @@ export default function HotelBookingPage() {
   };
   
   const filteredHotels = useMemo(() => {
-    return hotels
+    let sortedHotels = [...hotels]
       .filter(hotel => hotel.price >= priceRange[0] && hotel.price <= priceRange[1])
       .filter(hotel => selectedRatings.length === 0 || selectedRatings.includes(hotel.rating))
       .filter(hotel => selectedAmenities.every(amenity => hotel.amenities.includes(amenity)));
-  }, [hotels, priceRange, selectedRatings, selectedAmenities]);
+
+    switch (sortBy) {
+        case 'price-asc':
+            sortedHotels.sort((a, b) => a.price - b.price);
+            break;
+        case 'price-desc':
+            sortedHotels.sort((a, b) => b.price - a.price);
+            break;
+        case 'rating':
+            sortedHotels.sort((a, b) => b.rating - a.rating);
+            break;
+        case 'popularity':
+        default:
+            // Assuming default order is popularity
+            break;
+    }
+    
+    return sortedHotels;
+  }, [hotels, priceRange, selectedRatings, selectedAmenities, sortBy]);
 
   const toggleLike = (hotelId: number) => {
     setHotels(hotels.map(h => h.id === hotelId ? {...h, liked: !h.liked} : h));
@@ -117,7 +136,14 @@ export default function HotelBookingPage() {
   const nights = (checkInDate && checkOutDate) ? differenceInDays(checkOutDate, checkInDate) : 0;
 
   return (
-    <Dialog>
+    <Dialog 
+        onOpenChange={(open) => {
+            if (!open) {
+                setViewingHotel(null);
+                setIsBooking(null);
+            }
+        }}
+    >
       <div className="space-y-8">
         <h1 className="text-3xl font-bold tracking-tight font-headline mb-8">Hotel Booking</h1>
 
@@ -271,7 +297,7 @@ export default function HotelBookingPage() {
               <h2 className="text-2xl font-bold">{filteredHotels.length} hotels found</h2>
               <div className="flex items-center gap-2">
                 <Label>Sort by:</Label>
-                <Select defaultValue="popularity">
+                <Select defaultValue={sortBy} onValueChange={setSortBy}>
                   <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="Sort by"/>
                   </SelectTrigger>
@@ -337,7 +363,7 @@ export default function HotelBookingPage() {
       </div>
 
     {viewingHotel && (
-        <DialogContent className="max-w-3xl" onOpenChange={(open) => !open && setViewingHotel(null)}>
+        <DialogContent className="max-w-3xl">
             <DialogHeader>
                 <DialogTitle className="text-2xl">{viewingHotel.name}</DialogTitle>
                 <DialogDescription>{viewingHotel.city}</DialogDescription>
@@ -390,7 +416,7 @@ export default function HotelBookingPage() {
     )}
 
     {isBooking && selectedHotel && (
-        <DialogContent className="max-w-lg" onOpenChange={(open) => !open && setIsBooking(false)}>
+        <DialogContent className="max-w-lg">
             <DialogHeader>
                 <DialogTitle>Confirm Your Booking</DialogTitle>
                 <DialogDescription>
@@ -436,3 +462,5 @@ export default function HotelBookingPage() {
     </Dialog>
   );
 }
+
+    
