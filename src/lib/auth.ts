@@ -7,9 +7,13 @@ import {
   signOut as firebaseSignOut,
   sendPasswordResetEmail,
   updateProfile,
+  updatePassword,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
+  deleteUser,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase/config";
-import { createUserProfile, updateUserLastLogin } from "./firebase/firestore";
+import { createUserProfile, updateUserLastLogin, deleteUserProfile } from "./firebase/firestore";
 
 
 export const signUp = async (email: string, password: string, additionalData: Record<string, any> = {}) => {
@@ -39,4 +43,28 @@ export const signOut = async () => {
 
 export const passwordReset = async (email: string) => {
   await sendPasswordResetEmail(auth, email);
+};
+
+export const reauthenticate = async (password: string) => {
+    const user = auth.currentUser;
+    if (!user || !user.email) throw new Error("No user is signed in.");
+    const credential = EmailAuthProvider.credential(user.email, password);
+    await reauthenticateWithCredential(user, credential);
+};
+
+export const changePassword = async (newPassword: string) => {
+    const user = auth.currentUser;
+    if (!user) throw new Error("No user is signed in.");
+    await updatePassword(user, newPassword);
+};
+
+export const deleteCurrentUser = async () => {
+    const user = auth.currentUser;
+    if (!user) throw new Error("No user is signed in.");
+
+    const userId = user.uid;
+    // Delete from Firebase Auth
+    await deleteUser(user);
+    // Delete from Firestore
+    await deleteUserProfile(userId);
 };
