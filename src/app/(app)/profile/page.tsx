@@ -13,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Trash, Plus, Loader2 } from "lucide-react";
+import { Trash, Plus } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useUserProfile } from "@/hooks/use-user-profile";
@@ -44,13 +44,16 @@ export default function ProfilePage() {
                 <Skeleton className="h-6 w-32" />
                 <Skeleton className="h-4 w-40 mt-2" />
               </CardHeader>
+              <CardContent>
+                <Skeleton className="h-10 w-full" />
+              </CardContent>
             </Card>
           </div>
           <div className="md:col-span-2 space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle>Personal Information</CardTitle>
-                <CardDescription>Manage your personal details.</CardDescription>
+                <CardDescription>Your personal details.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid sm:grid-cols-2 gap-4">
@@ -60,11 +63,25 @@ export default function ProfilePage() {
                  <div className="space-y-2"><Label>Phone Number</Label><Skeleton className="h-10 w-full" /></div>
               </CardContent>
             </Card>
+            <Card>
+               <CardHeader>
+                <CardTitle>Saved Passengers</CardTitle>
+                <CardDescription>Manage your co-travellers for faster bookings.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                 <Skeleton className="h-16 w-full" />
+                 <Skeleton className="h-16 w-full" />
+                 <Skeleton className="h-10 w-full" />
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
     );
   }
+
+  const displayName = profileData?.displayName || user?.displayName;
+  const displayInitial = displayName?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || "U";
 
   return (
     <div className="space-y-8">
@@ -74,12 +91,12 @@ export default function ProfilePage() {
           <Card>
             <CardHeader className="items-center text-center">
               <Avatar className="h-24 w-24 mb-4">
-                <AvatarImage src={user?.photoURL || ""} alt={profileData?.displayName || ""} />
+                <AvatarImage src={user?.photoURL || ""} alt={displayName || ""} />
                 <AvatarFallback>
-                  {profileData?.displayName?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase()}
+                  {displayInitial}
                 </AvatarFallback>
               </Avatar>
-              <CardTitle>{profileData?.displayName || user?.displayName}</CardTitle>
+              <CardTitle>{displayName}</CardTitle>
               <CardDescription>{user?.email}</CardDescription>
             </CardHeader>
             <CardContent>
@@ -97,7 +114,7 @@ export default function ProfilePage() {
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
                     <Label>Full Name</Label>
-                    <Input value={profileData?.displayName || ''} disabled />
+                    <Input value={displayName || ''} disabled />
                 </div>
                 <div>
                   <Label>Email Address</Label>
