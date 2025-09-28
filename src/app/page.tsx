@@ -1,32 +1,59 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Hotel, Train, Utensils, Facebook, Twitter, Instagram } from "lucide-react";
+import { ArrowRight, Bot, Clock, Hotel, Rocket, ShieldCheck, Train, Utensils, Wallet, Facebook, Twitter, Instagram } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { YatraSetuLogo } from "@/components/icons";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+const features = [
+  {
+    icon: Train,
+    title: "Seamless Train Booking",
+    description: "Effortlessly search, book, and manage your train tickets with real-time availability and PNR tracking.",
+  },
+  {
+    icon: Hotel,
+    title: "Curated Hotel Stays",
+    description: "Find the perfect hotel with smart filters for price, ratings, and amenities. Save your favorites to a wishlist.",
+  },
+  {
+    icon: Utensils,
+    title: "Food on the Go",
+    description: "Order delicious meals from a variety of restaurants, delivered right to your seat at upcoming stations.",
+  },
+  {
+    icon: Bot,
+    title: "AI Journey Planner",
+    description: "Let our intelligent AI assistant plan your entire trip, from train routes to hotel stays and meal suggestions.",
+  },
+  {
+    icon: Rocket,
+    title: "Tatkal Automation",
+    description: "Never miss a Tatkal ticket again. Our automated system books your ticket the moment the window opens.",
+  },
+  {
+    icon: Wallet,
+    title: "Unified Wallet & Payments",
+    description: "Enjoy a secure and streamlined checkout experience with our integrated wallet and multiple payment options.",
+  },
+]
 
 export default function LandingPage() {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-background">
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-14 items-center">
           <Link href="/" className="mr-6 flex items-center space-x-2">
-            <YatraSetuLogo className="h-6 w-6" />
-            <span className="font-bold inline-block">YatraSetu</span>
+            <YatraSetuLogo className="h-6 w-6 text-primary" />
+            <span className="font-bold inline-block font-headline">YatraSetu</span>
           </Link>
-          <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
-            <Link href="/">Home</Link>
-            <Link href="/train-booking">Train Booking</Link>
-            <Link href="/hotel-booking">Hotels</Link>
-            <Link href="/food-ordering">Food</Link>
-            <Link href="#">Contact</Link>
-          </nav>
-          <div className="flex flex-1 items-center justify-end space-x-4">
+          <div className="flex flex-1 items-center justify-end space-x-2">
             <Button variant="ghost" asChild>
                 <Link href="/dashboard">Login</Link>
             </Button>
             <Button asChild>
-                <Link href="#">Signup <ArrowRight className="ml-2 h-4 w-4" /></Link>
+                <Link href="/dashboard">Signup <ArrowRight className="ml-2 h-4 w-4" /></Link>
             </Button>
           </div>
         </div>
@@ -34,7 +61,7 @@ export default function LandingPage() {
 
       <main className="flex-1">
         <section className="relative h-[80vh] min-h-[500px] flex items-center justify-center text-center text-white">
-          <div className="absolute inset-0">
+          <div className="absolute inset-0 z-0">
              <Image
               src="https://images.unsplash.com/photo-1620994320253-315a6b0b5610?q=80&w=2070&auto=format&fit=crop"
               alt="Vande Bharat Express"
@@ -43,14 +70,14 @@ export default function LandingPage() {
               className="object-cover"
               priority
             />
-            <div className="absolute inset-0 bg-black/60" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent" />
           </div>
-          <div className="relative z-10 p-4 space-y-6">
+          <div className="relative z-10 p-4 space-y-6 max-w-3xl">
             <h1 className="text-4xl md:text-6xl font-bold font-headline">
               Your Complete Indian Travel Companion
             </h1>
             <p className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto">
-              Seamlessly book trains, hotels, and meals for your next journey across India.
+              Seamlessly book trains, hotels, and meals for your next journey across India. All in one place.
             </p>
             <div className="flex justify-center pt-4">
                 <Button size="lg" asChild>
@@ -63,43 +90,108 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className="py-12 bg-muted/40">
+        <section id="features" className="py-16 md:py-24 bg-muted/40">
             <div className="container">
-                 <div className="flex flex-col md:flex-row justify-center items-center gap-8 md:gap-12">
-                    <div className="flex items-center gap-3">
-                        <Train className="h-6 w-6 text-primary" />
-                        <span className="font-semibold">Book Trains</span>
+                <div className="text-center max-w-3xl mx-auto mb-12">
+                    <h2 className="text-3xl md:text-4xl font-bold font-headline">Everything You Need for Indian Travel</h2>
+                    <p className="text-lg text-muted-foreground mt-4">YatraSetu integrates every step of your journey into a single, easy-to-use platform.</p>
+                </div>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {features.map(feature => (
+                        <Card key={feature.title} className="bg-background/80 backdrop-blur">
+                            <CardHeader className="flex flex-row items-center gap-4">
+                                <feature.icon className="h-8 w-8 text-primary"/>
+                                <CardTitle className="text-xl font-headline">{feature.title}</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <p className="text-muted-foreground">{feature.description}</p>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
+            </div>
+        </section>
+        
+        <section className="py-16 md:py-24">
+            <div className="container grid md:grid-cols-2 gap-12 items-center">
+                <div className="space-y-6">
+                    <h2 className="text-3xl md:text-4xl font-bold font-headline">Why YatraSetu?</h2>
+                    <p className="text-lg text-muted-foreground">We built YatraSetu to solve the headaches of Indian travel. No more juggling multiple apps and websites. Plan, book, and manage with confidence.</p>
+                    <div className="space-y-4">
+                        <div className="flex items-start gap-4">
+                            <ShieldCheck className="h-6 w-6 text-primary flex-shrink-0 mt-1"/>
+                            <div>
+                                <h3 className="font-semibold">All-in-One Convenience</h3>
+                                <p className="text-muted-foreground">From AI-powered planning to live tracking, everything you need is right here.</p>
+                            </div>
+                        </div>
+                         <div className="flex items-start gap-4">
+                            <Clock className="h-6 w-6 text-primary flex-shrink-0 mt-1"/>
+                            <div>
+                                <h3 className="font-semibold">Save Time & Effort</h3>
+                                <p className="text-muted-foreground">With saved profiles and Tatkal automation, booking is faster than ever.</p>
+                            </div>
+                        </div>
+                         <div className="flex items-start gap-4">
+                            <Bot className="h-6 w-6 text-primary flex-shrink-0 mt-1"/>
+                            <div>
+                                <h3 className="font-semibold">Travel Smarter</h3>
+                                <p className="text-muted-foreground">Use our AI tools for waitlist prediction and journey planning to make informed decisions.</p>
+                            </div>
+                        </div>
                     </div>
-                     <div className="hidden md:block h-6 w-px bg-border"></div>
-                    <div className="flex items-center gap-3">
-                        <Hotel className="h-6 w-6 text-primary" />
-                        <span className="font-semibold">Book Hotels</span>
-                    </div>
-                     <div className="hidden md:block h-6 w-px bg-border"></div>
-                    <div className="flex items-center gap-3">
-                        <Utensils className="h-6 w-6 text-primary" />
-                        <span className="font-semibold">Food on Train</span>
-                    </div>
+                </div>
+                <div className="relative h-96 rounded-lg overflow-hidden">
+                    <Image 
+                        src="https://picsum.photos/seed/yatra/800/600"
+                        alt="Happy travellers"
+                        data-ai-hint="happy travellers"
+                        fill
+                        className="object-cover"
+                    />
                 </div>
             </div>
         </section>
 
       </main>
 
-      <footer className="bg-background border-t">
-        <div className="container py-8 flex flex-col md:flex-row justify-between items-center">
-            <div className="text-center md:text-left mb-4 md:mb-0">
-                <p className="text-sm text-muted-foreground">&copy; {new Date().getFullYear()} YatraSetu. All rights reserved.</p>
+      <footer className="bg-gray-900 text-white">
+        <div className="container py-12">
+            <div className="grid md:grid-cols-4 gap-8">
+                 <div>
+                    <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
+                        <YatraSetuLogo className="h-6 w-6" />
+                        YatraSetu
+                    </h3>
+                    <p className="text-sm text-gray-400">Your complete Indian travel companion.</p>
+                 </div>
+                 <div>
+                     <h4 className="font-semibold mb-4">Quick Links</h4>
+                     <nav className="flex flex-col gap-2 text-sm">
+                        <Link href="/dashboard" className="text-gray-400 hover:text-white">Dashboard</Link>
+                        <Link href="#features" className="text-gray-400 hover:text-white">Features</Link>
+                        <Link href="/dashboard" className="text-gray-400 hover:text-white">Login</Link>
+                     </nav>
+                 </div>
+                 <div>
+                     <h4 className="font-semibold mb-4">Support</h4>
+                     <nav className="flex flex-col gap-2 text-sm">
+                        <Link href="#" className="text-gray-400 hover:text-white">Help Center</Link>
+                        <Link href="#" className="text-gray-400 hover:text-white">Contact Us</Link>
+                        <Link href="#" className="text-gray-400 hover:text-white">Privacy Policy</Link>
+                     </nav>
+                 </div>
+                 <div>
+                    <h4 className="font-semibold mb-4">Follow Us</h4>
+                    <div className="flex items-center gap-4">
+                        <Link href="#" aria-label="Facebook"><Facebook className="h-5 w-5 text-gray-400 hover:text-white"/></Link>
+                        <Link href="#" aria-label="Twitter"><Twitter className="h-5 w-5 text-gray-400 hover:text-white"/></Link>
+                        <Link href="#" aria-label="Instagram"><Instagram className="h-5 w-5 text-gray-400 hover:text-white"/></Link>
+                    </div>
+                 </div>
             </div>
-             <nav className="flex items-center gap-6 text-sm font-medium mb-4 md:mb-0">
-                <Link href="#" className="text-muted-foreground hover:text-primary">Support</Link>
-                <Link href="#" className="text-muted-foreground hover:text-primary">Helpline</Link>
-                <Link href="#" className="text-muted-foreground hover:text-primary">Privacy Policy</Link>
-             </nav>
-            <div className="flex items-center gap-4">
-                <Link href="#" aria-label="Facebook"><Facebook className="h-5 w-5 text-muted-foreground hover:text-primary"/></Link>
-                <Link href="#" aria-label="Twitter"><Twitter className="h-5 w-5 text-muted-foreground hover:text-primary"/></Link>
-                <Link href="#" aria-label="Instagram"><Instagram className="h-5 w-5 text-muted-foreground hover:text-primary"/></Link>
+            <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-500">
+                <p>&copy; {new Date().getFullYear()} YatraSetu. All rights reserved.</p>
             </div>
         </div>
       </footer>
