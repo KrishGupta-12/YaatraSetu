@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -11,8 +12,7 @@ import { cn } from "@/lib/utils";
 import { BedDouble, CalendarIcon, Loader2, MapPin, Minus, Plus, Search, Star, User, Heart, Wifi, Dumbbell, Utensils } from "lucide-react";
 import { format, addDays, differenceInDays } from "date-fns";
 import Image from "next/image";
-import { useState } from "react";
-import type { DateRange } from "react-day-picker";
+import { useState, useMemo } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
@@ -20,29 +20,37 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { useRouter } from "next/navigation";
 import { Separator } from "@/components/ui/separator";
 
-const mockHotels = [
+const mockHotelsData = [
   { id: 1, name: "The Oberoi Grand", city: "Kolkata", rating: 5, price: 12000, image: "https://picsum.photos/seed/hotel1/400/300", amenities: ["Pool", "Gym", "WiFi", "Spa"], description: "A luxurious heritage hotel in the heart of Kolkata, offering timeless elegance and impeccable service.", liked: false },
   { id: 2, name: "Taj Falaknuma Palace", city: "Hyderabad", rating: 5, price: 35000, image: "https://picsum.photos/seed/hotel2/400/300", amenities: ["Spa", "Fine Dining", "WiFi", "Pool"], description: "Experience the life of Nizams at this opulent palace hotel, featuring grand architecture and stunning city views.", liked: true },
-  { id: 3, name: "Lemon Tree Premier", city: "Jaipur", rating: 4.5, price: 8000, image: "https://picsum.photos/seed/hotel3/400/300", amenities: ["Pool", "Restaurant", "Gym"], description: "A vibrant and contemporary hotel located close to major attractions, known for its fresh and zesty interiors.", liked: false },
+  { id: 3, name: "Lemon Tree Premier", city: "Jaipur", rating: 4, price: 8000, image: "https://picsum.photos/seed/hotel3/400/300", amenities: ["Pool", "Restaurant", "Gym"], description: "A vibrant and contemporary hotel located close to major attractions, known for its fresh and zesty interiors.", liked: false },
   { id: 4, name: "Radisson Blu", city: "Goa", rating: 4, price: 9500, image: "https://picsum.photos/seed/hotel4/400/300", amenities: ["Beach Access", "Pool", "WiFi", "Spa"], description: "Nestled near the Cavelossim Beach, this resort offers a perfect blend of comfort and Goan hospitality.", liked: false },
-  { id: 5, name: "Ginger Hotel", city: "Mumbai", rating: 3.5, price: 5500, image: "https://picsum.photos/seed/hotel5/400/300", amenities: ["WiFi", "Restaurant"], description: "A smart and affordable hotel in the bustling city of Mumbai, designed for the modern traveller.", liked: true },
+  { id: 5, name: "Ginger Hotel", city: "Mumbai", rating: 3, price: 5500, image: "https://picsum.photos/seed/hotel5/400/300", amenities: ["WiFi", "Restaurant"], description: "A smart and affordable hotel in the bustling city of Mumbai, designed for the modern traveller.", liked: true },
 ];
 
 const allAmenities = ["Pool", "Gym", "WiFi", "Spa", "Fine Dining", "Restaurant", "Beach Access"];
 
+type Hotel = (typeof mockHotelsData)[0];
+
 export default function HotelBookingPage() {
   const router = useRouter();
-  const [date, setDate] = useState<DateRange | undefined>({
-    from: new Date(),
-    to: addDays(new Date(), 3),
-  });
+  const [checkInDate, setCheckInDate] = useState<Date | undefined>(new Date());
+  const [checkOutDate, setCheckOutDate] = useState<Date | undefined>(addDays(new Date(), 3));
+  
   const [guests, setGuests] = useState(2);
   const [rooms, setRooms] = useState(1);
   const [loading, setLoading] = useState(false);
   const [showResults, setShowResults] = useState(false);
-  const [priceRange, setPriceRange] = useState([5000, 40000]);
-  const [hotels, setHotels] = useState(mockHotels);
-  const [selectedHotel, setSelectedHotel] = useState<any | null>(null);
+  
+  // State for filters
+  const [priceRange, setPriceRange] = useState([0, 50000]);
+  const [selectedRatings, setSelectedRatings] = useState<number[]>([]);
+  const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
+
+  const [hotels, setHotels] = useState(mockHotelsData);
+  const [selectedHotel, setSelectedHotel] = useState<Hotel | null>(null);
+  const [viewingHotel, setViewingHotel] = useState<Hotel | null>(null);
+  const [isBooking, setIsBooking] = useState(false);
 
   const handleSearch = () => {
     setLoading(true);
@@ -52,24 +60,36 @@ export default function HotelBookingPage() {
       setShowResults(true);
     }, 1500);
   };
+  
+  const filteredHotels = useMemo(() => {
+    return hotels
+      .filter(hotel => hotel.price >= priceRange[0] && hotel.price <= priceRange[1])
+      .filter(hotel => selectedRatings.length === 0 || selectedRatings.includes(hotel.rating))
+      .filter(hotel => selectedAmenities.every(amenity => hotel.amenities.includes(amenity)));
+  }, [hotels, priceRange, selectedRatings, selectedAmenities]);
 
   const toggleLike = (hotelId: number) => {
     setHotels(hotels.map(h => h.id === hotelId ? {...h, liked: !h.liked} : h));
   }
 
-  const handleBookNow = (hotel: any) => {
+  const handleBookNowClick = (hotel: Hotel) => {
     setSelectedHotel(hotel);
+    setIsBooking(true);
+  }
+
+  const handleViewDetailsClick = (hotel: Hotel) => {
+      setViewingHotel(hotel);
   }
 
   const handleProceedToPayment = () => {
-    if (!selectedHotel || !date || !date.from) return;
-    const nights = date.to ? differenceInDays(date.to, date.from) : 1;
+    if (!selectedHotel || !checkInDate) return;
+    const nights = checkOutDate ? differenceInDays(checkOutDate, checkInDate) : 1;
     const bookingDetails = {
       type: 'Hotel',
       hotel: selectedHotel,
-      date: format(date.from, 'yyyy-MM-dd'),
-      checkIn: date.from.toISOString(),
-      checkOut: date.to?.toISOString(),
+      date: format(checkInDate, 'yyyy-MM-dd'),
+      checkIn: checkInDate.toISOString(),
+      checkOut: checkOutDate?.toISOString(),
       guests: Array(guests).fill({ name: `Guest`}), // Simplified for mockup
       rooms,
       fare: selectedHotel.price * nights + 59, // 59 is convenience fee
@@ -77,6 +97,24 @@ export default function HotelBookingPage() {
     sessionStorage.setItem('bookingDetails', JSON.stringify(bookingDetails));
     router.push('/payment');
   }
+
+  const handleRatingChange = (rating: number) => {
+    setSelectedRatings(prev => 
+      prev.includes(rating) 
+        ? prev.filter(r => r !== rating) 
+        : [...prev, rating]
+    );
+  }
+  
+  const handleAmenityChange = (amenity: string) => {
+    setSelectedAmenities(prev =>
+      prev.includes(amenity)
+        ? prev.filter(a => a !== amenity)
+        : [...prev, amenity]
+    );
+  }
+
+  const nights = (checkInDate && checkOutDate) ? differenceInDays(checkOutDate, checkInDate) : 0;
 
   return (
     <Dialog>
@@ -88,7 +126,7 @@ export default function HotelBookingPage() {
             <CardTitle>Find your perfect stay</CardTitle>
           </CardHeader>
           <CardContent className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
-            <div className="lg:col-span-2">
+            <div className="lg:col-span-1">
               <Label htmlFor="destination">Destination</Label>
               <div className="relative">
                 <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -96,40 +134,41 @@ export default function HotelBookingPage() {
               </div>
             </div>
             <div>
-              <Label>Check-in / Check-out</Label>
+              <Label>Check-in</Label>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button
-                    variant={"outline"}
-                    className={cn(
-                      "w-full justify-start text-left font-normal",
-                      !date && "text-muted-foreground"
-                    )}
-                  >
+                  <Button variant={"outline"} className="w-full justify-start text-left font-normal">
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {date?.from ? (
-                      date.to ? (
-                        <>
-                          {format(date.from, "LLL dd, y")} -{" "}
-                          {format(date.to, "LLL dd, y")}
-                        </>
-                      ) : (
-                        format(date.from, "LLL dd, y")
-                      )
-                    ) : (
-                      <span>Pick a date</span>
-                    )}
+                    {checkInDate ? format(checkInDate, "LLL dd, y") : <span>Pick a date</span>}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
-                    initialFocus
-                    mode="range"
-                    defaultMonth={date?.from}
-                    selected={date}
-                    onSelect={setDate}
-                    numberOfMonths={2}
+                    mode="single"
+                    selected={checkInDate}
+                    onSelect={setCheckInDate}
                     disabled={(date) => date < new Date(new Date().setHours(0,0,0,0))}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+             <div>
+              <Label>Check-out</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant={"outline"} className="w-full justify-start text-left font-normal">
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {checkOutDate ? format(checkOutDate, "LLL dd, y") : <span>Pick a date</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={checkOutDate}
+                    onSelect={setCheckOutDate}
+                    disabled={(date) => (checkInDate && date <= checkInDate) || date < new Date(new Date().setHours(0,0,0,0))}
+                    initialFocus
                   />
                 </PopoverContent>
               </Popover>
@@ -190,7 +229,7 @@ export default function HotelBookingPage() {
                 <CardHeader><CardTitle className="text-base">Price Range</CardTitle></CardHeader>
                 <CardContent>
                   <Slider
-                      defaultValue={priceRange}
+                      value={priceRange}
                       max={50000}
                       step={1000}
                       min={0}
@@ -207,10 +246,9 @@ export default function HotelBookingPage() {
                 <CardContent className="space-y-2">
                   {[5,4,3].map(r => (
                     <div key={r} className="flex items-center space-x-2">
-                      <Checkbox id={`rating-${r}`}/>
-                      <Label htmlFor={`rating-${r}`} className="flex items-center gap-1">
+                      <Checkbox id={`rating-${r}`} onCheckedChange={() => handleRatingChange(r)}/>
+                      <Label htmlFor={`rating-${r}`} className="flex items-center gap-1 cursor-pointer">
                         {Array(r).fill(0).map((_,i) => <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-500"/>)}
-                        <span className="ml-1">{r} Star {r < 5 && "& above"}</span>
                       </Label>
                     </div>
                   ))}
@@ -219,10 +257,10 @@ export default function HotelBookingPage() {
                <Card>
                 <CardHeader><CardTitle className="text-base">Amenities</CardTitle></CardHeader>
                 <CardContent className="space-y-2">
-                  {allAmenities.map(a => (
+                  {allAmenities.slice(0, 5).map(a => (
                     <div key={a} className="flex items-center space-x-2">
-                      <Checkbox id={`amenity-${a}`}/>
-                      <Label htmlFor={`amenity-${a}`}>{a}</Label>
+                      <Checkbox id={`amenity-${a}`} onCheckedChange={() => handleAmenityChange(a)}/>
+                      <Label htmlFor={`amenity-${a}`} className="cursor-pointer">{a}</Label>
                     </div>
                   ))}
                 </CardContent>
@@ -230,7 +268,7 @@ export default function HotelBookingPage() {
             </div>
             <div className="col-span-3 space-y-6">
              <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold">5 hotels found in New Delhi</h2>
+              <h2 className="text-2xl font-bold">{filteredHotels.length} hotels found</h2>
               <div className="flex items-center gap-2">
                 <Label>Sort by:</Label>
                 <Select defaultValue="popularity">
@@ -247,7 +285,7 @@ export default function HotelBookingPage() {
               </div>
              </div>
             <div className="grid gap-6">
-              {hotels.map(hotel => (
+              {filteredHotels.map(hotel => (
                 <Card key={hotel.id} className="grid md:grid-cols-3 gap-0 overflow-hidden relative">
                   <Button variant="ghost" size="icon" className="absolute top-2 right-2 rounded-full bg-black/30 text-white hover:bg-black/50 hover:text-white z-10" onClick={() => toggleLike(hotel.id)}>
                       <Heart className={cn("h-5 w-5", hotel.liked && "fill-red-500 text-red-500")}/>
@@ -282,54 +320,14 @@ export default function HotelBookingPage() {
                       </div>
                       <div className="flex gap-2">
                         <DialogTrigger asChild>
-                          <Button variant="outline">View Details</Button>
+                          <Button variant="outline" onClick={() => handleViewDetailsClick(hotel)}>View Details</Button>
                         </DialogTrigger>
                         <DialogTrigger asChild>
-                          <Button onClick={() => handleBookNow(hotel)}>Book Now</Button>
+                          <Button onClick={() => handleBookNowClick(hotel)}>Book Now</Button>
                         </DialogTrigger>
                       </div>
                     </CardFooter>
                   </div>
-                  <DialogContent className="max-w-3xl">
-                    <DialogHeader>
-                      <DialogTitle className="text-2xl">{hotel.name}</DialogTitle>
-                      <DialogDescription>{hotel.city}</DialogDescription>
-                    </DialogHeader>
-                    <div className="grid md:grid-cols-2 gap-6 mt-4">
-                      <div className="relative h-64 rounded-lg overflow-hidden">
-                        <Image src={hotel.image} alt={hotel.name} layout="fill" objectFit="cover" />
-                      </div>
-                      <div className="space-y-4">
-                        <div className="flex items-center gap-2">
-                          <div className="flex items-center gap-1 text-primary font-bold">
-                            <Star className="h-5 w-5 fill-current" />
-                            <span>{hotel.rating.toFixed(1)}</span>
-                          </div>
-                          <span className="text-sm text-muted-foreground">(245 Reviews)</span>
-                        </div>
-                        <p className="text-muted-foreground">{hotel.description}</p>
-                        <div>
-                          <h4 className="font-semibold mb-2">Amenities</h4>
-                          <div className="flex flex-wrap gap-4 text-sm">
-                            {hotel.amenities.map(a => (
-                              <div key={a} className="flex items-center gap-2">
-                                {a === "WiFi" && <Wifi className="h-4 w-4 text-primary"/>}
-                                {a === "Gym" && <Dumbbell className="h-4 w-4 text-primary"/>}
-                                {a.includes("Dining") && <Utensils className="h-4 w-4 text-primary"/>}
-                                {a === "Pool" && <BedDouble className="h-4 w-4 text-primary"/>}
-                                {a === "Spa" && <Heart className="h-4 w-4 text-primary"/>}
-                                <span>{a}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                        <div className="pt-4">
-                           <p className="text-sm text-muted-foreground">Price per night</p>
-                           <p className="text-3xl font-bold">Rs. {hotel.price.toLocaleString('en-IN')}</p>
-                        </div>
-                      </div>
-                    </div>
-                  </DialogContent>
                 </Card>
               ))}
             </div>
@@ -338,8 +336,61 @@ export default function HotelBookingPage() {
         )}
       </div>
 
-    {selectedHotel && (
-        <DialogContent className="max-w-lg">
+    {viewingHotel && (
+        <DialogContent className="max-w-3xl" onOpenChange={(open) => !open && setViewingHotel(null)}>
+            <DialogHeader>
+                <DialogTitle className="text-2xl">{viewingHotel.name}</DialogTitle>
+                <DialogDescription>{viewingHotel.city}</DialogDescription>
+            </DialogHeader>
+            <div className="grid md:grid-cols-2 gap-6 mt-4">
+                <div className="relative h-64 rounded-lg overflow-hidden">
+                <Image src={viewingHotel.image} alt={viewingHotel.name} layout="fill" objectFit="cover" />
+                </div>
+                <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1 text-primary font-bold">
+                    <Star className="h-5 w-5 fill-current" />
+                    <span>{viewingHotel.rating.toFixed(1)}</span>
+                    </div>
+                    <span className="text-sm text-muted-foreground">(245 Reviews)</span>
+                </div>
+                <p className="text-muted-foreground">{viewingHotel.description}</p>
+                <div>
+                    <h4 className="font-semibold mb-2">Amenities</h4>
+                    <div className="flex flex-wrap gap-4 text-sm">
+                    {viewingHotel.amenities.map(a => (
+                        <div key={a} className="flex items-center gap-2">
+                        {a === "WiFi" && <Wifi className="h-4 w-4 text-primary"/>}
+                        {a === "Gym" && <Dumbbell className="h-4 w-4 text-primary"/>}
+                        {a.includes("Dining") && <Utensils className="h-4 w-4 text-primary"/>}
+                        {a === "Restaurant" && <Utensils className="h-4 w-4 text-primary"/>}
+                        {a === "Pool" && <BedDouble className="h-4 w-4 text-primary"/>}
+                        {a === "Spa" && <Heart className="h-4 w-4 text-primary"/>}
+                        {a === "Beach Access" && <BedDouble className="h-4 w-4 text-primary"/>}
+                        <span>{a}</span>
+                        </div>
+                    ))}
+                    </div>
+                </div>
+                <div className="pt-4">
+                    <p className="text-sm text-muted-foreground">Price per night</p>
+                    <p className="text-3xl font-bold">Rs. {viewingHotel.price.toLocaleString('en-IN')}</p>
+                </div>
+                </div>
+            </div>
+             <DialogFooter>
+                <DialogClose asChild>
+                    <Button variant="outline">Close</Button>
+                </DialogClose>
+                <DialogTrigger asChild>
+                     <Button onClick={() => { setViewingHotel(null); handleBookNowClick(viewingHotel)}}>Book Now</Button>
+                </DialogTrigger>
+            </DialogFooter>
+        </DialogContent>
+    )}
+
+    {isBooking && selectedHotel && (
+        <DialogContent className="max-w-lg" onOpenChange={(open) => !open && setIsBooking(false)}>
             <DialogHeader>
                 <DialogTitle>Confirm Your Booking</DialogTitle>
                 <DialogDescription>
@@ -353,8 +404,8 @@ export default function HotelBookingPage() {
                         <CardDescription>{selectedHotel.city}</CardDescription>
                     </CardHeader>
                     <CardContent className="p-4 pt-0">
-                         <div className="flex justify-between text-sm"><span>Check-in:</span> <span>{date?.from ? format(date.from, 'PPP') : 'N/A'}</span></div>
-                         <div className="flex justify-between text-sm"><span>Check-out:</span> <span>{date?.to ? format(date.to, 'PPP') : 'N/A'}</span></div>
+                         <div className="flex justify-between text-sm"><span>Check-in:</span> <span>{checkInDate ? format(checkInDate, 'PPP') : 'N/A'}</span></div>
+                         <div className="flex justify-between text-sm"><span>Check-out:</span> <span>{checkOutDate ? format(checkOutDate, 'PPP') : 'N/A'}</span></div>
                          <div className="flex justify-between text-sm"><span>Guests:</span> <span>{guests}</span></div>
                          <div className="flex justify-between text-sm"><span>Rooms:</span> <span>{rooms}</span></div>
                     </CardContent>
@@ -364,20 +415,20 @@ export default function HotelBookingPage() {
                     <CardHeader><CardTitle className="text-base">Fare Summary</CardTitle></CardHeader>
                     <CardContent className="space-y-2 text-sm">
                         <div className="flex justify-between">
-                            <span>Room Charges ({differenceInDays(date?.to || new Date(), date?.from || new Date())} nights)</span>
-                            <span>Rs. {(selectedHotel.price * differenceInDays(date?.to || new Date(), date?.from || new Date())).toLocaleString('en-IN')}</span>
+                            <span>Room Charges ({nights} nights)</span>
+                            <span>Rs. {(selectedHotel.price * nights).toLocaleString('en-IN')}</span>
                         </div>
                         <div className="flex justify-between"><span>Convenience Fee</span><span>Rs. 59</span></div>
                         <Separator/>
                         <div className="flex justify-between font-bold text-base">
                             <span>Total</span>
-                            <span>Rs. {(selectedHotel.price * differenceInDays(date?.to || new Date(), date?.from || new Date()) + 59).toLocaleString('en-IN')}</span>
+                            <span>Rs. {(selectedHotel.price * nights + 59).toLocaleString('en-IN')}</span>
                         </div>
                     </CardContent>
                 </Card>
             </div>
             <DialogFooter>
-                <DialogClose asChild><Button variant="ghost">Cancel</Button></DialogClose>
+                <Button variant="ghost" onClick={() => setIsBooking(false)}>Cancel</Button>
                 <Button onClick={handleProceedToPayment}>Proceed to Payment</Button>
             </DialogFooter>
         </DialogContent>
