@@ -177,10 +177,24 @@ export const createBooking = async (uid: string, bookingData: any) => {
 
     try {
         await runTransaction(db, async (transaction) => {
-            // 1. Create the new booking
-            const bookingsCollectionRef = collection(db, 'bookings');
-            const newBookingRef = doc(bookingsCollectionRef); // Create a new doc ref with a unique ID
-            
+            const pointsToAward = calculateRewardPoints(bookingData.type, bookingData.fare);
+            const newBookingRef = doc(collection(db, 'bookings'));
+
+            // Step 1: All reads must happen first.
+            let currentPoints = 0;
+            let currentHistory: any[] = [];
+
+            if (pointsToAward > 0) {
+                const userRef = doc(db, `users/${uid}`);
+                const userDoc = await transaction.get(userRef);
+                if (userDoc.exists()) {
+                    currentPoints = userDoc.data().loyaltyPoints || 0;
+                    currentHistory = userDoc.data().rewardsHistory || [];
+                }
+            }
+
+            // Step 2: Now, all writes can happen.
+            // Create the new booking document.
             transaction.set(newBookingRef, {
                 ...bookingData,
                 userId: uid,
@@ -188,32 +202,25 @@ export const createBooking = async (uid: string, bookingData: any) => {
                 createdAt: serverTimestamp(),
             });
 
-            // 2. Calculate and award reward points
-            const pointsToAward = calculateRewardPoints(bookingData.type, bookingData.fare);
+            // Update user's reward points if necessary.
             if (pointsToAward > 0) {
                 const userRef = doc(db, `users/${uid}`);
-                const userDoc = await transaction.get(userRef);
+                const newTotalPoints = currentPoints + pointsToAward;
+                
+                const newHistoryEntry = {
+                    type: 'earn' as const,
+                    source: `${bookingData.type} Booking`,
+                    points: pointsToAward,
+                    date: new Date().toISOString(),
+                    bookingId: newBookingRef.id,
+                };
+                
+                const newHistory = [newHistoryEntry, ...currentHistory];
 
-                if (userDoc.exists()) {
-                    const currentPoints = userDoc.data().loyaltyPoints || 0;
-                    const newTotalPoints = currentPoints + pointsToAward;
-                    
-                    const newHistoryEntry = {
-                        type: 'earn',
-                        source: `${bookingData.type} Booking`,
-                        points: pointsToAward,
-                        date: new Date().toISOString(),
-                        bookingId: newBookingRef.id,
-                    };
-                    
-                    const currentHistory = userDoc.data().rewardsHistory || [];
-                    const newHistory = [newHistoryEntry, ...currentHistory];
-
-                    transaction.update(userRef, {
-                        loyaltyPoints: newTotalPoints,
-                        rewardsHistory: newHistory,
-                    });
-                }
+                transaction.update(userRef, {
+                    loyaltyPoints: newTotalPoints,
+                    rewardsHistory: newHistory,
+                });
             }
         });
     } catch (error) {
@@ -229,7 +236,8 @@ export const getBookings = (uid: string, onReceive: (data: any[]) => void) => {
     }
     const bookingsQuery = query(
         collection(db, 'bookings'),
-        where('userId', '==', uid)
+        where('userId', '==', uid),
+        orderBy('createdAt', 'desc')
     );
 
     const unsubscribe = onSnapshot(bookingsQuery, (querySnapshot) => {
@@ -286,7 +294,16 @@ export const getRecentBookings = async (days: number) => {
     
     const q = query(bookingsCol, where('createdAt', '>=', Timestamp.fromDate(startDate)));
     const querySnapshot = await getDocs(q);
-    const bookingsList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const bookingsList = querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        // Convert Firestore Timestamp to a serializable format (ISO string)
+        return { 
+            id: doc.id, 
+            ...data,
+            date: data.date, 
+            createdAt: data.createdAt?.toDate().toISOString() || new Date().toISOString()
+        };
+    });
     return bookingsList;
 }
 
