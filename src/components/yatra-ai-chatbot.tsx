@@ -35,7 +35,7 @@ export function YatraAIChatbot() {
     const [loading, setLoading] = useState(false);
     const [language, setLanguage] = useState("English");
     const [messages, setMessages] = useState<ChatMessage[]>([
-        { role: "model", content: "Hello! I am Yatra.ai. How can I help you plan your travel in India today?" },
+        { role: "model", content: "The full AI chatbot experience is coming soon! I'll be able to help you with all your travel planning needs." },
     ]);
     const scrollAreaRef = useRef<HTMLDivElement>(null);
     const audioRef = useRef<HTMLAudioElement>(null);
@@ -55,45 +55,15 @@ export function YatraAIChatbot() {
         setInput("");
         setLoading(true);
 
-        try {
-            const textResponse = await yatraChatbot({
-                userId: user?.uid,
-                history: messages,
-                message: input,
-                language: language
-            });
-            const modelMessage: ChatMessage = { role: "model", content: textResponse.response };
+        setTimeout(() => {
+            const modelMessage: ChatMessage = { role: "model", content: "The full AI chatbot experience is coming soon!" };
             setMessages(prev => [...prev, modelMessage]);
-            
-            // Generate and play audio
-            const audioResponse = await generateChatbotAudio({ text: textResponse.response, language });
-            if (audioResponse.audioDataUri && audioRef.current) {
-                audioRef.current.src = audioResponse.audioDataUri;
-                audioRef.current.play();
-            }
-
-        } catch (error) {
-            console.error("Chatbot error:", error);
-            const errorMessage: ChatMessage = { role: "model", content: "I'm sorry, something went wrong. Please try again." };
-            setMessages(prev => [...prev, errorMessage]);
-        } finally {
             setLoading(false);
-        }
+        }, 1000);
     };
     
     const replayAudio = async (text: string) => {
-        try {
-            setLoading(true);
-            const audioResponse = await generateChatbotAudio({ text, language });
-            if (audioResponse.audioDataUri && audioRef.current) {
-                audioRef.current.src = audioResponse.audioDataUri;
-                audioRef.current.play();
-            }
-        } catch(error) {
-            console.error("Audio replay error:", error);
-        } finally {
-            setLoading(false);
-        }
+        // Audio functionality is disabled for now
     }
 
     return (
@@ -114,7 +84,7 @@ export function YatraAIChatbot() {
                         </DialogTitle>
                          <div className="flex items-center space-x-2 pt-2">
                             <Languages className="h-4 w-4 text-muted-foreground" />
-                            <Select value={language} onValueChange={setLanguage}>
+                            <Select value={language} onValueChange={setLanguage} disabled>
                                 <SelectTrigger className="w-[180px] h-8 text-xs">
                                     <SelectValue placeholder="Language" />
                                 </SelectTrigger>
@@ -146,7 +116,7 @@ export function YatraAIChatbot() {
                                     )}>
                                         {message.content}
                                         {message.role === 'model' && (
-                                            <Button size="icon" variant="ghost" className="absolute -right-8 top-0 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => replayAudio(message.content)}>
+                                            <Button size="icon" variant="ghost" className="absolute -right-8 top-0 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => replayAudio(message.content)} disabled>
                                                 <Volume2 className="h-4 w-4"/>
                                             </Button>
                                         )}
@@ -173,13 +143,13 @@ export function YatraAIChatbot() {
                     <DialogFooter className="p-4 border-t">
                         <div className="flex w-full items-center space-x-2">
                             <Input
-                                placeholder="Ask about your travel plans..."
+                                placeholder="AI Chat coming soon..."
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
                                 onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                                disabled={loading}
+                                disabled={true}
                             />
-                            <Button onClick={handleSend} disabled={loading}>
+                            <Button onClick={handleSend} disabled={true}>
                                 <Send className="h-4 w-4" />
                                 <span className="sr-only">Send</span>
                             </Button>
