@@ -67,9 +67,10 @@ export const updateUserProfile = async (uid: string, data: Record<string, any>) 
 }
 
 export const addSavedPassenger = async (uid: string, passengerData: any) => {
-  if (!uid) return;
+  if (!uid) throw new Error("User ID is required to add a passenger.");
   const userRef = doc(db, `users/${uid}`);
   try {
+    // arrayUnion ensures that the same passenger is not added multiple times if they are identical objects
     await updateDoc(userRef, {
       savedPassengers: arrayUnion(passengerData),
     });
@@ -80,7 +81,7 @@ export const addSavedPassenger = async (uid: string, passengerData: any) => {
 }
 
 export const removeSavedPassenger = async (uid: string, passengerData: any) => {
-  if (!uid) return;
+  if (!uid) throw new Error("User ID is required to remove a passenger.");
   const userRef = doc(db, `users/${uid}`);
   try {
     await updateDoc(userRef, {
@@ -103,3 +104,4 @@ export const deleteUserProfile = async (uid: string) => {
         throw new Error("Unable to delete user profile.");
     }
 }
+

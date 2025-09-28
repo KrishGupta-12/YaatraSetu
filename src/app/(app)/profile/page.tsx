@@ -56,8 +56,6 @@ export default function ProfilePage() {
     if (!user) return;
     setIsSubmitting(true);
     try {
-      // Note: Firestore arrayUnion doesn't guarantee uniqueness if objects are slightly different.
-      // A truly robust solution might involve checking for existing passengers first.
       const newPassenger = { id: new Date().toISOString(), ...data };
       await addSavedPassenger(user.uid, newPassenger);
       toast({
@@ -80,6 +78,11 @@ export default function ProfilePage() {
 
   const handleRemovePassenger = async (passenger: any) => {
     if (!user) return;
+    // This is a temporary optimistic update. The list will re-render from Firestore anyway.
+    const originalPassengers = profileData?.savedPassengers || [];
+    const updatedPassengers = originalPassengers.filter((p: any) => p.id !== passenger.id);
+    // You might want to update the local state here for instant feedback, but `onSnapshot` handles it.
+
     try {
       await removeSavedPassenger(user.uid, passenger);
       toast({
@@ -87,11 +90,13 @@ export default function ProfilePage() {
         description: `${passenger.name} has been removed from your list.`,
       });
     } catch (error) {
+      console.error("Failed to remove passenger:", error);
       toast({
         variant: "destructive",
         title: "Error",
         description: "Failed to remove passenger. Please try again.",
       });
+      // Revert optimistic update if you were managing local state manually
     }
   };
 
@@ -331,3 +336,4 @@ export default function ProfilePage() {
     </Dialog>
   );
 }
+
