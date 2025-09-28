@@ -83,7 +83,7 @@ export const addSavedPassenger = async (uid: string, passengerData: any) => {
   if (!uid) throw new Error("User ID is required to add a passenger.");
   const passengersCollectionRef = collection(db, `users/${uid}/passengers`);
   try {
-    await addDoc(passengersCollectionrealtim, passengerData);
+    await addDoc(passengersCollectionRef, passengerData);
   } catch (error) {
     console.error("Error adding saved passenger:", error);
     throw new Error("Unable to add passenger.");
@@ -142,8 +142,7 @@ export const getTatkalRequests = (uid: string, onReceive: (data: any[]) => void)
     };
     const requestsQuery = query(
         collection(db, 'tatkal_requests'), 
-        where('userId', '==', uid),
-        orderBy('createdAt', 'desc')
+        where('userId', '==', uid)
     );
 
     const unsubscribe = onSnapshot(requestsQuery, (querySnapshot) => {
