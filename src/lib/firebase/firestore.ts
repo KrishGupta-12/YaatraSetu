@@ -142,7 +142,7 @@ export const getTatkalRequests = (uid: string, onReceive: (data: any[]) => void)
     };
     const requestsQuery = query(
         collection(db, 'tatkal_requests'),
-        where('userId', '==', uid),
+        where('userId', '==', uid)
     );
 
     const unsubscribe = onSnapshot(requestsQuery, (querySnapshot) => {
@@ -183,8 +183,7 @@ export const getBookings = (uid: string, onReceive: (data: any[]) => void) => {
     }
     const bookingsQuery = query(
         collection(db, 'bookings'),
-        where('userId', '==', uid),
-        orderBy('createdAt', 'desc')
+        where('userId', '==', uid)
     );
 
     const unsubscribe = onSnapshot(bookingsQuery, (querySnapshot) => {
