@@ -60,18 +60,7 @@ export default function LandingPage() {
       </header>
 
       <main className="flex-1">
-        <section className="relative h-[80vh] min-h-[500px] flex items-center justify-center text-center text-white">
-          <div className="absolute inset-0 z-0">
-             <Image
-              src="https://images.unsplash.com/photo-1601208940863-7c4c11438a30?q=80&w=2070&auto=format&fit=crop"
-              alt="A train moving through a scenic landscape"
-              data-ai-hint="train landscape bridge"
-              fill
-              className="object-cover"
-              priority
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent" />
-          </div>
+        <section className="relative h-[80vh] min-h-[500px] flex items-center justify-center text-center bg-gray-900 text-white">
           <div className="relative z-10 p-4 space-y-6 max-w-3xl">
             <h1 className="text-4xl md:text-6xl font-bold font-headline">
               Your Complete Bharatiya Travel Companion
@@ -144,14 +133,8 @@ export default function LandingPage() {
                         </div>
                     </div>
                 </div>
-                <div className="relative h-96 rounded-lg overflow-hidden">
-                    <Image 
-                        src="https://images.unsplash.com/photo-1534792410332-9a3d8093a42d?q=80&w=1974&auto=format&fit=crop"
-                        alt="A person looking at a map"
-                        data-ai-hint="person map"
-                        fill
-                        className="object-cover"
-                    />
+                <div className="relative h-96 rounded-lg overflow-hidden bg-gray-200 flex items-center justify-center">
+                    <p className="text-muted-foreground">Image removed</p>
                 </div>
             </div>
         </section>
