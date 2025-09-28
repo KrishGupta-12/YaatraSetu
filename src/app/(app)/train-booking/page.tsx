@@ -46,13 +46,9 @@ export default function TrainBookingPage() {
     const [savedPassengers, setSavedPassengers] = useState<Passenger[]>([]);
     const [bookingPassengers, setBookingPassengers] = useState<Passenger[]>([]);
 
-    const stationCodes = useMemo(() => {
-        const fromStations = allTrainsData.map(train => train.from);
-        const toStations = allTrainsData.map(train => train.to);
-        return {
-            from: [...new Set(fromStations)],
-            to: [...new Set(toStations)]
-        }
+    const allStationCodes = useMemo(() => {
+        const allStations = allTrainsData.flatMap(train => [train.from, train.to]);
+        return [...new Set(allStations)].sort();
     }, []);
 
     useEffect(() => {
@@ -158,33 +154,33 @@ export default function TrainBookingPage() {
           <CardTitle>Search for Trains</CardTitle>
         </CardHeader>
         <CardContent className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
-            <div className="lg:col-span-2 grid grid-cols-2 gap-4 relative">
+            <div className="lg:col-span-2 grid grid-cols-[1fr_auto_1fr] gap-2 items-end">
                 <div>
                     <Label htmlFor="from">From</Label>
                     <Select value={searchQuery.from} onValueChange={(value) => setSearchQuery({...searchQuery, from: value})}>
                         <SelectTrigger><SelectValue placeholder="From station..."/></SelectTrigger>
                         <SelectContent>
-                            {stationCodes.from.map(station => (
+                            {allStationCodes.map(station => (
                                 <SelectItem key={station} value={station}>{station}</SelectItem>
                             ))}
                         </SelectContent>
                     </Select>
                 </div>
+                
+                 <Button variant="ghost" size="icon" className="bg-background rounded-full border" onClick={handleSwapStations}>
+                    <ArrowRightLeft className="h-4 w-4"/>
+                </Button>
+
                 <div>
                     <Label htmlFor="to">To</Label>
                      <Select value={searchQuery.to} onValueChange={(value) => setSearchQuery({...searchQuery, to: value})}>
                         <SelectTrigger><SelectValue placeholder="To station..."/></SelectTrigger>
                         <SelectContent>
-                            {stationCodes.to.map(station => (
+                            {allStationCodes.map(station => (
                                 <SelectItem key={station} value={station}>{station}</SelectItem>
                             ))}
                         </SelectContent>
                     </Select>
-                </div>
-                 <div className="absolute left-1/2 -translate-x-1/2 top-1/2 mt-1 z-10">
-                     <Button variant="ghost" size="icon" className="bg-background rounded-full border" onClick={handleSwapStations}>
-                        <ArrowRightLeft className="h-4 w-4"/>
-                    </Button>
                 </div>
             </div>
             <div>
@@ -436,3 +432,5 @@ export default function TrainBookingPage() {
     </Dialog>
   );
 }
+
+    
