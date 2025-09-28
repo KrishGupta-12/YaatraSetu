@@ -1,3 +1,4 @@
+
 import Link from "next/link";
 import { ArrowRight, Bot, Clock, Hotel, Rocket, ShieldCheck, Train, Utensils, Wallet, Facebook, Twitter, Instagram } from "lucide-react";
 
@@ -96,7 +97,7 @@ export default function LandingPage() {
             </p>
             <div className="flex justify-center pt-4">
                 <Button size="lg" asChild>
-                    <Link href="/auth/login">
+                    <Link href="/auth/signup">
                         Start Planning Your Trip
                         <ArrowRight className="ml-2" />
                     </Link>
