@@ -8,32 +8,34 @@ import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent,SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { CalendarIcon, Loader2, Search, ArrowRightLeft, Users, Train, Star } from "lucide-react";
+import { CalendarIcon, Loader2, Search, ArrowRightLeft, Users, Info, Clock } from "lucide-react";
 import { format } from "date-fns";
 import { useState } from "react";
 import { Separator } from "@/components/ui/separator";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
+import Link from "next/link";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 const mockTrains = [
     { id: "12951", name: "Mumbai Rajdhani", from: "BCT", to: "NDLS", departure: "17:00", arrival: "08:32", duration: "15h 32m", classes: [
         { name: "1A", availability: "Available 12", price: 4755 },
         { name: "2A", availability: "Available 45", price: 2825 },
         { name: "3A", availability: "Waitlist 23", price: 2050 },
-    ]},
+    ], route: [ { station: 'Mumbai Central', arrival: 'Source', departure: '17:00'}, { station: 'Borivali', arrival: '17:22', departure: '17:24'}, { station: 'Surat', arrival: '19:43', departure: '19:48'}, { station: 'Vadodara', arrival: '21:06', departure: '21:16'}, { station: 'Ratlam', arrival: '00:25', departure: '00:28'}, { station: 'Kota', arrival: '03:20', departure: '03:25'}, { station: 'New Delhi', arrival: '08:32', departure: 'Destination'} ]},
     { id: "12909", name: "NZM Garib Rath", from: "BDTS", to: "NZM", departure: "17:35", arrival: "10:40", duration: "17h 05m", classes: [
         { name: "3A", availability: "Available 102", price: 1050 }
-    ]},
+    ], route: []},
     { id: "22209", name: "Mumbai Duronto", from: "BCT", to: "NDLS", departure: "23:10", arrival: "15:55", duration: "16h 45m", classes: [
         { name: "1A", availability: "Available 5", price: 5200 },
         { name: "2A", availability: "Waitlist 5", price: 3150 },
         { name: "3A", availability: "Waitlist 35", price: 2250 },
-    ]},
+    ], route: []},
     { id: "12263", name: "Pune Duronto", from: "PUNE", to: "NZM", departure: "11:10", arrival: "06:45", duration: "19h 35m", classes: [
         { name: "1A", availability: "Regret", price: 5010 },
         { name: "2A", availability: "Available 21", price: 2980 },
         { name: "3A", availability: "Available 50", price: 2100 },
-    ]}
+    ], route: []}
 ]
 
 const savedPassengers = [
@@ -143,9 +145,9 @@ export default function TrainBookingPage() {
         <CardFooter className="flex justify-between items-center">
             <div className="flex items-center gap-4 text-sm">
                 <p className="font-medium">Quick Actions:</p>
-                <Button variant="ghost" size="sm">PNR Status</Button>
+                 <DialogTrigger asChild><Button variant="ghost" size="sm">PNR Status</Button></DialogTrigger>
                 <Button variant="ghost" size="sm">Live Train Status</Button>
-                <Button variant="ghost" size="sm">Tatkal Automation</Button>
+                <Button variant="ghost" size="sm" asChild><Link href="/tatkal-automation">Tatkal Automation</Link></Button>
             </div>
         </CardFooter>
       </Card>
@@ -166,7 +168,12 @@ export default function TrainBookingPage() {
                     <CardHeader>
                         <div className="flex justify-between items-center">
                             <CardTitle>{train.name} ({train.id})</CardTitle>
-                            <span className="text-sm text-muted-foreground">{train.duration}</span>
+                             <div className="flex items-center gap-2">
+                                <span className="text-sm text-muted-foreground flex items-center gap-1"><Clock className="h-4 w-4"/>{train.duration}</span>
+                                <DialogTrigger asChild>
+                                    <Button variant="outline" size="sm"><Info className="h-4 w-4 mr-2"/> View Details</Button>
+                                </DialogTrigger>
+                             </div>
                         </div>
                         <div className="flex items-center gap-4 text-sm text-muted-foreground">
                             <div><span className="font-semibold">{train.departure}</span> ({train.from})</div>
@@ -197,78 +204,124 @@ export default function TrainBookingPage() {
       )}
 
       <DialogContent className="max-w-4xl">
-        <DialogHeader>
-          <DialogTitle>Passenger Details for {selectedTrain?.name} ({selectedTrain?.id})</DialogTitle>
-           <div className="flex items-center gap-4 text-sm text-muted-foreground">
-              <span>{selectedTrain?.departure} ({selectedTrain?.from})</span>
-              <Separator className="w-12"/>
-              <span>{selectedTrain?.arrival} ({selectedTrain?.to})</span>
-              <Separator orientation="vertical" className="h-4"/>
-              <span>Class: <span className="font-bold text-primary">{selectedClass?.name}</span></span>
-              <Separator orientation="vertical" className="h-4"/>
-              <span>Price: <span className="font-bold text-primary">₹{selectedClass?.price.toLocaleString('en-IN')}</span></span>
-            </div>
-        </DialogHeader>
-        <div className="grid grid-cols-3 gap-8">
-            <div className="col-span-2 space-y-4">
-                <Card>
-                    <CardHeader><CardTitle>Add Passenger</CardTitle></CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="grid grid-cols-6 gap-4">
-                            <div className="col-span-3"><Label>Full Name</Label><Input placeholder="e.g. Rahul Verma"/></div>
-                            <div className="col-span-1"><Label>Age</Label><Input type="number" placeholder="e.g. 32"/></div>
-                            <div className="col-span-2"><Label>Gender</Label><Select><SelectTrigger><SelectValue placeholder="Select..."/></SelectTrigger><SelectContent><SelectItem value="male">Male</SelectItem><SelectItem value="female">Female</SelectItem><SelectItem value="other">Other</SelectItem></SelectContent></Select></div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                             <div><Label>Meal Preference</Label><Select><SelectTrigger><SelectValue placeholder="Select..."/></SelectTrigger><SelectContent><SelectItem value="none">None</SelectItem><SelectItem value="veg">Veg</SelectItem><SelectItem value="non-veg">Non-Veg</SelectItem></SelectContent></Select></div>
-                             <div><Label>Berth Preference</Label><Select><SelectTrigger><SelectValue placeholder="Select..."/></SelectTrigger><SelectContent><SelectItem value="none">No Preference</SelectItem><SelectItem value="lower">Lower</SelectItem><SelectItem value="middle">Middle</SelectItem><SelectItem value="upper">Upper</SelectItem><SelectItem value="side-lower">Side Lower</SelectItem><SelectItem value="side-upper">Side Upper</SelectItem></SelectContent></Select></div>
-                        </div>
-                        <div><Label>ID Proof</Label><Select><SelectTrigger><SelectValue placeholder="Select ID type..."/></SelectTrigger><SelectContent><SelectItem value="aadhar">Aadhar Card</SelectItem><SelectItem value="dl">Driving License</SelectItem><SelectItem value="passport">Passport</SelectItem></SelectContent></Select></div>
-                        <div><Input placeholder="Enter ID number"/></div>
-                         <div className="flex items-center space-x-2 pt-2">
-                            <Checkbox id="save-passenger"/>
-                            <label htmlFor="save-passenger" className="text-sm font-medium">Save this passenger for future bookings</label>
-                        </div>
-                        <Button>Add Passenger</Button>
-                    </CardContent>
-                </Card>
-                 <Card>
-                    <CardHeader><CardTitle>Contact Information</CardTitle></CardHeader>
-                    <CardContent className="grid grid-cols-2 gap-4">
-                        <div><Label>Email</Label><Input type="email" placeholder="Email address" defaultValue="traveller@example.com"/></div>
-                         <div><Label>Phone</Label><Input type="tel" placeholder="Phone number" defaultValue="9876543210"/></div>
-                    </CardContent>
-                 </Card>
-            </div>
-            <div className="col-span-1 space-y-4">
-                <Card>
-                    <CardHeader><CardTitle>Saved Passengers</CardTitle></CardHeader>
-                    <CardContent className="space-y-2">
-                        {savedPassengers.map(p => (
-                            <div key={p.id} className="flex items-center justify-between p-2 rounded-md bg-muted/50">
-                                <div>
-                                    <p className="font-medium">{p.name}</p>
-                                    <p className="text-sm text-muted-foreground">{p.age}, {p.gender}</p>
-                                </div>
-                                <Button size="sm" variant="outline">Add</Button>
+        {selectedTrain ? (
+          <>
+            <DialogHeader>
+              <DialogTitle>Passenger Details for {selectedTrain?.name} ({selectedTrain?.id})</DialogTitle>
+              <div className="flex items-center gap-4 text-sm text-muted-foreground pt-2">
+                  <span>{selectedTrain?.departure} ({selectedTrain?.from})</span>
+                  <Separator className="w-12"/>
+                  <span>{selectedTrain?.arrival} ({selectedTrain?.to})</span>
+                  <Separator orientation="vertical" className="h-4"/>
+                  <span>Class: <span className="font-bold text-primary">{selectedClass?.name}</span></span>
+                  <Separator orientation="vertical" className="h-4"/>
+                  <span>Price: <span className="font-bold text-primary">₹{selectedClass?.price.toLocaleString('en-IN')}</span></span>
+                </div>
+            </DialogHeader>
+            <div className="grid grid-cols-3 gap-8 pt-4">
+                <div className="col-span-2 space-y-4">
+                    <Card>
+                        <CardHeader><CardTitle>Add Passenger</CardTitle></CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="grid grid-cols-6 gap-4">
+                                <div className="col-span-3"><Label>Full Name</Label><Input placeholder="e.g. Rahul Verma"/></div>
+                                <div className="col-span-1"><Label>Age</Label><Input type="number" placeholder="e.g. 32"/></div>
+                                <div className="col-span-2"><Label>Gender</Label><Select><SelectTrigger><SelectValue placeholder="Select..."/></SelectTrigger><SelectContent><SelectItem value="male">Male</SelectItem><SelectItem value="female">Female</SelectItem><SelectItem value="other">Other</SelectItem></SelectContent></Select></div>
                             </div>
-                        ))}
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader><CardTitle>Fare Summary</CardTitle></CardHeader>
-                    <CardContent className="space-y-2 text-sm">
-                        <div className="flex justify-between"><span>Ticket Fare</span><span>₹{selectedClass?.price.toLocaleString('en-IN')}</span></div>
-                        <div className="flex justify-between"><span>Convenience Fee</span><span>₹59</span></div>
-                        <Separator/>
-                        <div className="flex justify-between font-bold text-base"><span>Total</span><span>₹{(selectedClass?.price + 59).toLocaleString('en-IN')}</span></div>
-                    </CardContent>
-                    <CardFooter>
-                        <Button className="w-full">Proceed to Payment</Button>
-                    </CardFooter>
-                </Card>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div><Label>Meal Preference</Label><Select><SelectTrigger><SelectValue placeholder="Select..."/></SelectTrigger><SelectContent><SelectItem value="none">None</SelectItem><SelectItem value="veg">Veg</SelectItem><SelectItem value="non-veg">Non-Veg</SelectItem></SelectContent></Select></div>
+                                <div><Label>Berth Preference</Label><Select><SelectTrigger><SelectValue placeholder="Select..."/></SelectTrigger><SelectContent><SelectItem value="none">No Preference</SelectItem><SelectItem value="lower">Lower</SelectItem><SelectItem value="middle">Middle</SelectItem><SelectItem value="upper">Upper</SelectItem><SelectItem value="side-lower">Side Lower</SelectItem><SelectItem value="side-upper">Side Upper</SelectItem></SelectContent></Select></div>
+                            </div>
+                            <div><Label>ID Proof</Label><Select><SelectTrigger><SelectValue placeholder="Select ID type..."/></SelectTrigger><SelectContent><SelectItem value="aadhar">Aadhar Card</SelectItem><SelectItem value="dl">Driving License</SelectItem><SelectItem value="passport">Passport</SelectItem></SelectContent></Select></div>
+                            <div><Input placeholder="Enter ID number"/></div>
+                            <div className="flex items-center space-x-2 pt-2">
+                                <Checkbox id="save-passenger"/>
+                                <label htmlFor="save-passenger" className="text-sm font-medium">Save this passenger for future bookings</label>
+                            </div>
+                            <Button>Add Passenger</Button>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader><CardTitle>Contact Information</CardTitle></CardHeader>
+                        <CardContent className="grid grid-cols-2 gap-4">
+                            <div><Label>Email</Label><Input type="email" placeholder="Email address" defaultValue="traveller@example.com"/></div>
+                            <div><Label>Phone</Label><Input type="tel" placeholder="Phone number" defaultValue="9876543210"/></div>
+                        </CardContent>
+                    </Card>
+                </div>
+                <div className="col-span-1 space-y-4">
+                    <Card>
+                        <CardHeader><CardTitle>Saved Passengers</CardTitle></CardHeader>
+                        <CardContent className="space-y-2">
+                            {savedPassengers.map(p => (
+                                <div key={p.id} className="flex items-center justify-between p-2 rounded-md bg-muted/50">
+                                    <div>
+                                        <p className="font-medium">{p.name}</p>
+                                        <p className="text-sm text-muted-foreground">{p.age}, {p.gender}</p>
+                                    </div>
+                                    <Button size="sm" variant="outline">Add</Button>
+                                </div>
+                            ))}
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader><CardTitle>Fare Summary</CardTitle></CardHeader>
+                        <CardContent className="space-y-2 text-sm">
+                            <div className="flex justify-between"><span>Ticket Fare</span><span>₹{selectedClass?.price.toLocaleString('en-IN')}</span></div>
+                            <div className="flex justify-between"><span>Convenience Fee</span><span>₹59</span></div>
+                            <Separator/>
+                            <div className="flex justify-between font-bold text-base"><span>Total</span><span>₹{(selectedClass?.price + 59).toLocaleString('en-IN')}</span></div>
+                        </CardContent>
+                        <CardFooter>
+                            <Button className="w-full">Proceed to Payment</Button>
+                        </CardFooter>
+                    </Card>
+                </div>
             </div>
-        </div>
+          </>
+        ) : (
+            mockTrains[0].route.length > 0 ? (
+            <DialogHeader>
+                <DialogTitle>Train Details: {mockTrains[0].name} ({mockTrains[0].id})</DialogTitle>
+                <DialogDescription>
+                    Route from {mockTrains[0].from} to {mockTrains[0].to}
+                </DialogDescription>
+                <Card className="mt-4">
+                    <CardContent className="p-0">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>#</TableHead>
+                                <TableHead>Station</TableHead>
+                                <TableHead>Arrival</TableHead>
+                                <TableHead>Departure</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {mockTrains[0].route.map((stop, index) => (
+                                <TableRow key={index}>
+                                    <TableCell>{index + 1}</TableCell>
+                                    <TableCell>{stop.station}</TableCell>
+                                    <TableCell>{stop.arrival}</TableCell>
+                                    <TableCell>{stop.departure}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                    </CardContent>
+                </Card>
+            </DialogHeader>
+            ) : (
+                <DialogHeader>
+                    <DialogTitle>PNR Status Check</DialogTitle>
+                    <DialogDescription>Enter your 10-digit PNR number to check the status.</DialogDescription>
+                    <div className="flex items-center space-x-2 pt-4">
+                        <Input placeholder="Enter PNR" />
+                        <Button>Check Status</Button>
+                    </div>
+                </DialogHeader>
+            )
+        )}
 
       </DialogContent>
 
@@ -276,3 +329,5 @@ export default function TrainBookingPage() {
     </Dialog>
   );
 }
+
+    

@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { BedDouble, CalendarIcon, Loader2, MapPin, Minus, Plus, Search, Star, User, Heart } from "lucide-react";
+import { BedDouble, CalendarIcon, Loader2, MapPin, Minus, Plus, Search, Star, User, Heart, Wifi, Dumbbell, Utensils } from "lucide-react";
 import { format, addDays } from "date-fns";
 import Image from "next/image";
 import { useState } from "react";
@@ -16,13 +16,14 @@ import type { DateRange } from "react-day-picker";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 
 const mockHotels = [
-  { id: 1, name: "The Oberoi Grand", city: "Kolkata", rating: 5, price: 12000, image: "https://picsum.photos/seed/hotel1/400/300", amenities: ["Pool", "Gym", "WiFi"], liked: false },
-  { id: 2, name: "Taj Falaknuma Palace", city: "Hyderabad", rating: 5, price: 35000, image: "https://picsum.photos/seed/hotel2/400/300", amenities: ["Spa", "Fine Dining", "WiFi"], liked: true },
-  { id: 3, name: "Lemon Tree Premier", city: "Jaipur", rating: 4.5, price: 8000, image: "https://picsum.photos/seed/hotel3/400/300", amenities: ["Pool", "Restaurant"], liked: false },
-  { id: 4, name: "Radisson Blu", city: "Goa", rating: 4, price: 9500, image: "https://picsum.photos/seed/hotel4/400/300", amenities: ["Beach Access", "Pool", "WiFi"], liked: false },
-  { id: 5, name: "Ginger Hotel", city: "Mumbai", rating: 3.5, price: 5500, image: "https://picsum.photos/seed/hotel5/400/300", amenities: ["WiFi", "Restaurant"], liked: true },
+  { id: 1, name: "The Oberoi Grand", city: "Kolkata", rating: 5, price: 12000, image: "https://picsum.photos/seed/hotel1/400/300", amenities: ["Pool", "Gym", "WiFi", "Spa"], description: "A luxurious heritage hotel in the heart of Kolkata, offering timeless elegance and impeccable service.", liked: false },
+  { id: 2, name: "Taj Falaknuma Palace", city: "Hyderabad", rating: 5, price: 35000, image: "https://picsum.photos/seed/hotel2/400/300", amenities: ["Spa", "Fine Dining", "WiFi", "Pool"], description: "Experience the life of Nizams at this opulent palace hotel, featuring grand architecture and stunning city views.", liked: true },
+  { id: 3, name: "Lemon Tree Premier", city: "Jaipur", rating: 4.5, price: 8000, image: "https://picsum.photos/seed/hotel3/400/300", amenities: ["Pool", "Restaurant", "Gym"], description: "A vibrant and contemporary hotel located close to major attractions, known for its fresh and zesty interiors.", liked: false },
+  { id: 4, name: "Radisson Blu", city: "Goa", rating: 4, price: 9500, image: "https://picsum.photos/seed/hotel4/400/300", amenities: ["Beach Access", "Pool", "WiFi", "Spa"], description: "Nestled near the Cavelossim Beach, this resort offers a perfect blend of comfort and Goan hospitality.", liked: false },
+  { id: 5, name: "Ginger Hotel", city: "Mumbai", rating: 3.5, price: 5500, image: "https://picsum.photos/seed/hotel5/400/300", amenities: ["WiFi", "Restaurant"], description: "A smart and affordable hotel in the bustling city of Mumbai, designed for the modern traveller.", liked: true },
 ];
 
 const allAmenities = ["Pool", "Gym", "WiFi", "Spa", "Fine Dining", "Restaurant", "Beach Access"];
@@ -53,214 +54,264 @@ export default function HotelBookingPage() {
   }
 
   return (
-    <div className="space-y-8">
-      <h1 className="text-3xl font-bold tracking-tight font-headline mb-8">Hotel Booking</h1>
+    <Dialog>
+      <div className="space-y-8">
+        <h1 className="text-3xl font-bold tracking-tight font-headline mb-8">Hotel Booking</h1>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Find your perfect stay</CardTitle>
-        </CardHeader>
-        <CardContent className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
-          <div className="lg:col-span-2">
-            <Label htmlFor="destination">Destination</Label>
-            <div className="relative">
-              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input id="destination" placeholder="e.g., New Delhi" className="pl-10" />
+        <Card>
+          <CardHeader>
+            <CardTitle>Find your perfect stay</CardTitle>
+          </CardHeader>
+          <CardContent className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div className="lg:col-span-2">
+              <Label htmlFor="destination">Destination</Label>
+              <div className="relative">
+                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input id="destination" placeholder="e.g., New Delhi" className="pl-10" />
+              </div>
             </div>
-          </div>
-          <div>
-            <Label>Check-in / Check-out</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant={"outline"}
-                  className={cn(
-                    "w-full justify-start text-left font-normal",
-                    !date && "text-muted-foreground"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {date?.from ? (
-                    date.to ? (
-                      <>
-                        {format(date.from, "LLL dd, y")} -{" "}
-                        {format(date.to, "LLL dd, y")}
-                      </>
+            <div>
+              <Label>Check-in / Check-out</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !date && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {date?.from ? (
+                      date.to ? (
+                        <>
+                          {format(date.from, "LLL dd, y")} -{" "}
+                          {format(date.to, "LLL dd, y")}
+                        </>
+                      ) : (
+                        format(date.from, "LLL dd, y")
+                      )
                     ) : (
-                      format(date.from, "LLL dd, y")
-                    )
-                  ) : (
-                    <span>Pick a date</span>
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  initialFocus
-                  mode="range"
-                  defaultMonth={date?.from}
-                  selected={date}
-                  onSelect={setDate}
-                  numberOfMonths={2}
-                  disabled={(date) => date < new Date(new Date().setHours(0,0,0,0))}
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
-          <div>
-            <Label>Guests & Rooms</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" className="w-full justify-start text-left font-normal">
-                  <User className="mr-2 h-4 w-4"/>
-                  {guests} Guests, {rooms} Room(s)
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-60">
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <Label>Guests</Label>
-                      <div className="flex items-center gap-2">
-                        <Button variant="outline" size="icon" onClick={() => setGuests(p => Math.max(1, p-1))}><Minus className="h-4 w-4"/></Button>
-                        <span className="w-4 text-center">{guests}</span>
-                        <Button variant="outline" size="icon" onClick={() => setGuests(p => p+1)}><Plus className="h-4 w-4"/></Button>
-                      </div>
-                    </div>
-                     <div className="flex items-center justify-between">
-                      <Label>Rooms</Label>
-                      <div className="flex items-center gap-2">
-                        <Button variant="outline" size="icon" onClick={() => setRooms(p => Math.max(1, p-1))}><Minus className="h-4 w-4"/></Button>
-                        <span className="w-4 text-center">{rooms}</span>
-                        <Button variant="outline" size="icon" onClick={() => setRooms(p => p+1)}><Plus className="h-4 w-4"/></Button>
-                      </div>
-                    </div>
-                  </div>
-              </PopoverContent>
-            </Popover>
-          </div>
-          <div className="flex items-end">
-            <Button className="w-full" onClick={handleSearch} disabled={loading}>
-              {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Search className="mr-2 h-4 w-4" />}
-              Search Hotels
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-      
-      {loading && (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center min-h-[300px]">
-          <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
-          <h2 className="text-xl font-semibold">Searching for hotels...</h2>
-          <p className="text-muted-foreground">Finding the best deals for your stay.</p>
-        </div>
-      )}
-
-      {showResults && !loading && (
-        <div className="grid grid-cols-4 gap-8 items-start">
-          <div className="col-span-1 space-y-6">
-            <h3 className="text-lg font-semibold">Filters</h3>
-            <Card>
-              <CardHeader><CardTitle className="text-base">Price Range</CardTitle></CardHeader>
-              <CardContent>
-                <Slider
-                    defaultValue={priceRange}
-                    max={50000}
-                    step={1000}
-                    min={0}
-                    onValueChange={setPriceRange}
-                />
-                <div className="flex justify-between text-sm text-muted-foreground mt-2">
-                    <span>₹{priceRange[0]}</span>
-                    <span>₹{priceRange[1]}</span>
-                </div>
-              </CardContent>
-            </Card>
-             <Card>
-              <CardHeader><CardTitle className="text-base">Rating</CardTitle></CardHeader>
-              <CardContent className="space-y-2">
-                {[5,4,3].map(r => (
-                  <div key={r} className="flex items-center space-x-2">
-                    <Checkbox id={`rating-${r}`}/>
-                    <Label htmlFor={`rating-${r}`} className="flex items-center gap-1">
-                      {Array(r).fill(0).map((_,i) => <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-500"/>)}
-                      <span className="ml-1">{r} Star {r < 5 && "& above"}</span>
-                    </Label>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-             <Card>
-              <CardHeader><CardTitle className="text-base">Amenities</CardTitle></CardHeader>
-              <CardContent className="space-y-2">
-                {allAmenities.map(a => (
-                  <div key={a} className="flex items-center space-x-2">
-                    <Checkbox id={`amenity-${a}`}/>
-                    <Label htmlFor={`amenity-${a}`}>{a}</Label>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          </div>
-          <div className="col-span-3 space-y-6">
-           <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold">5 hotels found in New Delhi</h2>
-            <div className="flex items-center gap-2">
-              <Label>Sort by:</Label>
-              <Select defaultValue="popularity">
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Sort by"/>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="popularity">Popularity</SelectItem>
-                  <SelectItem value="price-asc">Price: Low to High</SelectItem>
-                  <SelectItem value="price-desc">Price: High to Low</SelectItem>
-                  <SelectItem value="rating">Rating</SelectItem>
-                </SelectContent>
-              </Select>
+                      <span>Pick a date</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    initialFocus
+                    mode="range"
+                    defaultMonth={date?.from}
+                    selected={date}
+                    onSelect={setDate}
+                    numberOfMonths={2}
+                    disabled={(date) => date < new Date(new Date().setHours(0,0,0,0))}
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
-           </div>
-          <div className="grid gap-6">
-            {hotels.map(hotel => (
-              <Card key={hotel.id} className="grid md:grid-cols-3 gap-0 overflow-hidden relative">
-                <Button variant="ghost" size="icon" className="absolute top-2 right-2 rounded-full bg-black/30 text-white hover:bg-black/50 hover:text-white z-10" onClick={() => toggleLike(hotel.id)}>
-                    <Heart className={cn("h-5 w-5", hotel.liked && "fill-red-500 text-red-500")}/>
-                </Button>
-                <div className="md:col-span-1">
-                  <Image data-ai-hint="hotel room" src={hotel.image} alt={hotel.name} width={400} height={300} className="h-full w-full object-cover" />
-                </div>
-                <div className="md:col-span-2 flex flex-col p-4">
-                  <CardHeader className="p-0">
-                    <div className="flex justify-between items-start">
-                      <CardTitle>{hotel.name}</CardTitle>
-                      <div className="flex items-center gap-1 text-primary font-bold">
-                        <Star className="h-5 w-5 fill-current" />
-                        <span>{hotel.rating.toFixed(1)}</span>
+            <div>
+              <Label>Guests & Rooms</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="w-full justify-start text-left font-normal">
+                    <User className="mr-2 h-4 w-4"/>
+                    {guests} Guests, {rooms} Room(s)
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-60">
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <Label>Guests</Label>
+                        <div className="flex items-center gap-2">
+                          <Button variant="outline" size="icon" onClick={() => setGuests(p => Math.max(1, p-1))}><Minus className="h-4 w-4"/></Button>
+                          <span className="w-4 text-center">{guests}</span>
+                          <Button variant="outline" size="icon" onClick={() => setGuests(p => p+1)}><Plus className="h-4 w-4"/></Button>
+                        </div>
+                      </div>
+                       <div className="flex items-center justify-between">
+                        <Label>Rooms</Label>
+                        <div className="flex items-center gap-2">
+                          <Button variant="outline" size="icon" onClick={() => setRooms(p => Math.max(1, p-1))}><Minus className="h-4 w-4"/></Button>
+                          <span className="w-4 text-center">{rooms}</span>
+                          <Button variant="outline" size="icon" onClick={() => setRooms(p => p+1)}><Plus className="h-4 w-4"/></Button>
+                        </div>
                       </div>
                     </div>
-                    <CardDescription>{hotel.city}</CardDescription>
-                  </CardHeader>
-                  <CardContent className="p-0 mt-4 flex-grow space-y-2">
-                    <div className="flex gap-2 flex-wrap">
-                      {hotel.amenities.map(amenity => (
-                        <Badge key={amenity} variant="secondary">{amenity}</Badge>
-                      ))}
-                    </div>
-                  </CardContent>
-                  <CardFooter className="p-0 mt-4 flex justify-between items-end">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Price per night</p>
-                      <p className="text-2xl font-bold">₹{hotel.price.toLocaleString('en-IN')}</p>
-                    </div>
-                    <Button>Book Now</Button>
-                  </CardFooter>
-                </div>
+                </PopoverContent>
+              </Popover>
+            </div>
+            <div className="flex items-end">
+              <Button className="w-full" onClick={handleSearch} disabled={loading}>
+                {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Search className="mr-2 h-4 w-4" />}
+                Search Hotels
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+        
+        {loading && (
+          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center min-h-[300px]">
+            <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
+            <h2 className="text-xl font-semibold">Searching for hotels...</h2>
+            <p className="text-muted-foreground">Finding the best deals for your stay.</p>
+          </div>
+        )}
+
+        {showResults && !loading && (
+          <div className="grid grid-cols-4 gap-8 items-start">
+            <div className="col-span-1 space-y-6">
+              <h3 className="text-lg font-semibold">Filters</h3>
+              <Card>
+                <CardHeader><CardTitle className="text-base">Price Range</CardTitle></CardHeader>
+                <CardContent>
+                  <Slider
+                      defaultValue={priceRange}
+                      max={50000}
+                      step={1000}
+                      min={0}
+                      onValueChange={setPriceRange}
+                  />
+                  <div className="flex justify-between text-sm text-muted-foreground mt-2">
+                      <span>₹{priceRange[0]}</span>
+                      <span>₹{priceRange[1]}</span>
+                  </div>
+                </CardContent>
               </Card>
-            ))}
+               <Card>
+                <CardHeader><CardTitle className="text-base">Rating</CardTitle></CardHeader>
+                <CardContent className="space-y-2">
+                  {[5,4,3].map(r => (
+                    <div key={r} className="flex items-center space-x-2">
+                      <Checkbox id={`rating-${r}`}/>
+                      <Label htmlFor={`rating-${r}`} className="flex items-center gap-1">
+                        {Array(r).fill(0).map((_,i) => <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-500"/>)}
+                        <span className="ml-1">{r} Star {r < 5 && "& above"}</span>
+                      </Label>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+               <Card>
+                <CardHeader><CardTitle className="text-base">Amenities</CardTitle></CardHeader>
+                <CardContent className="space-y-2">
+                  {allAmenities.map(a => (
+                    <div key={a} className="flex items-center space-x-2">
+                      <Checkbox id={`amenity-${a}`}/>
+                      <Label htmlFor={`amenity-${a}`}>{a}</Label>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            </div>
+            <div className="col-span-3 space-y-6">
+             <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold">5 hotels found in New Delhi</h2>
+              <div className="flex items-center gap-2">
+                <Label>Sort by:</Label>
+                <Select defaultValue="popularity">
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Sort by"/>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="popularity">Popularity</SelectItem>
+                    <SelectItem value="price-asc">Price: Low to High</SelectItem>
+                    <SelectItem value="price-desc">Price: High to Low</SelectItem>
+                    <SelectItem value="rating">Rating</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+             </div>
+            <div className="grid gap-6">
+              {hotels.map(hotel => (
+                <Card key={hotel.id} className="grid md:grid-cols-3 gap-0 overflow-hidden relative">
+                  <Button variant="ghost" size="icon" className="absolute top-2 right-2 rounded-full bg-black/30 text-white hover:bg-black/50 hover:text-white z-10" onClick={() => toggleLike(hotel.id)}>
+                      <Heart className={cn("h-5 w-5", hotel.liked && "fill-red-500 text-red-500")}/>
+                  </Button>
+                  <div className="md:col-span-1">
+                    <Image data-ai-hint="hotel room" src={hotel.image} alt={hotel.name} width={400} height={300} className="h-full w-full object-cover" />
+                  </div>
+                  <div className="md:col-span-2 flex flex-col p-4">
+                    <CardHeader className="p-0">
+                      <div className="flex justify-between items-start">
+                        <CardTitle>{hotel.name}</CardTitle>
+                        <div className="flex items-center gap-1 text-primary font-bold">
+                          <Star className="h-5 w-5 fill-current" />
+                          <span>{hotel.rating.toFixed(1)}</span>
+                        </div>
+                      </div>
+                      <CardDescription>{hotel.city}</CardDescription>
+                    </CardHeader>
+                    <CardContent className="p-0 mt-4 flex-grow space-y-2">
+                       <p className="text-sm text-muted-foreground">{hotel.description}</p>
+                      <div className="flex gap-2 flex-wrap pt-2">
+                        {hotel.amenities.slice(0, 3).map(amenity => (
+                          <Badge key={amenity} variant="secondary">{amenity}</Badge>
+                        ))}
+                        {hotel.amenities.length > 3 && <Badge variant="outline">+{hotel.amenities.length - 3} more</Badge>}
+                      </div>
+                    </CardContent>
+                    <CardFooter className="p-0 mt-4 flex justify-between items-end">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Price per night</p>
+                        <p className="text-2xl font-bold">₹{hotel.price.toLocaleString('en-IN')}</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <DialogTrigger asChild>
+                          <Button variant="outline">View Details</Button>
+                        </DialogTrigger>
+                        <Button>Book Now</Button>
+                      </div>
+                    </CardFooter>
+                  </div>
+                  <DialogContent className="max-w-3xl">
+                    <DialogHeader>
+                      <DialogTitle className="text-2xl">{hotel.name}</DialogTitle>
+                      <DialogDescription>{hotel.city}</DialogDescription>
+                    </DialogHeader>
+                    <div className="grid md:grid-cols-2 gap-6 mt-4">
+                      <div className="relative h-64 rounded-lg overflow-hidden">
+                        <Image src={hotel.image} alt={hotel.name} layout="fill" objectFit="cover" />
+                      </div>
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-1 text-primary font-bold">
+                            <Star className="h-5 w-5 fill-current" />
+                            <span>{hotel.rating.toFixed(1)}</span>
+                          </div>
+                          <span className="text-sm text-muted-foreground">(245 Reviews)</span>
+                        </div>
+                        <p className="text-muted-foreground">{hotel.description}</p>
+                        <div>
+                          <h4 className="font-semibold mb-2">Amenities</h4>
+                          <div className="flex flex-wrap gap-4 text-sm">
+                            {hotel.amenities.map(a => (
+                              <div key={a} className="flex items-center gap-2">
+                                {a === "WiFi" && <Wifi className="h-4 w-4 text-primary"/>}
+                                {a === "Gym" && <Dumbbell className="h-4 w-4 text-primary"/>}
+                                {a.includes("Dining") && <Utensils className="h-4 w-4 text-primary"/>}
+                                {a === "Pool" && <BedDouble className="h-4 w-4 text-primary"/>}
+                                {a === "Spa" && <Heart className="h-4 w-4 text-primary"/>}
+                                <span>{a}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="pt-4">
+                           <p className="text-sm text-muted-foreground">Price per night</p>
+                           <p className="text-3xl font-bold">₹{hotel.price.toLocaleString('en-IN')}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Card>
+              ))}
+            </div>
           </div>
         </div>
+        )}
       </div>
-      )}
-
-    </div>
+    </Dialog>
   );
 }
+
+    
