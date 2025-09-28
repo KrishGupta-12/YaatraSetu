@@ -48,6 +48,11 @@ export default function TatkalAutomationPage() {
      const form = useForm<FormData>({
         resolver: zodResolver(formSchema),
         defaultValues: {
+            trainNumber: "",
+            journeyDate: "",
+            fromStation: "",
+            toStation: "",
+            bookingClass: "",
             berthPreference: 'any',
             upiId: 'yatra.user@okhdfcbank',
             autoPay: true,
@@ -220,7 +225,7 @@ export default function TatkalAutomationPage() {
                     <FormField control={form.control} name="autoPay" render={({ field }) => (
                         <FormItem className="flex items-center space-x-2">
                             <FormControl><Switch checked={field.value} onCheckedChange={field.onChange}/></FormControl>
-                            <FormLabel htmlFor="auto-pay">Enable Auto-pay (Recommended)</FormLabel>
+                            <FormLabel>Enable Auto-pay (Recommended)</FormLabel>
                         </FormItem>
                     )}/>
                  </CardContent>
