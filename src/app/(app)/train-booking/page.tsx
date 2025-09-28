@@ -3,15 +3,15 @@
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Select, SelectContent,SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { CalendarIcon, Loader2, Search, ArrowRightLeft, Users, Info, Clock, Plus, Trash } from "lucide-react";
 import { format } from "date-fns";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import Link from "next/link";
@@ -21,6 +21,7 @@ import { getSavedPassengers } from "@/lib/firebase/firestore";
 import type { User } from 'firebase/auth';
 import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
+import allTrainsData from "@/lib/mock-data/trains.json";
 
 type Passenger = {
   id: string | number;
@@ -44,6 +45,15 @@ export default function TrainBookingPage() {
     const router = useRouter();
     const [savedPassengers, setSavedPassengers] = useState<Passenger[]>([]);
     const [bookingPassengers, setBookingPassengers] = useState<Passenger[]>([]);
+
+    const stationCodes = useMemo(() => {
+        const fromStations = allTrainsData.map(train => train.from);
+        const toStations = allTrainsData.map(train => train.to);
+        return {
+            from: [...new Set(fromStations)],
+            to: [...new Set(toStations)]
+        }
+    }, []);
 
     useEffect(() => {
         if (user) {
@@ -83,6 +93,10 @@ export default function TrainBookingPage() {
             setLoading(false);
             setShowResults(true);
         }
+    }
+    
+    const handleSwapStations = () => {
+        setSearchQuery({ from: searchQuery.to, to: searchQuery.from });
     }
 
     const handleBookNow = (train: any, trainClass: any) => {
@@ -144,16 +158,34 @@ export default function TrainBookingPage() {
           <CardTitle>Search for Trains</CardTitle>
         </CardHeader>
         <CardContent className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
-            <div>
-                <Label htmlFor="from">From</Label>
-                <Input id="from" placeholder="e.g., BCT" defaultValue="BCT" onChange={(e) => setSearchQuery({...searchQuery, from: e.target.value})}/>
-            </div>
-            <div className="relative">
-                 <Button variant="ghost" size="icon" className="absolute left-1/2 -translate-x-1/2 top-4 sm:top-1/2 sm:-translate-y-1/2 bg-background rounded-full border">
-                    <ArrowRightLeft className="h-4 w-4"/>
-                </Button>
-                <Label htmlFor="to">To</Label>
-                <Input id="to" placeholder="e.g., NDLS" defaultValue="NDLS" onChange={(e) => setSearchQuery({...searchQuery, to: e.target.value})}/>
+            <div className="lg:col-span-2 grid grid-cols-2 gap-4 relative">
+                <div>
+                    <Label htmlFor="from">From</Label>
+                    <Select value={searchQuery.from} onValueChange={(value) => setSearchQuery({...searchQuery, from: value})}>
+                        <SelectTrigger><SelectValue placeholder="From station..."/></SelectTrigger>
+                        <SelectContent>
+                            {stationCodes.from.map(station => (
+                                <SelectItem key={station} value={station}>{station}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+                <div>
+                    <Label htmlFor="to">To</Label>
+                     <Select value={searchQuery.to} onValueChange={(value) => setSearchQuery({...searchQuery, to: value})}>
+                        <SelectTrigger><SelectValue placeholder="To station..."/></SelectTrigger>
+                        <SelectContent>
+                            {stationCodes.to.map(station => (
+                                <SelectItem key={station} value={station}>{station}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+                 <div className="absolute left-1/2 -translate-x-1/2 top-1/2 mt-1 z-10">
+                     <Button variant="ghost" size="icon" className="bg-background rounded-full border" onClick={handleSwapStations}>
+                        <ArrowRightLeft className="h-4 w-4"/>
+                    </Button>
+                </div>
             </div>
             <div>
                 <Label>Date</Label>
@@ -213,14 +245,6 @@ export default function TrainBookingPage() {
                 Search Trains
              </Button>
         </CardContent>
-        <CardFooter className="flex justify-between items-center">
-            <div className="flex items-center gap-4 text-sm">
-                <p className="font-medium">Quick Actions:</p>
-                <DialogTrigger asChild><Button variant="ghost" size="sm">PNR Status</Button></DialogTrigger>
-                <Button variant="ghost" size="sm">Live Train Status</Button>
-                <Button variant="ghost" size="sm" asChild><Link href="/tatkal-automation">Tatkal Automation</Link></Button>
-            </div>
-        </CardFooter>
       </Card>
 
       {loading && (
@@ -412,5 +436,3 @@ export default function TrainBookingPage() {
     </Dialog>
   );
 }
-
-    
