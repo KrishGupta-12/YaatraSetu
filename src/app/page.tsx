@@ -63,9 +63,9 @@ export default function LandingPage() {
         <section className="relative h-[80vh] min-h-[500px] flex items-center justify-center text-center text-white">
           <div className="absolute inset-0 z-0">
              <Image
-              src="https://images.unsplash.com/photo-1593361664183-59521d9951dc?q=80&w=2070&auto=format&fit=crop"
+              src="https://images.unsplash.com/photo-1601208940863-7c4c11438a30?q=80&w=2070&auto=format&fit=crop"
               alt="A train moving through a scenic landscape"
-              data-ai-hint="train landscape"
+              data-ai-hint="train landscape bridge"
               fill
               className="object-cover"
               priority
