@@ -2,9 +2,9 @@
   "placeholderImages": [
     {
       "id": "login-background",
-      "description": "A scenic view of a train traveling through Indian mountains.",
-      "imageUrl": "https://images.unsplash.com/photo-1615967518423-43486b5d635a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxpbmRpYW4lMjB0cmFpbiUyMHRyYXZlbHxlbnwwfHx8fDE3NTkwNDEyMDZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "indian train"
+      "description": "A scenic view of a train traveling over a bridge in India.",
+      "imageUrl": "https://images.unsplash.com/photo-1622324188838-a1e48810534e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxJbmRpYW4lMjByYWlsd2F5fGVufDB8fHx8MTc1ODk1MDI5OXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "indian railway"
     },
     {
       "id": "hotel-1",
