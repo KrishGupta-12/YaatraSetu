@@ -1,5 +1,5 @@
 
-import { doc, setDoc, getDoc, serverTimestamp, updateDoc, deleteDoc, arrayUnion, arrayRemove } from "firebase/firestore";
+import { doc, setDoc, getDoc, serverTimestamp, updateDoc, deleteDoc, arrayUnion, arrayRemove, onSnapshot } from "firebase/firestore";
 import { db } from "./config";
 import type { User } from 'firebase/auth';
 
@@ -12,27 +12,32 @@ export const createUserProfile = async (user: User, additionalData: Record<strin
   if (!snap.exists()) {
     // Document doesn't exist, create it with all default fields
     const createdAt = serverTimestamp();
-    const userData = {
-      uid: user.uid,
-      email: user.email || '',
-      displayName: additionalData.name || user.displayName || '',
-      photoURL: user.photoURL || '',
-      phone: additionalData.phone || '',
-      createdAt: createdAt,
-      lastLogin: createdAt,
-      savedPassengers: [],
-      preferences: {},
-      loyaltyPoints: 0,
-    };
-    await setDoc(userRef, userData);
+    try {
+        await setDoc(userRef, {
+            uid: user.uid,
+            email: user.email || '',
+            displayName: additionalData.name || user.displayName || '',
+            photoURL: user.photoURL || '',
+            phone: additionalData.phone || '',
+            createdAt: createdAt,
+            lastLogin: createdAt,
+            savedPassengers: [],
+            preferences: {},
+            loyaltyPoints: 0,
+        });
+    } catch (error) {
+        console.error("Error creating user profile:", error);
+        throw new Error("Unable to create user profile.");
+    }
   } else {
-    // Document exists, merge new/updated info but don't overwrite arrays/objects
-    const updateData = {
-        displayName: additionalData.name || user.displayName || snap.data().displayName,
-        phone: additionalData.phone || snap.data().phone,
-        lastLogin: serverTimestamp(),
-    };
-    await updateDoc(userRef, updateData);
+    // Document exists, just update last login
+    try {
+       await updateDoc(userRef, {
+            lastLogin: serverTimestamp(),
+       });
+    } catch (error) {
+        console.error("Error updating last login:", error);
+    }
   }
 };
 
@@ -84,10 +89,6 @@ export const addSavedPassenger = async (uid: string, passengerData: any) => {
     });
   } catch (error) {
     console.error("Error adding saved passenger:", error);
-    // Check if it's a 'not-found' error and provide a more specific message if so.
-    if (error instanceof Error && 'code' in error && error.code === 'not-found') {
-        throw new Error("User profile does not exist. Cannot add passenger.");
-    }
     throw new Error("Unable to add passenger.");
   }
 }
