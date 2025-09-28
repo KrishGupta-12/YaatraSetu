@@ -1,15 +1,33 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /users/{userId} {
-      allow read, update, delete: if request.auth != null && request.auth.uid == userId;
-      allow create: if request.auth != null;
 
-      // Rules for the 'passengers' sub-collection
-      match /passengers/{passengerId} {
-        // Allow a user to list, create, read, update, and delete their own passengers.
-        allow list, read, write: if request.auth != null && request.auth.uid == userId;
-      }
+    // Helper function to check ownership
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    // Lock down all access by default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+    
+    // Allow users to read/write to their own document
+    match /users/{userId} {
+      allow read, update: if isOwner(userId);
+      allow create: if request.auth != null;
+    }
+
+    // Allow users to manage their own saved passengers
+    match /users/{userId}/passengers/{passengerId} {
+      allow list, read, write, create, delete: if isOwner(userId);
+    }
+
+    // Allow users to create tatkal requests
+    // and read only their own requests
+    match /tatkal_requests/{requestId} {
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow read: if isOwner(resource.data.userId);
     }
   }
 }

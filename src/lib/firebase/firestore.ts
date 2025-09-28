@@ -1,5 +1,5 @@
 
-import { doc, setDoc, getDoc, serverTimestamp, updateDoc, deleteDoc, collection, addDoc, onSnapshot, query, orderBy } from "firebase/firestore";
+import { doc, setDoc, getDoc, serverTimestamp, updateDoc, deleteDoc, collection, addDoc, onSnapshot, query, orderBy, where } from "firebase/firestore";
 import { db } from "./config";
 import type { User } from 'firebase/auth';
 
@@ -83,7 +83,7 @@ export const addSavedPassenger = async (uid: string, passengerData: any) => {
   if (!uid) throw new Error("User ID is required to add a passenger.");
   const passengersCollectionRef = collection(db, `users/${uid}/passengers`);
   try {
-    await addDoc(passengersCollectionRef, passengerData);
+    await addDoc(passengersCollectionrealtim, passengerData);
   } catch (error) {
     console.error("Error adding saved passenger:", error);
     throw new Error("Unable to add passenger.");
@@ -140,15 +140,16 @@ export const getTatkalRequests = (uid: string, onReceive: (data: any[]) => void)
         onReceive([]);
         return () => {};
     };
-    const requestsQuery = query(collection(db, 'tatkal_requests'), orderBy('createdAt', 'desc'));
+    const requestsQuery = query(
+        collection(db, 'tatkal_requests'), 
+        where('userId', '==', uid),
+        orderBy('createdAt', 'desc')
+    );
 
     const unsubscribe = onSnapshot(requestsQuery, (querySnapshot) => {
         const requests: any[] = [];
         querySnapshot.forEach((doc) => {
-            // Important: Filter client-side as Firestore requires an index for inequality on different fields
-            if (doc.data().userId === uid) {
-                 requests.push({ id: doc.id, ...doc.data() });
-            }
+            requests.push({ id: doc.id, ...doc.data() });
         });
         onReceive(requests);
     }, (error) => {
