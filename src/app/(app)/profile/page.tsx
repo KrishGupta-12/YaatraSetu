@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -74,13 +74,13 @@ export default function ProfilePage() {
           <Card>
             <CardHeader className="items-center text-center">
               <Avatar className="h-24 w-24 mb-4">
-                <AvatarImage src={user?.photoURL || ""} alt={user?.displayName || ""} />
+                <AvatarImage src={user?.photoURL || ""} alt={profileData?.displayName || ""} />
                 <AvatarFallback>
                   {profileData?.displayName?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
-              <CardTitle>{profileData?.displayName}</CardTitle>
-              <CardDescription>{profileData?.email}</CardDescription>
+              <CardTitle>{profileData?.displayName || user?.displayName}</CardTitle>
+              <CardDescription>{user?.email}</CardDescription>
             </CardHeader>
             <CardContent>
               <Button variant="outline" className="w-full" disabled>Edit Profile Picture</Button>
@@ -91,7 +91,7 @@ export default function ProfilePage() {
           <Card>
             <CardHeader>
               <CardTitle>Personal Information</CardTitle>
-              <CardDescription>Manage your personal details.</CardDescription>
+              <CardDescription>Your personal details.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid sm:grid-cols-2 gap-4">
@@ -101,12 +101,12 @@ export default function ProfilePage() {
                 </div>
                 <div>
                   <Label>Email Address</Label>
-                  <Input type="email" value={profileData?.email || ""} disabled />
+                  <Input type="email" value={user?.email || ""} disabled />
                 </div>
               </div>
               <div>
                 <Label>Phone Number</Label>
-                <Input type="tel" value={profileData?.phone || ''} disabled />
+                <Input type="tel" value={profileData?.phone || 'Not provided'} disabled />
               </div>
             </CardContent>
           </Card>
