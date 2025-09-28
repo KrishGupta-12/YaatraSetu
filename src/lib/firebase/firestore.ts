@@ -1,5 +1,5 @@
 
-import { doc, setDoc, getDoc, serverTimestamp, updateDoc, deleteDoc, collection, addDoc, onSnapshot, query } from "firebase/firestore";
+import { doc, setDoc, getDoc, serverTimestamp, updateDoc, deleteDoc, collection, addDoc, onSnapshot, query, orderBy } from "firebase/firestore";
 import { db } from "./config";
 import type { User } from 'firebase/auth';
 
@@ -102,7 +102,10 @@ export const removeSavedPassenger = async (uid: string, passengerId: string) => 
 }
 
 export const getSavedPassengers = (uid: string, onReceive: (data: any[]) => void) => {
-    if (!uid) return () => {};
+    if (!uid) {
+        onReceive([]);
+        return () => {};
+    };
     const passengersQuery = query(collection(db, `users/${uid}/passengers`));
 
     const unsubscribe = onSnapshot(passengersQuery, (querySnapshot) => {
@@ -111,6 +114,9 @@ export const getSavedPassengers = (uid: string, onReceive: (data: any[]) => void
             passengers.push({ id: doc.id, ...doc.data() });
         });
         onReceive(passengers);
+    }, (error) => {
+        console.error("Error fetching saved passengers:", error);
+        onReceive([]);
     });
 
     return unsubscribe;
@@ -128,4 +134,27 @@ export const deleteUserProfile = async (uid: string) => {
     }
 }
 
-    
+
+export const getTatkalRequests = (uid: string, onReceive: (data: any[]) => void) => {
+    if (!uid) {
+        onReceive([]);
+        return () => {};
+    };
+    const requestsQuery = query(collection(db, 'tatkal_requests'), orderBy('createdAt', 'desc'));
+
+    const unsubscribe = onSnapshot(requestsQuery, (querySnapshot) => {
+        const requests: any[] = [];
+        querySnapshot.forEach((doc) => {
+            // Important: Filter client-side as Firestore requires an index for inequality on different fields
+            if (doc.data().userId === uid) {
+                 requests.push({ id: doc.id, ...doc.data() });
+            }
+        });
+        onReceive(requests);
+    }, (error) => {
+        console.error("Error fetching tatkal requests:", error);
+        onReceive([]);
+    });
+
+    return unsubscribe;
+}

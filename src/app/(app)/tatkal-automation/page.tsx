@@ -6,17 +6,19 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Plus, Trash, Sparkles } from "lucide-react";
+import { Loader2, Plus, Trash, Sparkles, Eye } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
-import { getSavedPassengers } from "@/lib/firebase/firestore";
+import { getSavedPassengers, getTatkalRequests } from "@/lib/firebase/firestore";
 import { tatkalBookerFlow, type TatkalBookingRequest } from "@/ai/flows/tatkal-booker";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 
 const savedPassengerSchema = z.object({
   id: z.string(),
@@ -44,6 +46,8 @@ export default function TatkalAutomationPage() {
     const [loading, setLoading] = useState(false);
     const [savedPassengers, setSavedPassengers] = useState<SavedPassenger[]>([]);
     const [selectedPassengers, setSelectedPassengers] = useState<SavedPassenger[]>([]);
+    const [scheduledRequests, setScheduledRequests] = useState<any[]>([]);
+    const [requestsLoading, setRequestsLoading] = useState(true);
 
      const form = useForm<FormData>({
         resolver: zodResolver(formSchema),
@@ -61,10 +65,20 @@ export default function TatkalAutomationPage() {
 
     useEffect(() => {
         if (user) {
-            const unsubscribe = getSavedPassengers(user.uid, (data) => {
+            const unsubscribePassengers = getSavedPassengers(user.uid, (data) => {
                 setSavedPassengers(data);
             });
-            return () => unsubscribe();
+
+            setRequestsLoading(true);
+            const unsubscribeRequests = getTatkalRequests(user.uid, (data) => {
+                setScheduledRequests(data);
+                setRequestsLoading(false);
+            })
+
+            return () => {
+                unsubscribePassengers();
+                unsubscribeRequests();
+            };
         }
     }, [user]);
 
@@ -95,11 +109,19 @@ export default function TatkalAutomationPage() {
             });
             return;
         }
+        if (!user) {
+            toast({
+                variant: "destructive",
+                title: "Not logged in",
+                description: "You must be logged in to activate automation.",
+            });
+            return;
+        }
 
         setLoading(true);
         try {
             const request: TatkalBookingRequest = {
-                userId: user!.uid,
+                userId: user.uid,
                 journeyDetails: {
                     trainNumber: data.trainNumber,
                     journeyDate: data.journeyDate,
@@ -115,12 +137,32 @@ export default function TatkalAutomationPage() {
                 }
             };
             
-            await tatkalBookerFlow(request);
+            const response = await tatkalBookerFlow(request);
 
-            toast({
-                title: "Automation Activated!",
-                description: "We will attempt to book your Tatkal ticket. You'll be notified of the result.",
-            });
+            if(response.success) {
+                toast({
+                    title: "Automation Activated!",
+                    description: response.message,
+                });
+                form.reset({
+                    trainNumber: "",
+                    journeyDate: "",
+                    fromStation: "",
+                    toStation: "",
+                    bookingClass: "",
+                    berthPreference: 'any',
+                    upiId: 'yatra.user@okhdfcbank',
+                    autoPay: true,
+                });
+                setSelectedPassengers([]);
+            } else {
+                 toast({
+                    variant: "destructive",
+                    title: "Activation Failed",
+                    description: response.message,
+                });
+            }
+
         } catch (error) {
             console.error("Tatkal Automation Error:", error);
             toast({
@@ -134,8 +176,14 @@ export default function TatkalAutomationPage() {
     }
 
   return (
+    <Dialog>
     <div className="space-y-8">
-      <h1 className="text-3xl font-bold tracking-tight font-headline mb-8 flex items-center gap-2"><Sparkles className="h-7 w-7 text-primary"/> Tatkal Booking Automation</h1>
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold tracking-tight font-headline mb-8 flex items-center gap-2"><Sparkles className="h-7 w-7 text-primary"/> Tatkal Booking Automation</h1>
+        <DialogTrigger asChild>
+            <Button variant="outline"><Eye className="mr-2 h-4 w-4"/>View Scheduled Requests</Button>
+        </DialogTrigger>
+      </div>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
         <div className="md:col-span-2 space-y-6">
@@ -150,7 +198,7 @@ export default function TatkalAutomationPage() {
                         <FormItem><FormLabel>Train Number</FormLabel><FormControl><Input placeholder="e.g., 12951" {...field}/></FormControl><FormMessage /></FormItem>
                     )}/>
                      <FormField control={form.control} name="journeyDate" render={({ field }) => (
-                        <FormItem><FormLabel>Date of Journey</FormLabel><FormControl><Input type="date" {...field}/></FormControl><FormMessage /></FormItem>
+                        <FormItem><FormLabel>Date of Journey</FormLabel><FormControl><Input type="date" {...field} min={new Date().toISOString().split("T")[0]}/></FormControl><FormMessage /></FormItem>
                     )}/>
                     <FormField control={form.control} name="fromStation" render={({ field }) => (
                         <FormItem><FormLabel>From Station Code</FormLabel><FormControl><Input placeholder="e.g., BCT" {...field}/></FormControl><FormMessage /></FormItem>
@@ -161,7 +209,7 @@ export default function TatkalAutomationPage() {
                     <FormField control={form.control} name="bookingClass" render={({ field }) => (
                         <FormItem>
                             <FormLabel>Booking Class</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <Select onValueChange={field.onChange} value={field.value}>
                                 <FormControl><SelectTrigger><SelectValue placeholder="Select Class"/></SelectTrigger></FormControl>
                                 <SelectContent>
                                     <SelectItem value="2A">AC 2 Tier (2A)</SelectItem>
@@ -175,7 +223,7 @@ export default function TatkalAutomationPage() {
                     <FormField control={form.control} name="berthPreference" render={({ field }) => (
                         <FormItem>
                             <FormLabel>Berth Preference</FormLabel>
-                             <Select onValueChange={field.onChange} defaultValue={field.value}>
+                             <Select onValueChange={field.onChange} value={field.value}>
                                 <FormControl><SelectTrigger><SelectValue placeholder="Select Berth"/></SelectTrigger></FormControl>
                                 <SelectContent>
                                     <SelectItem value="any">Any</SelectItem>
@@ -223,7 +271,7 @@ export default function TatkalAutomationPage() {
                         <FormItem><FormLabel>UPI ID</FormLabel><FormControl><Input placeholder="yourname@upi" {...field}/></FormControl><FormMessage /></FormItem>
                     )}/>
                     <FormField control={form.control} name="autoPay" render={({ field }) => (
-                        <FormItem className="flex items-center space-x-2">
+                        <FormItem className="flex items-center space-x-2 pt-2">
                             <FormControl><Switch checked={field.value} onCheckedChange={field.onChange}/></FormControl>
                             <FormLabel>Enable Auto-pay (Recommended)</FormLabel>
                         </FormItem>
@@ -274,6 +322,49 @@ export default function TatkalAutomationPage() {
         </div>
       </div>
     </div>
+     <DialogContent className="max-w-4xl">
+        <DialogHeader>
+          <DialogTitle>Scheduled Tatkal Requests</DialogTitle>
+          <DialogDescription>
+            Here are your pending Tatkal automation requests.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="max-h-[60vh] overflow-y-auto">
+            {requestsLoading ? (
+                <div className="flex items-center justify-center p-8">
+                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground"/>
+                </div>
+            ) : scheduledRequests.length === 0 ? (
+                 <p className="text-center text-muted-foreground py-8">No requests have been scheduled yet.</p>
+            ) : (
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Booking ID</TableHead>
+                            <TableHead>Train</TableHead>
+                            <TableHead>Journey</TableHead>
+                            <TableHead>Date</TableHead>
+                            <TableHead>Status</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {scheduledRequests.map(req => (
+                            <TableRow key={req.id}>
+                                <TableCell className="font-mono text-xs">{req.id}</TableCell>
+                                <TableCell>{req.journeyDetails.trainNumber}</TableCell>
+                                <TableCell>{req.journeyDetails.fromStationCode} → {req.journeyDetails.toStationCode}</TableCell>
+                                <TableCell>{req.journeyDetails.journeyDate}</TableCell>
+                                <TableCell>
+                                    <Badge variant={req.status === 'SCHEDULED' ? 'secondary' : 'default'}>{req.status}</Badge>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            )}
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 
