@@ -1,5 +1,5 @@
 
-import { doc, setDoc, getDoc, serverTimestamp, updateDoc, deleteDoc, onSnapshot } from "firebase/firestore";
+import { doc, setDoc, getDoc, serverTimestamp, updateDoc, deleteDoc, onSnapshot, arrayUnion, arrayRemove } from "firebase/firestore";
 import { db } from "./config";
 import type { User } from 'firebase/auth';
 
@@ -65,6 +65,33 @@ export const updateUserProfile = async (uid: string, data: Record<string, any>) 
         throw new Error("Unable to update user profile.");
     }
 }
+
+export const addSavedPassenger = async (uid: string, passengerData: any) => {
+  if (!uid) return;
+  const userRef = doc(db, `users/${uid}`);
+  try {
+    await updateDoc(userRef, {
+      savedPassengers: arrayUnion(passengerData),
+    });
+  } catch (error) {
+    console.error("Error adding saved passenger:", error);
+    throw new Error("Unable to add passenger.");
+  }
+}
+
+export const removeSavedPassenger = async (uid: string, passengerData: any) => {
+  if (!uid) return;
+  const userRef = doc(db, `users/${uid}`);
+  try {
+    await updateDoc(userRef, {
+      savedPassengers: arrayRemove(passengerData),
+    });
+  } catch (error) {
+    console.error("Error removing saved passenger:", error);
+    throw new Error("Unable to remove passenger.");
+  }
+}
+
 
 export const deleteUserProfile = async (uid: string) => {
     if (!uid) return;

@@ -13,25 +13,82 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Trash, Plus } from "lucide-react";
+import { Trash, Plus, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useUserProfile } from "@/hooks/use-user-profile";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger, DialogClose } from "@/components/ui/dialog";
+import { useForm, type SubmitHandler } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { addSavedPassenger, removeSavedPassenger } from "@/lib/firebase/firestore";
 
-const savedPassengers = [
-  { id: 1, name: "Priya Sharma", age: 29, gender: "Female" },
-  { id: 2, name: "Anjali Mehta", age: 58, gender: "Female" },
-];
+const passengerFormSchema = z.object({
+  name: z.string().min(2, "Name is required."),
+  age: z.coerce.number().min(1, "Age must be at least 1.").max(120),
+  gender: z.enum(["Male", "Female", "Other"]),
+});
+
+type PassengerFormData = z.infer<typeof passengerFormSchema>;
 
 export default function ProfilePage() {
   const { user } = useAuth();
   const { profileData, loading } = useUserProfile();
-  const [passengers, setPassengers] = useState(savedPassengers);
+  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
 
-  const removePassenger = (id: number) => {
-    setPassengers(passengers.filter((p) => p.id !== id));
+  const form = useForm<PassengerFormData>({
+    resolver: zodResolver(passengerFormSchema),
+    defaultValues: {
+      name: "",
+      age: undefined,
+    }
+  });
+
+  const onAddPassenger: SubmitHandler<PassengerFormData> = async (data) => {
+    if (!user) return;
+    setIsSubmitting(true);
+    try {
+      const newPassenger = { id: new Date().toISOString(), ...data };
+      await addSavedPassenger(user.uid, newPassenger);
+      toast({
+        title: "Passenger Added",
+        description: `${data.name} has been added to your saved passengers.`,
+      });
+      form.reset();
+      setOpenDialog(false);
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to add passenger. Please try again.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
-  
+
+  const handleRemovePassenger = async (passenger: any) => {
+    if (!user) return;
+    try {
+      await removeSavedPassenger(user.uid, passenger);
+      toast({
+        title: "Passenger Removed",
+        description: `${passenger.name} has been removed from your list.`,
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to remove passenger. Please try again.",
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="space-y-8">
@@ -82,35 +139,35 @@ export default function ProfilePage() {
 
   const displayName = profileData?.displayName || user?.displayName;
   const displayInitial = displayName?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || "U";
+  const passengers = profileData?.savedPassengers || [];
 
   return (
-    <div className="space-y-8">
-      <h1 className="text-3xl font-bold tracking-tight font-headline">My Profile</h1>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="md:col-span-1">
-          <Card>
-            <CardHeader className="items-center text-center">
-              <Avatar className="h-24 w-24 mb-4">
-                <AvatarImage src={user?.photoURL || ""} alt={displayName || ""} />
-                <AvatarFallback>
-                  {displayInitial}
-                </AvatarFallback>
-              </Avatar>
-              <CardTitle>{displayName}</CardTitle>
-              <CardDescription>{user?.email}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button variant="outline" className="w-full" disabled>Edit Profile Picture</Button>
-            </CardContent>
-          </Card>
-        </div>
-        <div className="md:col-span-2 space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Personal Information</CardTitle>
-              <CardDescription>Your personal details.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
+    <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+      <div className="space-y-8">
+        <h1 className="text-3xl font-bold tracking-tight font-headline">My Profile</h1>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="md:col-span-1">
+            <Card>
+              <CardHeader className="items-center text-center">
+                <Avatar className="h-24 w-24 mb-4">
+                  <AvatarImage src={user?.photoURL || ""} alt={displayName || ""} />
+                  <AvatarFallback>{displayInitial}</AvatarFallback>
+                </Avatar>
+                <CardTitle>{displayName}</CardTitle>
+                <CardDescription>{user?.email}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button variant="outline" className="w-full" disabled>Edit Profile Picture</Button>
+              </CardContent>
+            </Card>
+          </div>
+          <div className="md:col-span-2 space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Personal Information</CardTitle>
+                <CardDescription>Your personal details.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
                     <Label>Full Name</Label>
@@ -126,42 +183,111 @@ export default function ProfilePage() {
                 <Input type="tel" value={profileData?.phone || 'Not provided'} disabled />
               </div>
             </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Saved Passengers</CardTitle>
-              <CardDescription>
-                Manage your co-travellers for faster bookings.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {passengers.map((p) => (
-                <div
-                  key={p.id}
-                  className="flex items-center justify-between p-3 rounded-lg bg-muted"
-                >
-                  <div>
-                    <p className="font-semibold">{p.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {p.age}, {p.gender}
-                    </p>
-                  </div>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => removePassenger(p.id)}
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Saved Passengers</CardTitle>
+                <CardDescription>
+                  Manage your co-travellers for faster bookings.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {passengers.map((p: any) => (
+                  <div
+                    key={p.id}
+                    className="flex items-center justify-between p-3 rounded-lg bg-muted"
                   >
-                    <Trash className="h-4 w-4 text-destructive" />
-                  </Button>
-                </div>
-              ))}
-              <Button variant="outline" className="w-full">
-                <Plus className="h-4 w-4 mr-2" /> Add New Passenger
-              </Button>
-            </CardContent>
-          </Card>
+                    <div>
+                      <p className="font-semibold">{p.name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {p.age}, {p.gender}
+                      </p>
+                    </div>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => handleRemovePassenger(p)}
+                    >
+                      <Trash className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </div>
+                ))}
+                 {passengers.length === 0 && (
+                    <p className="text-sm text-center text-muted-foreground py-4">No passengers saved yet.</p>
+                )}
+                <DialogTrigger asChild>
+                    <Button variant="outline" className="w-full">
+                        <Plus className="h-4 w-4 mr-2" /> Add New Passenger
+                    </Button>
+                </DialogTrigger>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
-    </div>
+       <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Add New Passenger</DialogTitle>
+          <DialogDescription>
+            Enter the details for your co-traveller.
+          </DialogDescription>
+        </DialogHeader>
+        <Form {...form}>
+            <form onSubmit={form.handleSubmit(onAddPassenger)} className="space-y-4">
+                 <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Full Name</FormLabel>
+                            <FormControl><Input placeholder="e.g., Priya Sharma" {...field} /></FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <div className="grid grid-cols-2 gap-4">
+                     <FormField
+                        control={form.control}
+                        name="age"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Age</FormLabel>
+                                <FormControl><Input type="number" placeholder="e.g., 35" {...field} /></FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="gender"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Gender</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                        <SelectTrigger><SelectValue placeholder="Select..."/></SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        <SelectItem value="Male">Male</SelectItem>
+                                        <SelectItem value="Female">Female</SelectItem>
+                                        <SelectItem value="Other">Other</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </div>
+                <DialogFooter>
+                    <DialogClose asChild><Button type="button" variant="ghost">Cancel</Button></DialogClose>
+                    <Button type="submit" disabled={isSubmitting}>
+                        {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin"/>}
+                        Save Passenger
+                    </Button>
+                </DialogFooter>
+            </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
   );
 }
