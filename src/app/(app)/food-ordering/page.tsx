@@ -1,13 +1,15 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { CookingPot, Loader2, Minus, Plus, Search, ShoppingCart } from "lucide-react";
+import { CookingPot, Loader2, Minus, Plus, Search, ShoppingCart, Star } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 const menuItems = [
   { id: 1, name: "Veg Thali", price: 120, image: "https://picsum.photos/seed/food1/200/200", description: "Rice, Roti, Dal, Sabzi, Salad", isVeg: true },
@@ -17,11 +19,17 @@ const menuItems = [
   { id: 5, name: "Egg Curry", price: 110, image: "https://picsum.photos/seed/food5/200/200", description: "Spicy egg curry", isVeg: false },
 ];
 
+const deliveryStations = [ "Ratlam (RTM)", "Vadodara (BRC)", "Surat (ST)" ];
+
+const orderStatusSteps = ["Order Placed", "Preparing", "Out for Delivery", "Delivered"];
+
 export default function FoodOrderingPage() {
   const [pnr, setPnr] = useState("");
   const [loading, setLoading] = useState(false);
   const [restaurantsFound, setRestaurantsFound] = useState(false);
   const [cart, setCart] = useState<Record<number, number>>({});
+  const [orderPlaced, setOrderPlaced] = useState(false);
+  const [currentStatus, setCurrentStatus] = useState(0);
 
   const handleSearch = () => {
     if (!pnr) return;
@@ -31,6 +39,19 @@ export default function FoodOrderingPage() {
       setRestaurantsFound(true);
     }, 1500);
   };
+
+  const handlePlaceOrder = () => {
+    setOrderPlaced(true);
+    const interval = setInterval(() => {
+        setCurrentStatus(prev => {
+            if (prev >= orderStatusSteps.length -1) {
+                clearInterval(interval);
+                return prev;
+            }
+            return prev + 1;
+        })
+    }, 3000);
+  }
 
   const addToCart = (itemId: number) => {
     setCart(prev => ({ ...prev, [itemId]: (prev[itemId] || 0) + 1 }));
@@ -55,6 +76,37 @@ export default function FoodOrderingPage() {
       return acc + (item?.price || 0) * quantity;
     }, 0);
   };
+  
+  if (orderPlaced) {
+    return (
+        <div className="flex justify-center items-center h-full">
+            <Card className="w-full max-w-md">
+                <CardHeader>
+                    <CardTitle>Live Order Tracking</CardTitle>
+                    <CardDescription>Your order from 'Railicious Restaurant' is on its way!</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="space-y-6">
+                        {orderStatusSteps.map((status, index) => (
+                             <div key={status} className="flex items-center gap-4">
+                                <div className={`h-8 w-8 rounded-full flex items-center justify-center ${index <= currentStatus ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
+                                    {index < currentStatus ? '✔' : index + 1}
+                                </div>
+                                <div>
+                                    <p className={`font-medium ${index <= currentStatus ? 'text-primary' : ''}`}>{status}</p>
+                                    {index === currentStatus && <p className="text-sm text-muted-foreground animate-pulse">Updating...</p>}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </CardContent>
+                 <CardFooter>
+                    <Button variant="outline" className="w-full" onClick={() => {setOrderPlaced(false); setCart({}); setCurrentStatus(0);}}>Place Another Order</Button>
+                </CardFooter>
+            </Card>
+        </div>
+    )
+  }
 
   return (
     <div className="space-y-8">
@@ -93,7 +145,24 @@ export default function FoodOrderingPage() {
       {restaurantsFound && !loading && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
           <div className="lg:col-span-2 space-y-6">
-            <h2 className="text-2xl font-bold flex items-center gap-2"><CookingPot /> Food Menu</h2>
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex justify-between items-center">
+                        <span>Railicious Restaurant</span>
+                        <div className="flex items-center gap-1 text-sm font-bold text-primary"><Star className="h-4 w-4 fill-current"/> 4.2</div>
+                    </CardTitle>
+                    <CardDescription>Delivering to your next station: Ratlam (RTM)</CardDescription>
+                </CardHeader>
+                <CardContent>
+                     <RadioGroup defaultValue="veg" className="flex items-center gap-4">
+                        <Label>Dietary:</Label>
+                        <div className="flex items-center space-x-2"><RadioGroupItem value="veg" id="veg"/><Label htmlFor="veg">Veg</Label></div>
+                        <div className="flex items-center space-x-2"><RadioGroupItem value="non-veg" id="non-veg"/><Label htmlFor="non-veg">Non-Veg</Label></div>
+                        <div className="flex items-center space-x-2"><RadioGroupItem value="jain" id="jain"/><Label htmlFor="jain">Jain</Label></div>
+                        <div className="flex items-center space-x-2"><RadioGroupItem value="gluten-free" id="gluten-free"/><Label htmlFor="gluten-free">Gluten-Free</Label></div>
+                    </RadioGroup>
+                </CardContent>
+            </Card>
             <div className="grid gap-4 md:grid-cols-2">
               {menuItems.map(item => (
                 <Card key={item.id} className="flex flex-col">
@@ -122,7 +191,7 @@ export default function FoodOrderingPage() {
               ))}
             </div>
           </div>
-          <div className="lg:col-span-1 sticky top-6">
+          <div className="lg:col-span-1 sticky top-6 space-y-4">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2"><ShoppingCart /> Your Cart</CardTitle>
@@ -150,11 +219,28 @@ export default function FoodOrderingPage() {
                       <p>Total</p>
                       <p>₹{getTotalPrice()}</p>
                     </div>
-                    <Button className="w-full">Proceed to Payment</Button>
                   </div>
                 )}
               </CardContent>
             </Card>
+            {getTotalItems() > 0 && 
+              <Card>
+                <CardHeader><CardTitle>Delivery Station</CardTitle></CardHeader>
+                <CardContent>
+                    <Select defaultValue={deliveryStations[0]}>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Select station"/>
+                        </SelectTrigger>
+                        <SelectContent>
+                            {deliveryStations.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                        </SelectContent>
+                    </Select>
+                </CardContent>
+                 <CardFooter>
+                    <Button className="w-full" onClick={handlePlaceOrder}>Proceed to Payment</Button>
+                </CardFooter>
+              </Card>
+            }
           </div>
         </div>
       )}
