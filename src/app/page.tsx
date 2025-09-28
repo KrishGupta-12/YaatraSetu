@@ -146,9 +146,9 @@ export default function LandingPage() {
                 </div>
                 <div className="relative h-96 rounded-lg overflow-hidden">
                     <Image 
-                        src="https://picsum.photos/seed/happy-traveler/800/600"
-                        alt="Happy traveler looking out a train window"
-                        data-ai-hint="happy traveler"
+                        src="https://picsum.photos/seed/train-window/800/600"
+                        alt="View from a train window"
+                        data-ai-hint="train window"
                         fill
                         className="object-cover"
                     />
