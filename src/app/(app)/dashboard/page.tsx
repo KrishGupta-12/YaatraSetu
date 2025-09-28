@@ -75,7 +75,7 @@ export default function DashboardPage() {
     if (user) {
         setBookingsLoading(true);
         const unsubscribe = getBookings(user.uid, (data) => {
-            const futureTrips = data.filter(trip => new Date(trip.date) >= new Date());
+            const futureTrips = data.filter(trip => new Date(trip.date) >= new Date(new Date().setHours(0,0,0,0)));
             setUpcomingTrips(futureTrips);
             setBookingsLoading(false);
         });
@@ -114,7 +114,7 @@ export default function DashboardPage() {
   }
 
   const getStatus = (trip: any) => {
-    if (trip.status.toLowerCase().includes("waitlisted")) return `Waitlisted (${trip.status})`;
+    if (trip.status && trip.status.toLowerCase().includes("waitlisted")) return `Waitlisted (${trip.status})`;
     return trip.status;
   }
 
@@ -204,5 +204,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-    
