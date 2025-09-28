@@ -60,7 +60,7 @@ export default function SignupPage() {
       await signUp(data.email, data.password, { name: data.name, phone: data.phone });
       toast({
         title: "Account Created",
-        description: "Welcome to YatraSetu!",
+        description: "Welcome to YatraSetu! Redirecting...",
       });
       router.push("/dashboard");
     } catch (error: any) {

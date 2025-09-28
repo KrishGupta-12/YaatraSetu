@@ -14,7 +14,7 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   useEffect(() => {
-    if (!loading && !user && !pathname.startsWith('/auth')) {
+    if (!loading && !user) {
       router.push("/auth/login");
     }
   }, [user, loading, router, pathname]);
@@ -28,7 +28,13 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
   }
 
   if (!user) {
-    return null;
+    // This will be briefly visible before the redirect kicks in.
+    // Or you can show a login page directly here if you prefer.
+    return (
+         <div className="flex items-center justify-center min-h-screen">
+            <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        </div>
+    );
   }
 
   return (

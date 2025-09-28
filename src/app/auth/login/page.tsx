@@ -56,7 +56,7 @@ export default function LoginPage() {
       await signIn(data.email, data.password);
       toast({
         title: "Login Successful",
-        description: "Welcome back!",
+        description: "Welcome back! Redirecting...",
       });
       router.push("/dashboard");
     } catch (error: any) {
