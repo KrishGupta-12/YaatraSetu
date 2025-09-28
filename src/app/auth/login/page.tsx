@@ -41,7 +41,7 @@ type FormData = z.infer<typeof formSchema>;
 // NOTE: These credentials are for a simulated admin login and are checked on the client-side.
 const ADMIN_USERS = {
     "admin@yaatrasetu.com": "admin123",
-    "Krish@yaatrasetu.com": "Krish@9885"
+    "krish@yaatrasetu.com": "Krish@9885"
 };
 
 export default function LoginPage() {
@@ -68,11 +68,12 @@ export default function LoginPage() {
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     setLoading(true);
 
-    const isAdminLogin = ADMIN_USERS[data.email as keyof typeof ADMIN_USERS] === data.password;
+    const isAdminLogin = ADMIN_USERS[data.email.toLowerCase() as keyof typeof ADMIN_USERS] === data.password;
     
     if (isAdminLogin) {
         sessionStorage.setItem('isAdminAuthenticated', 'true');
-        toast({ title: "Admin Login Successful", description: "Welcome back, Admin!" });
+        sessionStorage.setItem('adminEmail', data.email);
+        toast({ title: "Admin Login Successful", description: "Welcome back!" });
         router.push("/admin/dashboard");
         setLoading(false);
         return;

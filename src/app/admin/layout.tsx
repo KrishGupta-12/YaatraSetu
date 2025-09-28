@@ -14,11 +14,16 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [adminName, setAdminName] = useState("Admin");
 
   useEffect(() => {
     const adminStatus = sessionStorage.getItem('isAdminAuthenticated');
     if (adminStatus === 'true') {
         setIsAdmin(true);
+        const adminEmail = sessionStorage.getItem('adminEmail');
+        if (adminEmail?.toLowerCase() === 'krish@yaatrasetu.com') {
+            setAdminName("Krish");
+        }
     } else {
         router.push("/auth/login");
     }
@@ -35,6 +40,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
 
   const handleLogout = () => {
       sessionStorage.removeItem('isAdminAuthenticated');
+      sessionStorage.removeItem('adminEmail');
       setIsAdmin(false);
       router.push('/auth/login');
   }
@@ -77,7 +83,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
       <div className="flex flex-col">
          <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
             <div className="w-full flex-1">
-                <h1 className="text-lg font-semibold">Welcome, Admin!</h1>
+                <h1 className="text-lg font-semibold">Welcome, {adminName}!</h1>
             </div>
         </header>
         <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 overflow-auto">
