@@ -1,16 +1,15 @@
-
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read, update, delete: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null;
 
-      // Allow users to manage their own saved passengers sub-collection
+      // Rules for the 'passengers' sub-collection
       match /passengers/{passengerId} {
-        allow read, write, create, delete: if request.auth != null && request.auth.uid == userId;
+        // Allow a user to list, create, read, update, and delete their own passengers.
+        allow list, read, write: if request.auth != null && request.auth.uid == userId;
       }
     }
   }
 }
-
-    
