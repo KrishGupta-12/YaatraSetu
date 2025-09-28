@@ -118,7 +118,7 @@ export default function HotelBookingPage() {
       checkOut: checkOutDate?.toISOString(),
       guests: Array(guests).fill({ name: `Guest`}), // Simplified for mockup
       rooms,
-      fare: selectedHotel.price * nights + 59, // 59 is convenience fee
+      fare: selectedHotel.price * nights * rooms + 59, // 59 is convenience fee
     };
     sessionStorage.setItem('bookingDetails', JSON.stringify(bookingDetails));
     router.push('/payment');
@@ -456,13 +456,13 @@ export default function HotelBookingPage() {
                     <CardContent className="space-y-2 text-sm">
                         <div className="flex justify-between">
                             <span>Room Charges ({nights} nights)</span>
-                            <span>Rs. {(selectedHotel.price * nights).toLocaleString('en-IN')}</span>
+                            <span>Rs. {(selectedHotel.price * nights * rooms).toLocaleString('en-IN')}</span>
                         </div>
                         <div className="flex justify-between"><span>Convenience Fee</span><span>Rs. 59</span></div>
                         <Separator/>
                         <div className="flex justify-between font-bold text-base">
                             <span>Total</span>
-                            <span>Rs. {(selectedHotel.price * nights + 59).toLocaleString('en-IN')}</span>
+                            <span>Rs. {(selectedHotel.price * nights * rooms + 59).toLocaleString('en-IN')}</span>
                         </div>
                     </CardContent>
                 </Card>
