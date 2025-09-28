@@ -1,4 +1,5 @@
 
+
 import Link from "next/link";
 import { ArrowRight, Bot, Clock, Hotel, Rocket, ShieldCheck, Train, Utensils, Wallet, Facebook, Twitter, Instagram, Linkedin, User, LifeBuoy, Info, Lock } from "lucide-react";
 
@@ -8,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import Image from "next/image";
 import { AppFooter } from "@/components/layout/app-footer";
+import { PublicHeader } from "@/components/layout/public-header";
 
 const features = [
   {
@@ -47,30 +49,7 @@ export default function LandingPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-14 items-center">
-          <Link href="/" className="mr-6 flex items-center space-x-2">
-            <YatraSetuLogo className="h-6 w-6 text-primary" />
-            <span className="font-bold inline-block font-headline">YatraSetu</span>
-          </Link>
-          <nav className="flex-1 items-center justify-center hidden md:flex">
-             <div className="flex items-center gap-6 text-sm font-medium">
-                <Link href="/train-booking" className="text-muted-foreground hover:text-foreground">Book Trains</Link>
-                <Link href="/hotel-booking" className="text-muted-foreground hover:text-foreground">Hotels</Link>
-                <Link href="/food-ordering" className="text-muted-foreground hover:text-foreground">Food on Train</Link>
-                <Link href="/features" className="text-muted-foreground hover:text-foreground">Features</Link>
-            </div>
-          </nav>
-          <div className="flex items-center justify-end space-x-2">
-            <Button variant="ghost" asChild>
-                <Link href="/founder">Founder</Link>
-            </Button>
-            <Button asChild>
-                <Link href="/auth/signup">Signup</Link>
-            </Button>
-          </div>
-        </div>
-      </header>
+      <PublicHeader />
 
       <main className="flex-1">
         <section className="relative h-[80vh] min-h-[500px] flex items-center justify-center text-center bg-gradient-to-br from-gray-900 via-purple-950 to-gray-900 text-white">

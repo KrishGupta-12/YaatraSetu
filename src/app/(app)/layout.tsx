@@ -12,19 +12,14 @@ import { AppFooter } from "@/components/layout/app-footer";
 function AppLayoutContent({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const router = useRouter();
-  const pathname = usePathname();
-
-  // Allow access to public pages within the app structure
-  const publicAppPages = ['/features', '/founder', '/help-center', '/contact', '/privacy-policy'];
-  const isPublicPage = publicAppPages.includes(pathname);
 
   useEffect(() => {
-    if (!loading && !user && !isPublicPage) {
+    if (!loading && !user) {
       router.push("/auth/login");
     }
-  }, [user, loading, router, pathname, isPublicPage]);
+  }, [user, loading, router]);
 
-  if ((loading || !user) && !isPublicPage) {
+  if (loading || !user) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />

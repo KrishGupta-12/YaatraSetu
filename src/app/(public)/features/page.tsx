@@ -2,7 +2,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Bot, Languages, ListFilter, Rocket, Search, ShieldCheck, Sparkles, Star, TicketCheck, Train, UserCheck, Wallet, Wifi } from "lucide-react";
+import { Rocket, TicketCheck, ListFilter, Train, Bot, Languages } from "lucide-react";
 import Image from "next/image";
 
 const featureList = [

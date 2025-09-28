@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Mail, Loader2, Send, CheckCircle, Phone, Info } from "lucide-react";
+import { Mail, Loader2, Send, CheckCircle, Info } from "lucide-react";
 import { sendContactEmail } from "@/ai/flows/send-contact-email";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";

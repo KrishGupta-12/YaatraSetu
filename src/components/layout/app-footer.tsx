@@ -20,9 +20,6 @@ export function AppFooter() {
           <div>
             <h4 className="font-semibold mb-4">Quick Links</h4>
             <nav className="flex flex-col gap-2 text-sm">
-              <Link href="/dashboard" className="text-gray-400 hover:text-white">
-                Dashboard
-              </Link>
               <Link href="/features" className="text-gray-400 hover:text-white">
                 Features
               </Link>
@@ -31,6 +28,9 @@ export function AppFooter() {
               </Link>
               <Link href="/auth/login" className="text-gray-400 hover:text-white">
                 Login
+              </Link>
+              <Link href="/auth/signup" className="text-gray-400 hover:text-white">
+                Signup
               </Link>
             </nav>
           </div>
