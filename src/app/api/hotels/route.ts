@@ -8,7 +8,7 @@ const searchSchema = z.object({
   city: z.string().optional(),
   price_min: z.coerce.number().optional(),
   price_max: z.coerce.number().optional(),
-  ratings: z.preprocess((val) => String(val).split(',').map(Number), z.array(z.number())).optional(),
+  ratings: z.preprocess((val) => String(val).split(',').map(v => parseInt(v, 10)).filter(v => !isNaN(v)), z.array(z.number())).optional(),
   amenities: z.preprocess((val) => String(val).split(','), z.array(z.string())).optional(),
   sortBy: z.string().optional(),
 });
@@ -52,8 +52,8 @@ export async function GET(request: Request) {
      if (params.price_max !== undefined) {
       filteredHotels = filteredHotels.filter(hotel => hotel.price <= params.price_max!);
     }
-    if (params.ratings && params.ratings.length > 0 && !isNaN(params.ratings[0])) {
-      filteredHotels = filteredHotels.filter(hotel => params.ratings!.includes(hotel.rating));
+    if (params.ratings && params.ratings.length > 0) {
+      filteredHotels = filteredHotels.filter(hotel => params.ratings!.some(r => hotel.rating >= r && hotel.rating < r + 1));
     }
     if (params.amenities && params.amenities.length > 0 && params.amenities[0] !== '') {
        filteredHotels = filteredHotels.filter(hotel => params.amenities!.every(amenity => hotel.amenities.includes(amenity)));
@@ -85,5 +85,3 @@ export async function GET(request: Request) {
     return NextResponse.json({ message: 'An internal server error occurred' }, { status: 500 });
   }
 }
-
-    
