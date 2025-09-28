@@ -2,6 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useAuth } from "@/hooks/use-auth";
 import { getBookings } from "@/lib/firebase/firestore";
 import { Button } from "@/components/ui/button";
@@ -174,5 +175,3 @@ export default function HistoryPage() {
     </div>
   );
 }
-
-    
