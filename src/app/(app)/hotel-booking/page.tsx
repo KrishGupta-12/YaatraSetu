@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 import { BedDouble, CalendarIcon, Loader2, MapPin, Minus, Plus, Search, Star, User, Heart, Wifi, Dumbbell, Utensils } from "lucide-react";
 import { format, addDays, differenceInDays } from "date-fns";
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
@@ -76,9 +76,8 @@ export default function HotelBookingPage() {
     fetchCities();
   }, []);
 
-  const handleSearch = async () => {
+  const handleSearch = useCallback(async () => {
     setLoading(true);
-    setShowResults(false);
     setHotels([]);
     try {
         const params = new URLSearchParams({
@@ -106,13 +105,18 @@ export default function HotelBookingPage() {
         setLoading(false);
         setShowResults(true);
     }
-  };
+  }, [destination, priceRange, selectedRatings, selectedAmenities, sortBy]);
 
   useEffect(() => {
     if (showResults) {
         handleSearch();
     }
-  }, [priceRange, selectedRatings, selectedAmenities, sortBy]);
+  }, [priceRange, selectedRatings, selectedAmenities, sortBy, handleSearch, showResults]);
+
+  const handleInitialSearch = () => {
+      setShowResults(true);
+      handleSearch();
+  }
   
   const toggleLike = (hotelId: string) => {
     setHotels(hotels.map(h => h.id === hotelId ? {...h, liked: !h.liked} : h));
@@ -267,7 +271,7 @@ export default function HotelBookingPage() {
               </Popover>
             </div>
             <div className="flex items-end">
-              <Button className="w-full" onClick={handleSearch} disabled={loading}>
+              <Button className="w-full" onClick={handleInitialSearch} disabled={loading}>
                 {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Search className="mr-2 h-4 w-4" />}
                 Search Hotels
               </Button>
@@ -505,7 +509,5 @@ export default function HotelBookingPage() {
     </Dialog>
   );
 }
-
-    
 
     
