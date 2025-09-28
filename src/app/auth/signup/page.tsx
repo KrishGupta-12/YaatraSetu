@@ -26,10 +26,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { YatraSetuLogo, GoogleIcon } from "@/components/icons";
-import { signUp, signInWithGoogle } from "@/lib/auth";
+import { YatraSetuLogo } from "@/components/icons";
+import { signUp } from "@/lib/auth";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
@@ -71,28 +70,6 @@ export default function SignupPage() {
         title: "Signup Failed",
         description: error.message || "An unexpected error occurred.",
       });
-    } finally {
-      setLoading(false);
-    }
-  };
-  
-  const handleGoogleSignIn = async () => {
-    setLoading(true);
-    try {
-      await signInWithGoogle();
-      toast({
-        title: "Login Successful",
-        description: "Welcome!",
-      });
-      router.push("/dashboard");
-    } catch (error: any) {
-      console.error("Google Sign-In Error:", error);
-      toast({
-        variant: "destructive",
-        title: "Google Sign-In Failed",
-        description: error.message || "Could not sign in with Google. Please try again.",
-      });
-    } finally {
       setLoading(false);
     }
   };
@@ -174,22 +151,6 @@ export default function SignupPage() {
               </Button>
             </form>
           </Form>
-          
-           <div className="relative my-4">
-            <Separator />
-            <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-background px-2 text-xs text-muted-foreground">
-              OR SIGN UP WITH
-            </span>
-          </div>
-          
-          <Button variant="outline" className="w-full" onClick={handleGoogleSignIn} disabled={loading}>
-             {loading ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-                <GoogleIcon className="mr-2 h-4 w-4" />
-            )}
-            Google
-          </Button>
 
           <div className="mt-4 text-center text-sm">
             Already have an account?{" "}

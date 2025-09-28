@@ -26,10 +26,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { YatraSetuLogo, GoogleIcon } from "@/components/icons";
-import { signIn, signInWithGoogle } from "@/lib/auth";
+import { YatraSetuLogo } from "@/components/icons";
+import { signIn } from "@/lib/auth";
 
 const formSchema = z.object({
   email: z.string().email("Please enter a valid email address."),
@@ -46,8 +45,8 @@ export default function LoginPage() {
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "",
-      password: "",
+      email: "traveller@example.com",
+      password: "password123",
     },
   });
 
@@ -67,28 +66,6 @@ export default function LoginPage() {
         title: "Login Failed",
         description: error.message || "An unexpected error occurred.",
       });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleGoogleSignIn = async () => {
-    setLoading(true);
-    try {
-      await signInWithGoogle();
-      toast({
-        title: "Login Successful",
-        description: "Welcome!",
-      });
-      router.push("/dashboard");
-    } catch (error: any) {
-      console.error("Google Sign-In Error:", error);
-      toast({
-        variant: "destructive",
-        title: "Google Sign-In Failed",
-        description: error.message || "Could not sign in with Google. Please try again.",
-      });
-    } finally {
       setLoading(false);
     }
   };
@@ -152,22 +129,6 @@ export default function LoginPage() {
               </Button>
             </form>
           </Form>
-
-          <div className="relative my-4">
-            <Separator />
-            <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-background px-2 text-xs text-muted-foreground">
-              OR CONTINUE WITH
-            </span>
-          </div>
-          
-          <Button variant="outline" className="w-full" onClick={handleGoogleSignIn} disabled={loading}>
-            {loading ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-                <GoogleIcon className="mr-2 h-4 w-4" />
-            )}
-            Google
-          </Button>
 
           <div className="mt-4 text-center text-sm">
             Don&apos;t have an account?{" "}
