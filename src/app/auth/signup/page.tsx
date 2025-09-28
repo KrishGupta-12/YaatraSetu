@@ -29,7 +29,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { YatraSetuLogo, GoogleIcon } from "@/components/icons";
-import { signUp, signInWithGoogle } from "@/lib/firebase/auth";
+import { signUp, signInWithGoogle } from "@/lib/auth";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),

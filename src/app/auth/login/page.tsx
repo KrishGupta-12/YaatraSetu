@@ -29,7 +29,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { YatraSetuLogo, GoogleIcon } from "@/components/icons";
-import { signIn, signInWithGoogle } from "@/lib/firebase/auth";
+import { signIn, signInWithGoogle } from "@/lib/auth";
 
 const formSchema = z.object({
   email: z.string().email("Please enter a valid email address."),

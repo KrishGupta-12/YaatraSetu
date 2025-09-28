@@ -24,7 +24,7 @@ import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
 import { AppSidebar } from "./app-sidebar";
 import { YatraSetuLogo } from "../icons";
 import { useAuth } from "@/hooks/use-auth";
-import { signOut } from "@/lib/firebase/auth";
+import { signOut } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 
 

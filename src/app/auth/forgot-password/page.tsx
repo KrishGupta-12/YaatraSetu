@@ -27,7 +27,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { YatraSetuLogo } from "@/components/icons";
-import { passwordReset } from "@/lib/firebase/auth";
+import { passwordReset } from "@/lib/auth";
 
 const formSchema = z.object({
   email: z.string().email("Please enter a valid email address."),
