@@ -9,10 +9,65 @@ import { Separator } from "@/components/ui/separator";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { CreditCard, Landmark, Loader2, PartyPopper, Train } from "lucide-react";
+import { CreditCard, Landmark, Loader2, PartyPopper, Train, Hotel, CookingPot } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { createBooking } from "@/lib/firebase/firestore";
+
+const BookingSummaryDetails = ({ details }: { details: any }) => {
+    switch (details.type) {
+        case 'Train':
+            return (
+                <>
+                    <div className="flex items-center gap-4">
+                        <Train className="h-6 w-6 text-primary"/>
+                        <div>
+                            <p className="font-semibold">{details.train.name} ({details.train.id})</p>
+                            <p className="text-sm text-muted-foreground">{details.train.from} → {details.train.to}</p>
+                        </div>
+                    </div>
+                    <div>
+                        <p className="font-semibold">{details.passengers.length} Passenger(s)</p>
+                        <ul className="text-sm text-muted-foreground list-disc pl-5">
+                            {details.passengers.map((p: any) => <li key={p.id}>{p.name}</li>)}
+                        </ul>
+                    </div>
+                </>
+            );
+        case 'Hotel':
+             return (
+                <>
+                    <div className="flex items-center gap-4">
+                        <Hotel className="h-6 w-6 text-primary"/>
+                        <div>
+                            <p className="font-semibold">{details.hotel.name}</p>
+                            <p className="text-sm text-muted-foreground">{details.hotel.city}</p>
+                        </div>
+                    </div>
+                    <div>
+                        <p className="font-semibold">{details.guests.length} Guest(s), {details.rooms} Room(s)</p>
+                    </div>
+                </>
+            );
+        case 'Food':
+             return (
+                <>
+                    <div className="flex items-center gap-4">
+                        <CookingPot className="h-6 w-6 text-primary"/>
+                        <div>
+                            <p className="font-semibold">Food Order</p>
+                            <p className="text-sm text-muted-foreground">Delivering to {details.station}</p>
+                        </div>
+                    </div>
+                    <div>
+                        <p className="font-semibold">{details.items} item(s) in your order.</p>
+                    </div>
+                </>
+            );
+        default:
+            return <p>Invalid booking type.</p>
+    }
+}
 
 export default function PaymentPage() {
     const router = useRouter();
@@ -51,7 +106,7 @@ export default function PaymentPage() {
                 setPaymentSuccess(true);
                 toast({
                     title: "Payment Successful!",
-                    description: "Your tickets have been booked.",
+                    description: `Your ${bookingDetails.type.toLowerCase()} booking is confirmed.`,
                 });
                 sessionStorage.removeItem('bookingDetails');
             }, 2000);
@@ -76,7 +131,7 @@ export default function PaymentPage() {
             <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
                 <h2 className="text-2xl font-semibold">No booking details found.</h2>
                 <p className="text-muted-foreground">Please start a new booking to proceed to payment.</p>
-                <Button onClick={() => router.push('/train-booking')} className="mt-4">Book a Train</Button>
+                <Button onClick={() => router.push('/dashboard')} className="mt-4">Go to Dashboard</Button>
             </div>
         )
     }
@@ -87,7 +142,7 @@ export default function PaymentPage() {
                 <PartyPopper className="h-16 w-16 text-green-500 mb-4"/>
                 <h1 className="text-3xl font-bold font-headline">Booking Confirmed!</h1>
                 <p className="text-muted-foreground max-w-md mx-auto mt-2">
-                    Your tickets have been successfully booked. You will receive an email and SMS with the details shortly.
+                    Your booking has been successfully confirmed. You will receive an email with the details shortly.
                 </p>
                 <div className="mt-6 flex gap-4">
                     <Button onClick={() => router.push('/dashboard')}>Go to Dashboard</Button>
@@ -169,19 +224,7 @@ export default function PaymentPage() {
                             <CardTitle>Booking Summary</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            <div className="flex items-center gap-4">
-                                <Train className="h-6 w-6 text-primary"/>
-                                <div>
-                                    <p className="font-semibold">{bookingDetails.train.name} ({bookingDetails.train.id})</p>
-                                    <p className="text-sm text-muted-foreground">{bookingDetails.train.from} → {bookingDetails.train.to}</p>
-                                </div>
-                            </div>
-                             <div>
-                                <p className="font-semibold">{bookingDetails.passengers.length} Passenger(s)</p>
-                                <ul className="text-sm text-muted-foreground list-disc pl-5">
-                                    {bookingDetails.passengers.map((p: any) => <li key={p.id}>{p.name}</li>)}
-                                </ul>
-                            </div>
+                            <BookingSummaryDetails details={bookingDetails}/>
                             <Separator/>
                              <div className="space-y-1 text-sm">
                                 <div className="flex justify-between">
@@ -211,5 +254,3 @@ export default function PaymentPage() {
         </div>
     )
 }
-
-    

@@ -10,6 +10,8 @@ import Image from "next/image";
 import { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useRouter } from "next/navigation";
+import { format } from "date-fns";
 
 const menuItems = [
   { id: 1, name: "Veg Thali", price: 120, image: "https://picsum.photos/seed/food1/200/200", description: "Rice, Roti, Dal, Sabzi, Salad", isVeg: true },
@@ -30,6 +32,7 @@ export default function FoodOrderingPage() {
   const [cart, setCart] = useState<Record<number, number>>({});
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [currentStatus, setCurrentStatus] = useState(0);
+  const router = useRouter();
 
   const handleSearch = () => {
     if (!pnr) return;
@@ -41,16 +44,18 @@ export default function FoodOrderingPage() {
   };
 
   const handlePlaceOrder = () => {
-    setOrderPlaced(true);
-    const interval = setInterval(() => {
-        setCurrentStatus(prev => {
-            if (prev >= orderStatusSteps.length -1) {
-                clearInterval(interval);
-                return prev;
-            }
-            return prev + 1;
-        })
-    }, 3000);
+    const totalItems = getTotalItems();
+    if (totalItems === 0) return;
+
+    const bookingDetails = {
+        type: 'Food',
+        station: deliveryStations[0],
+        items: totalItems,
+        fare: getTotalPrice() + 59, // 59 is convenience fee
+        date: format(new Date(), 'yyyy-MM-dd'),
+    };
+    sessionStorage.setItem('bookingDetails', JSON.stringify(bookingDetails));
+    router.push('/payment');
   }
 
   const addToCart = (itemId: number) => {
@@ -172,7 +177,7 @@ export default function FoodOrderingPage() {
                   <CardContent className="p-4 flex-grow flex flex-col">
                     <div className="flex justify-between items-start">
                       <h3 className="font-semibold">{item.name}</h3>
-                      <p className="font-semibold text-primary">₹{item.price}</p>
+                      <p className="font-semibold text-primary">Rs. {item.price}</p>
                     </div>
                     <p className="text-sm text-muted-foreground mt-1 flex-grow">{item.description}</p>
                     <div className="flex justify-end items-center mt-4">
@@ -208,16 +213,16 @@ export default function FoodOrderingPage() {
                         <div key={itemId} className="flex justify-between items-center text-sm">
                           <div>
                             <p className="font-medium">{item.name}</p>
-                            <p className="text-muted-foreground">₹{item.price} x {quantity}</p>
+                            <p className="text-muted-foreground">Rs. {item.price} x {quantity}</p>
                           </div>
-                          <p className="font-semibold">₹{item.price * quantity}</p>
+                          <p className="font-semibold">Rs. {item.price * quantity}</p>
                         </div>
                       )
                     })}
                     <Separator />
                     <div className="flex justify-between items-center font-bold">
                       <p>Total</p>
-                      <p>₹{getTotalPrice()}</p>
+                      <p>Rs. {getTotalPrice()}</p>
                     </div>
                   </div>
                 )}

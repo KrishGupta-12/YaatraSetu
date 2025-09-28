@@ -253,6 +253,14 @@ const TripDetailsDialog = ({ trip }: { trip: any }) => {
                         </ul>
                     </div>
                  )}
+                  {trip.type === 'Hotel' && (
+                    <div>
+                        <h4 className="text-sm font-semibold mb-2">Guests</h4>
+                        <ul className="list-disc pl-5 text-sm text-muted-foreground">
+                            {trip.guests.map((g: any, i: number) => <li key={i}>{g.name}</li>)}
+                        </ul>
+                    </div>
+                 )}
                  <div className="flex justify-between font-bold pt-4 border-t">
                     <span>Total Amount</span>
                     <span>Rs. {trip.fare.toLocaleString()}</span>

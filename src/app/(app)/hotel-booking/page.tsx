@@ -9,14 +9,16 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { BedDouble, CalendarIcon, Loader2, MapPin, Minus, Plus, Search, Star, User, Heart, Wifi, Dumbbell, Utensils } from "lucide-react";
-import { format, addDays } from "date-fns";
+import { format, addDays, differenceInDays } from "date-fns";
 import Image from "next/image";
 import { useState } from "react";
 import type { DateRange } from "react-day-picker";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import { useRouter } from "next/navigation";
+import { Separator } from "@/components/ui/separator";
 
 const mockHotels = [
   { id: 1, name: "The Oberoi Grand", city: "Kolkata", rating: 5, price: 12000, image: "https://picsum.photos/seed/hotel1/400/300", amenities: ["Pool", "Gym", "WiFi", "Spa"], description: "A luxurious heritage hotel in the heart of Kolkata, offering timeless elegance and impeccable service.", liked: false },
@@ -29,6 +31,7 @@ const mockHotels = [
 const allAmenities = ["Pool", "Gym", "WiFi", "Spa", "Fine Dining", "Restaurant", "Beach Access"];
 
 export default function HotelBookingPage() {
+  const router = useRouter();
   const [date, setDate] = useState<DateRange | undefined>({
     from: new Date(),
     to: addDays(new Date(), 3),
@@ -39,6 +42,7 @@ export default function HotelBookingPage() {
   const [showResults, setShowResults] = useState(false);
   const [priceRange, setPriceRange] = useState([5000, 40000]);
   const [hotels, setHotels] = useState(mockHotels);
+  const [selectedHotel, setSelectedHotel] = useState<any | null>(null);
 
   const handleSearch = () => {
     setLoading(true);
@@ -51,6 +55,27 @@ export default function HotelBookingPage() {
 
   const toggleLike = (hotelId: number) => {
     setHotels(hotels.map(h => h.id === hotelId ? {...h, liked: !h.liked} : h));
+  }
+
+  const handleBookNow = (hotel: any) => {
+    setSelectedHotel(hotel);
+  }
+
+  const handleProceedToPayment = () => {
+    if (!selectedHotel || !date || !date.from) return;
+    const nights = date.to ? differenceInDays(date.to, date.from) : 1;
+    const bookingDetails = {
+      type: 'Hotel',
+      hotel: selectedHotel,
+      date: format(date.from, 'yyyy-MM-dd'),
+      checkIn: date.from.toISOString(),
+      checkOut: date.to?.toISOString(),
+      guests: Array(guests).fill({ name: `Guest`}), // Simplified for mockup
+      rooms,
+      fare: selectedHotel.price * nights + 59, // 59 is convenience fee
+    };
+    sessionStorage.setItem('bookingDetails', JSON.stringify(bookingDetails));
+    router.push('/payment');
   }
 
   return (
@@ -172,8 +197,8 @@ export default function HotelBookingPage() {
                       onValueChange={setPriceRange}
                   />
                   <div className="flex justify-between text-sm text-muted-foreground mt-2">
-                      <span>₹{priceRange[0]}</span>
-                      <span>₹{priceRange[1]}</span>
+                      <span>Rs. {priceRange[0]}</span>
+                      <span>Rs. {priceRange[1]}</span>
                   </div>
                 </CardContent>
               </Card>
@@ -253,13 +278,15 @@ export default function HotelBookingPage() {
                     <CardFooter className="p-0 mt-4 flex justify-between items-end">
                       <div>
                         <p className="text-sm text-muted-foreground">Price per night</p>
-                        <p className="text-2xl font-bold">₹{hotel.price.toLocaleString('en-IN')}</p>
+                        <p className="text-2xl font-bold">Rs. {hotel.price.toLocaleString('en-IN')}</p>
                       </div>
                       <div className="flex gap-2">
                         <DialogTrigger asChild>
                           <Button variant="outline">View Details</Button>
                         </DialogTrigger>
-                        <Button>Book Now</Button>
+                        <DialogTrigger asChild>
+                          <Button onClick={() => handleBookNow(hotel)}>Book Now</Button>
+                        </DialogTrigger>
                       </div>
                     </CardFooter>
                   </div>
@@ -298,7 +325,7 @@ export default function HotelBookingPage() {
                         </div>
                         <div className="pt-4">
                            <p className="text-sm text-muted-foreground">Price per night</p>
-                           <p className="text-3xl font-bold">₹{hotel.price.toLocaleString('en-IN')}</p>
+                           <p className="text-3xl font-bold">Rs. {hotel.price.toLocaleString('en-IN')}</p>
                         </div>
                       </div>
                     </div>
@@ -310,6 +337,51 @@ export default function HotelBookingPage() {
         </div>
         )}
       </div>
+
+    {selectedHotel && (
+        <DialogContent className="max-w-lg">
+            <DialogHeader>
+                <DialogTitle>Confirm Your Booking</DialogTitle>
+                <DialogDescription>
+                    Review the details below before proceeding to payment.
+                </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+                <Card className="bg-muted/50">
+                    <CardHeader className="p-4">
+                        <CardTitle>{selectedHotel.name}</CardTitle>
+                        <CardDescription>{selectedHotel.city}</CardDescription>
+                    </CardHeader>
+                    <CardContent className="p-4 pt-0">
+                         <div className="flex justify-between text-sm"><span>Check-in:</span> <span>{date?.from ? format(date.from, 'PPP') : 'N/A'}</span></div>
+                         <div className="flex justify-between text-sm"><span>Check-out:</span> <span>{date?.to ? format(date.to, 'PPP') : 'N/A'}</span></div>
+                         <div className="flex justify-between text-sm"><span>Guests:</span> <span>{guests}</span></div>
+                         <div className="flex justify-between text-sm"><span>Rooms:</span> <span>{rooms}</span></div>
+                    </CardContent>
+                </Card>
+                
+                 <Card>
+                    <CardHeader><CardTitle className="text-base">Fare Summary</CardTitle></CardHeader>
+                    <CardContent className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                            <span>Room Charges ({differenceInDays(date?.to || new Date(), date?.from || new Date())} nights)</span>
+                            <span>Rs. {(selectedHotel.price * differenceInDays(date?.to || new Date(), date?.from || new Date())).toLocaleString('en-IN')}</span>
+                        </div>
+                        <div className="flex justify-between"><span>Convenience Fee</span><span>Rs. 59</span></div>
+                        <Separator/>
+                        <div className="flex justify-between font-bold text-base">
+                            <span>Total</span>
+                            <span>Rs. {(selectedHotel.price * differenceInDays(date?.to || new Date(), date?.from || new Date()) + 59).toLocaleString('en-IN')}</span>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+            <DialogFooter>
+                <DialogClose asChild><Button variant="ghost">Cancel</Button></DialogClose>
+                <Button onClick={handleProceedToPayment}>Proceed to Payment</Button>
+            </DialogFooter>
+        </DialogContent>
+    )}
     </Dialog>
   );
 }

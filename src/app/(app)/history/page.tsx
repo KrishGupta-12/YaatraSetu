@@ -154,7 +154,10 @@ const HistoryCard = ({ booking }: { booking: any }) => {
           title: booking.hotel.name,
           description: booking.id,
           icon: <Hotel className="h-5 w-5 text-primary" />,
-          extra: []
+          extra: [
+            { label: "Guests", value: booking.guests.length },
+            { label: "Rooms", value: booking.rooms },
+          ]
         };
       case "Food":
          return {
