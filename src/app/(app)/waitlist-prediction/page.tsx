@@ -60,6 +60,12 @@ export default function WaitlistPredictionPage() {
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      trainNumber: "",
+      fromStation: "",
+      toStation: "",
+      waitlistNumber: 1,
+    }
   });
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {

@@ -63,8 +63,11 @@ export default function AIPlannerPage() {
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      departureLocation: "",
+      destinationLocation: "",
       budget: "medium",
       preferredClass: "AC",
+      dietaryRestrictions: "",
     },
   });
 
