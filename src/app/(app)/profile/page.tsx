@@ -99,6 +99,11 @@ export default function ProfilePage() {
         await updateProfile(user, { displayName: data.displayName });
       }
 
+      // Refetch profile data to update UI
+      const updatedData = await getUserProfile(user.uid);
+      setProfileData(updatedData);
+
+
       toast({
         title: "Profile Updated",
         description: "Your information has been saved.",
@@ -156,7 +161,7 @@ export default function ProfilePage() {
               <Avatar className="h-24 w-24 mb-4">
                 <AvatarImage src={user?.photoURL || ""} alt={user?.displayName || ""} />
                 <AvatarFallback>
-                  {user?.displayName?.charAt(0).toUpperCase()}
+                  {profileData?.displayName?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <CardTitle>{profileData?.displayName}</CardTitle>
