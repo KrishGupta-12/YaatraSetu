@@ -11,7 +11,9 @@ import {
   TicketCheck,
   Train,
   Bell,
-  Sparkles
+  Sparkles,
+  User,
+  Settings,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -28,6 +30,9 @@ const navItems = [
   { href: "/food-ordering", icon: CookingPot, label: "Food Orders" },
   { href: "/waitlist-prediction", icon: TicketCheck, label: "Waitlist Pred." },
   { href: "/history", icon: History, label: "History" },
+  { href: "/tatkal-automation", icon: Sparkles, label: "Tatkal Automation"},
+  { href: "/profile", icon: User, label: "Profile"},
+  { href: "/settings", icon: Settings, label: "Settings"},
 ];
 
 const mockNotifications = [
@@ -99,23 +104,6 @@ export function AppSidebar() {
           ))}
         </nav>
       </div>
-      <div className="mt-auto p-4">
-        <Card>
-          <CardHeader className="p-2 pt-0 md:p-4">
-            <CardTitle className="flex items-center gap-2"><Sparkles className="h-5 w-5 text-primary"/>Tatkal Automation</CardTitle>
-            <CardDescription className="text-xs">
-              Set up automated Tatkal bookings. Never miss a ticket again!
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-2 pt-0 md:p-4 md:pt-0">
-            <Button size="sm" className="w-full" asChild>
-                <Link href="/tatkal-automation">Automate Now</Link>
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
     </div>
   );
 }
-
-    

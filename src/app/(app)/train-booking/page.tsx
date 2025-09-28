@@ -49,6 +49,7 @@ export default function TrainBookingPage() {
     const [showResults, setShowResults] = useState(false);
     const [selectedTrain, setSelectedTrain] = useState<any>(null);
     const [selectedClass, setSelectedClass] = useState<any>(null);
+    const [viewingTrain, setViewingTrain] = useState<any>(null);
 
     const handleSearch = () => {
         setLoading(true);
@@ -62,10 +63,23 @@ export default function TrainBookingPage() {
     const handleBookNow = (train: any, trainClass: any) => {
       setSelectedTrain(train);
       setSelectedClass(trainClass);
+      setViewingTrain(null);
+    }
+    
+    const handleViewDetails = (train: any) => {
+        setViewingTrain(train);
+        setSelectedTrain(null);
+    }
+
+    const handleDialogClose = (open: boolean) => {
+        if (!open) {
+            setSelectedTrain(null);
+            setViewingTrain(null);
+        }
     }
 
   return (
-    <Dialog>
+    <Dialog onOpenChange={handleDialogClose}>
     <div className="space-y-8">
       <h1 className="text-3xl font-bold tracking-tight font-headline mb-8">Train Ticket Booking</h1>
       <Card>
@@ -145,7 +159,7 @@ export default function TrainBookingPage() {
         <CardFooter className="flex justify-between items-center">
             <div className="flex items-center gap-4 text-sm">
                 <p className="font-medium">Quick Actions:</p>
-                 <DialogTrigger asChild><Button variant="ghost" size="sm">PNR Status</Button></DialogTrigger>
+                <DialogTrigger asChild><Button variant="ghost" size="sm">PNR Status</Button></DialogTrigger>
                 <Button variant="ghost" size="sm">Live Train Status</Button>
                 <Button variant="ghost" size="sm" asChild><Link href="/tatkal-automation">Tatkal Automation</Link></Button>
             </div>
@@ -171,7 +185,7 @@ export default function TrainBookingPage() {
                              <div className="flex items-center gap-2">
                                 <span className="text-sm text-muted-foreground flex items-center gap-1"><Clock className="h-4 w-4"/>{train.duration}</span>
                                 <DialogTrigger asChild>
-                                    <Button variant="outline" size="sm"><Info className="h-4 w-4 mr-2"/> View Details</Button>
+                                    <Button variant="outline" size="sm" onClick={() => handleViewDetails(train)}><Info className="h-4 w-4 mr-2"/> View Details</Button>
                                 </DialogTrigger>
                              </div>
                         </div>
@@ -279,15 +293,15 @@ export default function TrainBookingPage() {
                 </div>
             </div>
           </>
-        ) : (
-            mockTrains[0].route.length > 0 ? (
+        ) : viewingTrain ? (
             <DialogHeader>
-                <DialogTitle>Train Details: {mockTrains[0].name} ({mockTrains[0].id})</DialogTitle>
+                <DialogTitle>Train Details: {viewingTrain.name} ({viewingTrain.id})</DialogTitle>
                 <DialogDescription>
-                    Route from {mockTrains[0].from} to {mockTrains[0].to}
+                    Route from {viewingTrain.from} to {viewingTrain.to}
                 </DialogDescription>
+                {viewingTrain.route && viewingTrain.route.length > 0 ? (
                 <Card className="mt-4">
-                    <CardContent className="p-0">
+                    <CardContent className="p-0 max-h-[60vh] overflow-y-auto">
                     <Table>
                         <TableHeader>
                             <TableRow>
@@ -298,7 +312,7 @@ export default function TrainBookingPage() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {mockTrains[0].route.map((stop, index) => (
+                            {viewingTrain.route.map((stop: any, index: number) => (
                                 <TableRow key={index}>
                                     <TableCell>{index + 1}</TableCell>
                                     <TableCell>{stop.station}</TableCell>
@@ -310,24 +324,22 @@ export default function TrainBookingPage() {
                     </Table>
                     </CardContent>
                 </Card>
+                ) : (
+                    <p className="mt-4 text-muted-foreground">Route information is not available for this train.</p>
+                )}
             </DialogHeader>
-            ) : (
-                <DialogHeader>
-                    <DialogTitle>PNR Status Check</DialogTitle>
-                    <DialogDescription>Enter your 10-digit PNR number to check the status.</DialogDescription>
-                    <div className="flex items-center space-x-2 pt-4">
-                        <Input placeholder="Enter PNR" />
-                        <Button>Check Status</Button>
-                    </div>
-                </DialogHeader>
-            )
+        ) : (
+            <DialogHeader>
+                <DialogTitle>PNR Status Check</DialogTitle>
+                <DialogDescription>Enter your 10-digit PNR number to check the status.</DialogDescription>
+                <div className="flex items-center space-x-2 pt-4">
+                    <Input placeholder="Enter PNR" />
+                    <Button>Check Status</Button>
+                </div>
+            </DialogHeader>
         )}
-
       </DialogContent>
-
     </div>
     </Dialog>
   );
 }
-
-    
