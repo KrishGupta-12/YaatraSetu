@@ -7,6 +7,7 @@ import { AppHeader } from "@/components/layout/app-header";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { useAuth } from "@/hooks/use-auth";
 import { Loader2 } from "lucide-react";
+import { YatraAIChatbot } from "@/components/yatra-ai-chatbot";
 
 function AppLayoutContent({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -37,6 +38,7 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
           {children}
         </main>
       </div>
+      <YatraAIChatbot />
     </div>
   );
 }
