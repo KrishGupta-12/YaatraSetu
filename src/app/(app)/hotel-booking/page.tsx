@@ -47,8 +47,8 @@ export default function HotelBookingPage() {
   const [showResults, setShowResults] = useState(false);
   
   const [priceRange, setPriceRange] = useState([0, 50000]);
-  const [selectedRatings, setSelectedRatings] useState<number[]>([]);
-  const [selectedAmenities, setSelectedAmenities] useState<string[]>([]);
+  const [selectedRatings, setSelectedRatings] = useState<number[]>([]);
+  const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState("popularity");
 
   const [hotels, setHotels] = useState<Hotel[]>([]);
@@ -476,5 +476,3 @@ export default function HotelBookingPage() {
     </Dialog>
   );
 }
-
-    
