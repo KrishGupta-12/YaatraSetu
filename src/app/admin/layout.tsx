@@ -42,7 +42,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
       sessionStorage.removeItem('isAdminAuthenticated');
       sessionStorage.removeItem('adminEmail');
       setIsAdmin(false);
-      router.push('/auth/login');
+      router.push('/');
   }
 
   return (
