@@ -142,7 +142,7 @@ export default function FounderPage() {
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
               {teamMembers.map((member) => (
-                  <DialogTrigger key={member.name} asChild>
+                  <DialogTrigger key={member.role} asChild>
                       <div onClick={() => setSelectedMember(member)}>
                           <Card className="text-center hover:shadow-lg hover:scale-105 transition-transform duration-300 cursor-pointer">
                               <CardContent className="flex flex-col items-center pt-6">
