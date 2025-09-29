@@ -13,7 +13,7 @@ import { useState } from "react";
 
 const teamMembers = [
     {
-        name: "Head of Technical Operations",
+        name: "To Be Announced",
         role: "Technical Operations",
         initials: "TO",
         email: "krishgupta200510@gmail.com",
@@ -21,7 +21,7 @@ const teamMembers = [
         description: "Architects our robust backend, ensuring our platform runs with flawless stability, scalability, and security, managing everything from server infrastructure to deployment pipelines."
     },
     {
-        name: "Head of Strategy & Partnerships",
+        name: "To Be Announced",
         role: "Strategy & Partnerships",
         initials: "SP",
         email: "krishgupta200510@gmail.com",
@@ -29,7 +29,7 @@ const teamMembers = [
         description: "Forges key alliances and develops long-term growth roadmaps. This vision is pivotal in expanding YaatraSetu's services and market presence."
     },
     {
-        name: "Head of Operations & Logistics",
+        name: "To Be Announced",
         role: "Operations & Logistics",
         initials: "OL",
         email: "krishgupta200510@gmail.com",
@@ -149,8 +149,8 @@ export default function FounderPage() {
                                   <Avatar className="h-24 w-24 mb-4 border-2 border-primary/50">
                                       <AvatarFallback className="text-2xl font-bold">{member.initials}</AvatarFallback>
                                   </Avatar>
-                                  <h3 className="text-lg font-semibold">{member.name}</h3>
-                                  <p className="text-sm text-primary">{member.role}</p>
+                                  <h3 className="text-lg font-semibold">{member.role}</h3>
+                                  <p className="text-sm text-muted-foreground">{member.name}</p>
                               </CardContent>
                           </Card>
                       </div>
@@ -167,8 +167,8 @@ export default function FounderPage() {
               <Avatar className="h-24 w-24 mb-4">
                 <AvatarFallback className="text-3xl">{selectedMember.initials}</AvatarFallback>
               </Avatar>
-              <DialogTitle className="text-2xl">{selectedMember.name}</DialogTitle>
-              <DialogDescription>{selectedMember.role}</DialogDescription>
+              <DialogTitle className="text-2xl">{selectedMember.role}</DialogTitle>
+              <DialogDescription>{selectedMember.name}</DialogDescription>
             </div>
           </DialogHeader>
           <div className="py-4 space-y-6">
