@@ -2,7 +2,7 @@
 "use client";
 
 import Image from "next/image";
-import { Mail, Linkedin, Globe, Users, Target, Rocket } from "lucide-react";
+import { Mail, Linkedin, Globe, Target, Rocket } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { Separator } from "@/components/ui/separator";
@@ -13,52 +13,28 @@ import { useState } from "react";
 
 const teamMembers = [
     {
-        name: "Methelesh Kumar",
-        role: "Head of Technical Operations",
-        initials: "MK",
-        email: "rattumethelesh@gmail.com",
-        linkedin: "https://www.linkedin.com/in/mithilesh-kumar-rattu/",
-        description: "Methelesh is the architect of our robust backend, ensuring our platform runs with flawless stability, scalability, and security. He manages everything from server infrastructure to our complex deployment pipelines."
+        name: "Head of Technical Operations",
+        role: "Technical Operations",
+        initials: "TO",
+        email: "krishgupta200510@gmail.com",
+        linkedin: "https://www.linkedin.com/in/krish-gupta-11612327a/",
+        description: "Architects our robust backend, ensuring our platform runs with flawless stability, scalability, and security, managing everything from server infrastructure to deployment pipelines."
     },
     {
-        name: "Varad Mahesh Rajadhyax",
-        role: "Head of Strategy & Partnerships",
-        initials: "VR",
-        email: "varadrajadhyax04@gmail.com",
-        linkedin: "https://www.linkedin.com/in/varadrajadhyax/",
-        description: "Varad is our master strategist, forging key alliances and developing long-term growth roadmaps. His vision is pivotal in expanding YaatraSetu's services and market presence."
+        name: "Head of Strategy & Partnerships",
+        role: "Strategy & Partnerships",
+        initials: "SP",
+        email: "krishgupta200510@gmail.com",
+        linkedin: "https://www.linkedin.com/in/krish-gupta-11612327a/",
+        description: "Forges key alliances and develops long-term growth roadmaps. This vision is pivotal in expanding YaatraSetu's services and market presence."
     },
     {
-        name: "Aman Sagar",
-        role: "Head of Operations & Logistics",
-        initials: "AS",
-        email: "23f3001369@ds.study.iitm.ac.in",
-        linkedin: "https://www.linkedin.com/in/amansagar01/",
-        description: "Aman is the engine of our operations, flawlessly coordinating booking fulfillment, hotel partner relations, and food delivery logistics to ensure a seamless user experience from start to finish."
-    },
-    {
-        name: "Lata Saini",
-        role: "Head of Customer Service & Support",
-        initials: "LS",
-        email: "24f2001941@ds.study.iitm.ac.in",
-        linkedin: "https://www.linkedin.com/in/lata-saini-062a63323/",
-        description: "As the voice of our users, Lata leads a dedicated support team that provides empathetic, timely, and effective assistance, ensuring every traveler feels heard and valued."
-    },
-    {
-        name: "Shreyansh Mall",
-        role: "Head of Product & Innovation",
-        initials: "SM",
-        email: "23f1002638@ds.study.iitm.ac.in",
-        linkedin: "https://www.linkedin.com/in/shreyansh-mall/",
-        description: "Shreyansh is the product visionary, relentlessly pushing for innovation. He translates user needs into cutting-edge features, driving the evolution of YaatraSetu as India's smartest travel platform."
-    },
-    {
-        name: "Varanasi Sai Sirichandana",
-        role: "Head of Finance & Accounts",
-        initials: "VS",
-        email: "saisirichandanav@gmail.com",
-        linkedin: "https://www.linkedin.com/in/sai-sirichandana-varanasi-a434a132b",
-        description: "Varanasi Sai Sirichandana manages the financial health of YaatraSetu, overseeing budgeting, accounting, and financial strategy to ensure sustainable growth and profitability."
+        name: "Head of Operations & Logistics",
+        role: "Operations & Logistics",
+        initials: "OL",
+        email: "krishgupta200510@gmail.com",
+        linkedin: "https://www.linkedin.com/in/krish-gupta-11612327a/",
+        description: "Coordinates booking fulfillment, hotel partner relations, and food delivery logistics to ensure a seamless user experience from start to finish."
     }
 ];
 
@@ -213,5 +189,3 @@ export default function FounderPage() {
     </Dialog>
   );
 }
-
-    
